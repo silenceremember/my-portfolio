@@ -38,6 +38,34 @@ body[data-theme="light"] {
     --border-color: #121212;
 }
 
+body, .site-frame {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE/Edge */
+    user-select: none;         /* Стандартное свойство */
+}
+
+h1, h2, h3, p, .nav-link, .cta-button, .footer-icon-link {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text; /* 'text' явно разрешает выделение */
+}
+
+/* Стандартный синтаксис для большинства браузеров */
+::selection {
+    background-color: var(--red-accent); /* Фон выделения - ваш красный */
+    color: var(--bg-color);              /* Цвет текста внутри выделения - цвет фона */
+    text-shadow: none;                   /* Убираем любые тени для чистоты */
+}
+
+/* Для совместимости с Firefox */
+::-moz-selection {
+    background-color: var(--red-accent);
+    color: var(--bg-color);
+    text-shadow: none;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -65,6 +93,7 @@ body::before, body::after {
     right: 0;
     height: 1px;
     transition: background-color 0.3s ease;
+    pointer-events: none; /* !!! ВОТ РЕШЕНИЕ !!! */
 }
 body::before { top: var(--frame-padding-vertical); }
 body::after { bottom: var(--frame-padding-vertical); }
@@ -111,14 +140,27 @@ body::after { bottom: var(--frame-padding-vertical); }
 .nav-link:hover, .nav-link.active { color: var(--red-accent); }
 
 /* ПОДВАЛ (ФИНАЛЬНАЯ ВЕРСИЯ С ВЫРАВНИВАНИЕМ) */
-.footer-left, .footer-right {
+.footer-left,
+.footer-right,
+.footer-center {
     display: flex;
-    flex-direction: column;
-    gap: 8px; /* Отступ между верхней и нижней строкой */
+    flex-direction: column; /* Располагаем строки друг под другом */
+    gap: 8px; /* Отступ между строками */
+    flex-basis: 33.33%; /* Каждому блоку даем примерно треть ширины */
 }
-.footer-left { align-items: flex-start; } /* ВЫРАВНИВАНИЕ ПО ЛЕВОМУ КРАЮ */
-.footer-right { align-items: flex-end; }   /* ВЫРАВНИВАНИЕ ПО ПРАВОМУ КРАЮ */
-.footer-center { position: absolute; left: 50%; transform: translateX(-50%); }
+
+.footer-left {
+    align-items: flex-start; /* Прижимаем контент к левому краю */
+}
+
+.footer-center {
+    align-items: center; /* Прижимаем контент к центру */
+}
+
+.footer-right {
+    align-items: flex-end; /* Прижимаем контент к правому краю */
+}
+
 
 .footer-socials { display: flex; align-items: center; gap: 12px; }
 .footer-email { font-size: var(--ui-size); font-weight: 700; opacity: 0.5; margin: 0; }
@@ -144,8 +186,30 @@ a.footer-icon-link:hover .email-placeholder {
 .footer-copyright { font-size: var(--ui-size); font-weight: 700; opacity: 0.5; margin: 0; }
 
 #section-progress { display: flex; gap: 6px; }
-.progress-dot { width: 14px; height: 14px; border: 1px solid; transition: all 0.4s ease; }
-.progress-dot.active { background-color: var(--red-accent); border-color: var(--red-accent); }
+.progress-dot {
+    width: 14px;
+    height: 14px;
+    border: 1px solid;
+    transition: all 0.4s ease;
+    /* Убираем курсор отсюда, будем задавать его более конкретно */
+}
+
+/* Применяем "руку" и эффект наведения ТОЛЬКО к НЕАКТИВНЫМ точкам */
+.progress-dot:not(.active) {
+    cursor: pointer;
+}
+
+.progress-dot:not(.active):hover {
+    border-color: var(--red-accent);
+    /* transform: scale(1.2); - УБРАНО, как вы и просили */
+}
+
+/* Стиль для активной точки остается без изменений */
+.progress-dot.active { 
+    background-color: var(--red-accent); 
+    border-color: var(--red-accent);
+    cursor: default; /* Явно указываем, что курсор должен быть обычным */
+}
 
 /* ====================================================== */
 /* 4. СЕКЦИИ И АНИМАЦИИ                                   */
