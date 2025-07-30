@@ -192,7 +192,6 @@ body[data-theme="light"] .hero-background-banner {
 }
 
 .hero-content-v2 {
-    /* !!! ДЕЛАЕМ ЭТОТ БЛОК РОДИТЕЛЕМ ДЛЯ ПОЗИЦИОНИРОВАНИЯ !!! */
     position: relative; 
     width: 100%;
     height: 100%;
@@ -216,82 +215,52 @@ body[data-theme="light"] .hero-background-banner {
 }
 
 #qte-container {
-    /* !!! ГЛАВНАЯ МАГИЯ ЗДЕСЬ !!! */
-    position: absolute; /* Вырываем из потока документа */
-    bottom: calc(50% - 420px / 2); /* Выравниваем по нижнему краю контент-блока */
-    left: calc(50% - (280px + 80px + 600px) / 2); /* Выравниваем по левому краю контент-блока */
-    
-    transform: translateY(calc(100% + 16px)); /* Сдвигаем ВНИЗ на свою высоту (16px) + отступ (еще 16px) */
+    position: absolute;
+    bottom: calc(50% - 420px / 2);
+    left: calc(50% - (280px + 80px + 600px) / 2); 
+    transform: translateY(calc(100% + 16px));
 
     display: flex;
-    gap: 6px;
+    gap: 6px; /* Расстояние между квадратами */
     z-index: 11;
 }
 
-/* Формула для left:
-   1. left: 50% -> ставит начало блока в центр экрана.
-   2. - (280px + 80px + 600px) / 2 -> сдвигает его влево на половину ОБЩЕЙ ширины всего контента 
-      (фото + отступ + текст). Теперь левый край QTE совпадает с левым краем фото.
-*/
-
-/* Формула для bottom:
-   1. bottom: 50% -> ставит низ блока в центр экрана по вертикали.
-   2. - 420px / 2 -> поднимает его на половину высоты контентного блока. Теперь низ QTE
-      совпадает с центром контентного блока.
-   3. transform: translateY(calc(100% + 16px)) -> Это ключевой трюк. Мы сдвигаем блок ВНИЗ
-      на 100% его собственной высоты (т.е. на 16px) и добавляем еще 16px отступа.
-      В итоге QTE оказывается точно под левым нижним углом всей группы.
-*/
-
-
-/* Стили для .qte-key и .qte-icon-placeholder остаются БЕЗ ИЗМЕНЕНИЙ */
 .qte-key {
+    /* Ненажатое состояние: контур */
     width: 16px;
     height: 16px;
+    background-color: transparent;
     border: 1px solid var(--text-color);
     box-sizing: border-box; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
     transition: all 0.2s ease;
 }
 
-.qte-key .qte-icon-placeholder {
-    width: 10px;
-    height: 10px;
-    background-color: var(--text-color);
-    transition: background-color 0.2s ease;
-}
-
-/* Состояние, когда кнопка была нажата правильно */
+/* Нажатое (правильно) состояние: закрашенный квадрат */
 .qte-key.correct {
-    background-color: var(--text-color);
-    border-color: var(--text-color);
-}
-.qte-key.correct .qte-icon-placeholder {
-    background-color: var(--bg-color);
-}
-
-/* Состояние, когда вся последовательность введена верно */
-.qte-key.success {
     background-color: var(--red-accent);
-    border-color: var(--red-accent);
-}
-.qte-key.success .qte-icon-placeholder {
-    background-color: var(--text-color); 
+    border-color: var(--red-accent); /* Делаем цвет рамки таким же, чтобы она "исчезла" */
 }
 
-/* Анимация при ошибке */
-#qte-container.error .qte-key {
-    animation: qte-error 0.5s ease;
+/* Анимация при ошибке (будет применяться к последней нажатой кнопке) */
+.qte-key.error-shake {
+    animation: qte-error-shake 0.4s ease-in-out;
 }
 
-@keyframes qte-error {
+@keyframes qte-error-shake {
     0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
+/* Класс для финального успеха (необязательно, но можно добавить) */
+/* Например, можно заставить их всех мигать */
+.qte-key.success {
+    animation: qte-success-blink 1s infinite;
+}
+
+@keyframes qte-success-blink {
+    50% { opacity: 0.5; }
+}
 
 .hero-top-text {
     /* ИЗМЕНЕНИЕ: Позиционируем абсолютно относительно родителя (.hero-text-wrapper) */
