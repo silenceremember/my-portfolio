@@ -51,7 +51,7 @@ body {
 }
 
 h1, h2 { font-weight: 900; /* Black */ }
-strong, .nav-link, .cta-button, .footer-email, .footer-copyright { font-weight: 500; /* Bold */ }
+strong, .nav-link, .cta-button, .footer-email, .footer-copyright { font-weight: 700; /* Bold */ }
 
 /* ====================================================== */
 /* 2. РАМКА САЙТА (ВИДИМЫЕ ГОРИЗОНТАЛЬНЫЕ ЛИНИИ)         */
@@ -94,132 +94,37 @@ body::after { bottom: var(--frame-padding-vertical); }
 }
 
 /* ШАПКА */
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px; 
-}
+.header-controls { display: flex; align-items: center; gap: 8px; }
 .lang-indicator { font-weight: 900; font-size: var(--lang-size); }
 .separator-icon { width: var(--icon-size-small); height: var(--icon-size-small); background-color: var(--text-color); opacity: 0.5; transition: background-color 0.3s ease; }
 .icon-button { background: none; border: none; padding: 0; cursor: pointer; }
 .icon-placeholder { width: var(--icon-size-normal); height: var(--icon-size-normal); background-color: var(--text-color); transition: background-color 0.3s ease; }
-
 .main-nav { display: flex; gap: 24px; }
 .nav-link { font-size: var(--nav-size); font-weight: 700; color: inherit; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s ease; }
 .nav-link:hover, .nav-link.active { color: var(--red-accent); }
 
-/* ПОДВАЛ (НОВАЯ СТРУКТУРА) */
-.site-footer {
-    position: fixed;
-    bottom: 0;
-    left: var(--frame-padding-horizontal);
-    right: var(--frame-padding-horizontal);
-    height: var(--frame-padding-vertical);
-    display: flex;
-    align-items: center;
-    z-index: 100;
-}
-
-.footer-content {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* --- Общие стили для блоков --- */
+/* ПОДВАЛ (ФИНАЛЬНАЯ ВЕРСИЯ С ВЫРАВНИВАНИЕМ) */
 .footer-left, .footer-right {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Центрируем контент внутри блока */
     gap: 8px; /* Отступ между верхней и нижней строкой */
 }
+.footer-left { align-items: flex-start; } /* ВЫРАВНИВАНИЕ ПО ЛЕВОМУ КРАЮ */
+.footer-right { align-items: flex-end; }   /* ВЫРАВНИВАНИЕ ПО ПРАВОМУ КРАЮ */
+.footer-center { position: absolute; left: 50%; transform: translateX(-50%); }
 
-.footer-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
+.footer-socials { display: flex; align-items: center; gap: 12px; }
+.footer-email { font-size: var(--ui-size); font-weight: 700; opacity: 0.5; margin: 0; }
+.footer-logos { display: flex; align-items: center; gap: 4px; opacity: 0.5; }
+.logo-placeholder-me { width: var(--logo-me-width); height: var(--logo-me-height); background-color: var(--text-color); }
+.logo-placeholder-skull { width: var(--icon-size-large); height: var(--icon-size-large); background-color: var(--text-color); }
+.footer-copyright { font-size: var(--ui-size); font-weight: 700; opacity: 0.5; margin: 0; }
 
-/* --- Левый блок --- */
-.footer-socials {
-    display: flex;
-    align-items: center;
-    gap: 12px; /* Отступ между иконками */
-}
+#section-progress { display: flex; gap: 6px; }
+.progress-dot { width: 14px; height: 14px; border: 1px solid; transition: all 0.4s ease; }
+.progress-dot.active { background-color: var(--red-accent); border-color: var(--red-accent); }
+#qte-hint { display: none; } 
 
-.footer-socials .icon-placeholder {
-    width: 24px;
-    height: 24px;
-    background-color: var(--text-color);
-}
-.footer-socials .separator-icon {
-    width: 14px;
-    height: 14px;
-    background-color: var(--text-color);
-    opacity: 0.5;
-}
-
-.footer-email {
-    font-size: var(--ui-size);
-    font-weight: 700; /* Bold */
-    opacity: 0.5;
-    margin: 0;
-}
-
-/* --- Правый блок --- */
-.footer-logos {
-    display: flex;
-    align-items: center;
-    gap: 4px; /* Плотный отступ между лого */
-    opacity: 0.5;
-}
-
-.footer-logos .logo-placeholder-me {
-    width: 42px;
-    height: 24px;
-    background-color: var(--text-color);
-}
-.footer-logos .separator-icon {
-    width: 14px;
-    height: 14px;
-    background-color: var(--text-color);
-}
-.footer-logos .logo-placeholder-skull {
-    width: 30px;
-    height: 30px;
-    background-color: var(--text-color);
-}
-
-.footer-copyright {
-    font-size: var(--ui-size);
-    font-weight: 700; /* Bold */
-    opacity: 0.5;
-    margin: 0;
-}
-
-/* --- Центральный блок --- */
-#section-progress {
-    display: flex;
-    gap: 6px; /* Отступ между квадратами */
-}
-
-.progress-dot {
-    width: 14px; /* Новый размер */
-    height: 14px; /* Новый размер */
-    border: 1px solid var(--text-color);
-    transition: all 0.4s ease;
-}
-
-.progress-dot.active {
-    background-color: var(--red-accent);
-    border-color: var(--red-accent);
-}
-
-/* Скрытие QTE-панели (она будет под индикатором) */
-#qte-hint {
-    display: none; 
-}
 /* ====================================================== */
 /* 4. СЕКЦИИ И АНИМАЦИИ                                   */
 /* ====================================================== */
