@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetQTE() {
         konamiUserInputPosition = 0;
         qteKeys.forEach(key => {
+            // Класс .success больше не используется, но оставляем его в сбросе на всякий случай
             key.classList.remove('correct', 'success', 'error-shake');
         });
     }
@@ -72,15 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function onKonamiSuccess() {
         console.log("Konami Code Activated! Launching game mechanics...");
-        qteKeys.forEach(key => key.classList.add('success'));
+
+        // !!! ЛОГИКА АНИМАЦИИ УСПЕХА УДАЛЕНА !!!
+        // qteKeys.forEach(key => key.classList.add('success'));
 
         // Запускаем игровую механику, если она определена в game.js
         if (window.initDestruction) {
             window.initDestruction();
         }
 
-        // Сбрасываем QTE через 2 секунды, чтобы можно было ввести снова
-        setTimeout(resetQTE, 2000);
+        // Сразу сбрасываем QTE, так как визуального подтверждения успеха больше нет.
+        // Это позволяет сразу же начать ввод заново.
+        resetQTE();
     }
 
 
@@ -123,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('keydown', (event) => {
         const section1 = document.getElementById('section-1');
         if (!qteContainer || !section1 || !section1.classList.contains('active')) {
-            return; // Игнорируем ввод, если мы не на первой секции
+            return;
         }
 
         const requiredKey = konamiCodeSequence[konamiUserInputPosition];
@@ -144,10 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastCorrectKeyElement.classList.add('error-shake');
                 
                 setTimeout(() => {
-                    lastCorrectKeyElement.classList.remove('error-shake');
-                }, 400); // Длительность анимации
+                    resetQTE();
+                }, 400); 
+
             }
-            resetQTE();
+            // Если ошибка на первом шаге - ничего не делаем, просто сброс произойдет при следующем нажатии
         }
     });
 
@@ -157,14 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentTheme = document.body.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             document.body.setAttribute('data-theme', newTheme);
-            // Для сохранения выбора между сессиями:
-            // localStorage.setItem('theme', newTheme);
         });
-
-        // Для восстановления темы при загрузке:
-        // const savedTheme = localStorage.getItem('theme');
-        // if (savedTheme) {
-        //     document.body.setAttribute('data-theme', savedTheme);
-        // }
     }
 });

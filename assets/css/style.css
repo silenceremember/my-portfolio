@@ -221,12 +221,12 @@ body[data-theme="light"] .hero-background-banner {
     transform: translateY(calc(100% + 16px));
 
     display: flex;
-    gap: 6px; /* Расстояние между квадратами */
+    gap: 6px;
     z-index: 11;
 }
 
 .qte-key {
-    /* Ненажатое состояние: контур */
+    /* Ненажатое состояние */
     width: 16px;
     height: 16px;
     background-color: transparent;
@@ -235,31 +235,28 @@ body[data-theme="light"] .hero-background-banner {
     transition: all 0.2s ease;
 }
 
-/* Нажатое (правильно) состояние: закрашенный квадрат */
+/* Нажатое (правильно) состояние */
 .qte-key.correct {
     background-color: var(--red-accent);
-    border-color: var(--red-accent); /* Делаем цвет рамки таким же, чтобы она "исчезла" */
+    border-color: var(--red-accent);
 }
 
-/* Анимация при ошибке (будет применяться к последней нажатой кнопке) */
+/* !!! ИЗМЕНЕНИЕ: Анимация ошибки теперь двигает снизу вверх !!! */
 .qte-key.error-shake {
-    animation: qte-error-shake 0.4s ease-in-out;
+    animation: qte-error-shake-vertical 0.4s ease-in-out;
 }
 
-@keyframes qte-error-shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-}
-
-/* Класс для финального успеха (необязательно, но можно добавить) */
-/* Например, можно заставить их всех мигать */
-.qte-key.success {
-    animation: qte-success-blink 1s infinite;
-}
-
-@keyframes qte-success-blink {
-    50% { opacity: 0.5; }
+@keyframes qte-error-shake-vertical {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    25% {
+        transform: translateY(5px); /* Сначала вниз */
+    }
+    75% {
+        transform: translateY(0); /* Потом резко вверх */
+    }
+    /* Это создаст эффект "подпрыгивания" или "выталкивания" */
 }
 
 .hero-top-text {
