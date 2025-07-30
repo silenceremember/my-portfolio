@@ -146,7 +146,6 @@ a.footer-icon-link:hover .email-placeholder {
 #section-progress { display: flex; gap: 6px; }
 .progress-dot { width: 14px; height: 14px; border: 1px solid; transition: all 0.4s ease; }
 .progress-dot.active { background-color: var(--red-accent); border-color: var(--red-accent); }
-#qte-hint { display: none; } 
 
 /* ====================================================== */
 /* 4. СЕКЦИИ И АНИМАЦИИ                                   */
@@ -214,6 +213,29 @@ body[data-theme="light"] .hero-background-banner {
     height: 420px; /* Та же высота, что и у фото */
     width: 600px; /* Задаем явную ширину для дочерних элементов */
     margin-left: 80px; /* Сохраняем отступ от фото */
+}
+
+#qte-hint-section1 {
+    position: absolute;
+    bottom: 0; /* Прижимаем к низу секции */
+    left: calc(60px + 280px + 80px); /* Выравниваем по левому краю текстового блока */
+    display: flex;
+    gap: 4px; /* Отступ между кнопками */
+}
+
+.hint-key-qte {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--border-color);
+    box-sizing: border-box; /* Чтобы рамка не влияла на размер */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; /* Размер шрифта как у UI */
+    font-weight: 900; /* BLACK */
+    color: var(--text-color);
+    transition: all 0.2s ease;
 }
 
 
