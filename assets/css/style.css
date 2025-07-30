@@ -192,13 +192,14 @@ body[data-theme="light"] .hero-background-banner {
 }
 
 .hero-content-v2 {
-    position: relative;
+    /* !!! ДЕЛАЕМ ЭТОТ БЛОК РОДИТЕЛЕМ ДЛЯ ПОЗИЦИОНИРОВАНИЯ !!! */
+    position: relative; 
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
-    /* ИЗМЕНЕНИЕ: Вместо ничего, теперь ставим 'center' */
     justify-content: center; 
+    gap: 80px;
 }
 
 .hero-photo-placeholder {
@@ -209,33 +210,86 @@ body[data-theme="light"] .hero-background-banner {
 }
 
 .hero-text-wrapper {
-    position: relative; 
-    height: 420px; /* Та же высота, что и у фото */
-    width: 600px; /* Задаем явную ширину для дочерних элементов */
-    margin-left: 80px; /* Сохраняем отступ от фото */
+    position: relative; /* Оставляем, это нужно для top-text и bottom-text */
+    height: 420px;
+    width: 600px;
 }
 
-#qte-hint-section1 {
-    position: absolute;
-    bottom: 0; /* Прижимаем к низу секции */
-    left: calc(60px + 280px + 80px); /* Выравниваем по левому краю текстового блока */
+#qte-container {
+    /* !!! ГЛАВНАЯ МАГИЯ ЗДЕСЬ !!! */
+    position: absolute; /* Вырываем из потока документа */
+    bottom: calc(50% - 420px / 2); /* Выравниваем по нижнему краю контент-блока */
+    left: calc(50% - (280px + 80px + 600px) / 2); /* Выравниваем по левому краю контент-блока */
+    
+    transform: translateY(calc(100% + 16px)); /* Сдвигаем ВНИЗ на свою высоту (16px) + отступ (еще 16px) */
+
     display: flex;
-    gap: 4px; /* Отступ между кнопками */
+    gap: 6px;
+    z-index: 11;
 }
 
-.hint-key-qte {
-    width: 14px;
-    height: 14px;
-    border: 1px solid var(--border-color);
-    box-sizing: border-box; /* Чтобы рамка не влияла на размер */
+/* Формула для left:
+   1. left: 50% -> ставит начало блока в центр экрана.
+   2. - (280px + 80px + 600px) / 2 -> сдвигает его влево на половину ОБЩЕЙ ширины всего контента 
+      (фото + отступ + текст). Теперь левый край QTE совпадает с левым краем фото.
+*/
+
+/* Формула для bottom:
+   1. bottom: 50% -> ставит низ блока в центр экрана по вертикали.
+   2. - 420px / 2 -> поднимает его на половину высоты контентного блока. Теперь низ QTE
+      совпадает с центром контентного блока.
+   3. transform: translateY(calc(100% + 16px)) -> Это ключевой трюк. Мы сдвигаем блок ВНИЗ
+      на 100% его собственной высоты (т.е. на 16px) и добавляем еще 16px отступа.
+      В итоге QTE оказывается точно под левым нижним углом всей группы.
+*/
+
+
+/* Стили для .qte-key и .qte-icon-placeholder остаются БЕЗ ИЗМЕНЕНИЙ */
+.qte-key {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--text-color);
+    box-sizing: border-box; 
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px; /* Размер шрифта как у UI */
-    font-weight: 900; /* BLACK */
-    color: var(--text-color);
     transition: all 0.2s ease;
+}
+
+.qte-key .qte-icon-placeholder {
+    width: 10px;
+    height: 10px;
+    background-color: var(--text-color);
+    transition: background-color 0.2s ease;
+}
+
+/* Состояние, когда кнопка была нажата правильно */
+.qte-key.correct {
+    background-color: var(--text-color);
+    border-color: var(--text-color);
+}
+.qte-key.correct .qte-icon-placeholder {
+    background-color: var(--bg-color);
+}
+
+/* Состояние, когда вся последовательность введена верно */
+.qte-key.success {
+    background-color: var(--red-accent);
+    border-color: var(--red-accent);
+}
+.qte-key.success .qte-icon-placeholder {
+    background-color: var(--text-color); 
+}
+
+/* Анимация при ошибке */
+#qte-container.error .qte-key {
+    animation: qte-error 0.5s ease;
+}
+
+@keyframes qte-error {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
 }
 
 

@@ -54,4 +54,78 @@ document.addEventListener('DOMContentLoaded', () => {
         //     document.body.setAttribute('data-theme', savedTheme);
         // }
     }
+    // === ЛОГИКА QTE (КОД КОНАМИ) - ОБНОВЛЕННАЯ ВЕРСИЯ ===
+    const qteContainer = document.getElementById('qte-container');
+    
+    // Код Конами: ↑, ↑, ↓, ↓, ←, →, ←, →, B, A
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    // Массив с классами/атрибутами для иконок (пока просто для примера)
+    const konamiIcons = ['arrow-up', 'arrow-up', 'arrow-down', 'arrow-down', 'arrow-left', 'arrow-right', 'arrow-left', 'arrow-right', 'char-b', 'char-a'];
+    
+    let userInputPosition = 0;
+    const qteKeys = []; 
+
+    // 1. Создаем DOM-элементы для кнопок QTE
+    if (qteContainer) {
+        konamiIcons.forEach(iconName => {
+            const keyElement = document.createElement('div');
+            keyElement.classList.add('qte-key');
+            
+            // Создаем плейсхолдер для иконки внутри
+            const iconPlaceholder = document.createElement('div');
+            iconPlaceholder.classList.add('qte-icon-placeholder');
+            iconPlaceholder.dataset.icon = iconName; // Добавляем data-атрибут для будущей стилизации
+            
+            keyElement.appendChild(iconPlaceholder);
+            qteContainer.appendChild(keyElement);
+            qteKeys.push(keyElement);
+        });
+    }
+
+    // 2. Функция сброса QTE (при ошибке)
+    function resetQTE() {
+        userInputPosition = 0;
+        qteKeys.forEach(key => {
+            key.classList.remove('correct', 'error', 'success');
+        });
+    }
+
+    // 3. Функция, которая вызывается при успешном вводе
+    function onKonamiSuccess() {
+        console.log("Konami Code Activated!");
+        qteKeys.forEach(key => key.classList.add('success'));
+
+        if (window.initDestruction) {
+            window.initDestruction(); 
+        }
+
+        setTimeout(resetQTE, 3000);
+    }
+
+    // 4. Слушатель нажатий клавиш
+    window.addEventListener('keydown', (event) => {
+        const section1 = document.getElementById('section-1');
+        if (!qteContainer || !section1 || !section1.classList.contains('active')) {
+            return;
+        }
+        
+        const requiredKey = konamiCode[userInputPosition];
+        
+        if (event.key.toLowerCase() === requiredKey.toLowerCase()) {
+            const currentKeyElement = qteKeys[userInputPosition];
+            currentKeyElement.classList.add('correct');
+            userInputPosition++;
+            
+            if (userInputPosition === konamiCode.length) {
+                onKonamiSuccess();
+            }
+        } else if (event.key.length === 1 || event.key.startsWith('Arrow')) { // Реагируем на ошибку только на релевантные клавиши
+            qteContainer.classList.add('error');
+
+            setTimeout(() => {
+                qteContainer.classList.remove('error');
+                resetQTE();
+            }, 500);
+        }
+    });
 });
