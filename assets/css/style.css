@@ -97,6 +97,13 @@ body::after { bottom: var(--frame-padding-vertical); }
 .header-controls { display: flex; align-items: center; gap: 8px; }
 .lang-indicator { font-weight: 900; font-size: var(--lang-size); }
 .separator-icon { width: var(--icon-size-small); height: var(--icon-size-small); background-color: var(--text-color); opacity: 0.5; transition: background-color 0.3s ease; }
+.lang-placeholder {
+    width: 42px;
+    height: 24px;
+    background-color: var(--text-color);
+    transition: background-color 0.3s ease;
+    /* Здесь будет mask-image с SVG вашего текста RU/EN */
+}
 .icon-button { background: none; border: none; padding: 0; cursor: pointer; }
 .icon-placeholder { width: var(--icon-size-normal); height: var(--icon-size-normal); background-color: var(--text-color); transition: background-color 0.3s ease; }
 .main-nav { display: flex; gap: 24px; }
@@ -116,6 +123,22 @@ body::after { bottom: var(--frame-padding-vertical); }
 .footer-socials { display: flex; align-items: center; gap: 12px; }
 .footer-email { font-size: var(--ui-size); font-weight: 700; opacity: 0.5; margin: 0; }
 .footer-logos { display: flex; align-items: center; gap: 4px; opacity: 0.5; }
+.email-placeholder {
+    width: 165px;
+    height: 14px;
+    background-color: var(--text-color);
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+a.footer-icon-link:hover .email-placeholder {
+    opacity: 1;
+}
+.copyright-placeholder {
+    width: 136px;
+    height: 11.5px;
+    background-color: var(--text-color);
+    opacity: 0.5;
+}
 .logo-placeholder-me { width: var(--logo-me-width); height: var(--logo-me-height); background-color: var(--text-color); }
 .logo-placeholder-skull { width: var(--icon-size-large); height: var(--icon-size-large); background-color: var(--text-color); }
 .footer-copyright { font-size: var(--ui-size); font-weight: 700; opacity: 0.5; margin: 0; }

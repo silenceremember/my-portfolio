@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" id="html-doc"> <!-- Добавляем ID для удобства JS -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +20,9 @@
         <header class="site-header">
             <div class="header-content">
                 <div class="header-controls">
-                    <span class="lang-indicator">RU</span>
+                    <button class="icon-button" id="lang-switcher" title="Switch language">
+                        <div class="lang-placeholder" data-lang="ru"></div>
+                    </button>
                     <div class="separator-icon"></div> <!-- Плейсхолдер для X -->
                     <button class="icon-button" id="theme-switcher" title="Переключить тему">
                         <div class="icon-placeholder" data-icon="theme"></div>
@@ -97,7 +99,9 @@
                         <div class="separator-icon"></div>
                         <a href="#" title="itch.io"><div class="icon-placeholder" data-icon="itchio"></div></a>
                     </div>
-                    <p class="footer-email">slcrmmbr@outlook.com</p>
+                    <a href="mailto:slcrmmbr@outlook.com" class="footer-icon-link">
+                        <div class="email-placeholder"></div>
+                    </a>
                 </div>
         
                 <div class="footer-center">
@@ -114,7 +118,7 @@
                         <div class="separator-icon"></div>
                         <div class="logo-placeholder-skull"></div>
                     </div>
-                    <p class="footer-copyright">©Maxim Elchaninov</p>
+                    <div class="copyright-placeholder"></div>
                 </div>
             </div>
         </footer>
