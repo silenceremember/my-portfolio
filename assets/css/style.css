@@ -18,11 +18,14 @@
     --ui-size: 14px;
     --lang-size: 24px;
 
-    /* ---- ИЗМЕНЕНИЕ 1: ГЛОБАЛЬНЫЕ ОТСТУПЫ ---- */
+    /* Отступы и размеры */
     --frame-padding-vertical: 80px;
     --frame-padding-horizontal: 420px; 
-    --icon-size-small: 16px;
+    --icon-size-small: 14px;
     --icon-size-normal: 24px;
+    --icon-size-large: 30px;
+    --logo-me-width: 42px;
+    --logo-me-height: 24px;
     
     /* Анимация */
     --animation-duration: 0.6s;
@@ -48,7 +51,7 @@ body {
 }
 
 h1, h2 { font-weight: 900; /* Black */ }
-strong, .nav-link, .cta-button { font-weight: 700; /* Bold */ }
+strong, .nav-link, .cta-button, .footer-email, .footer-copyright { font-weight: 500; /* Bold */ }
 
 /* ====================================================== */
 /* 2. РАМКА САЙТА (ВИДИМЫЕ ГОРИЗОНТАЛЬНЫЕ ЛИНИИ)         */
@@ -94,66 +97,129 @@ body::after { bottom: var(--frame-padding-vertical); }
 .header-controls {
     display: flex;
     align-items: center;
-    /* ---- ИЗМЕНЕНИЕ 2: ОТСТУПЫ В ШАПКЕ ---- */
     gap: 8px; 
 }
+.lang-indicator { font-weight: 900; font-size: var(--lang-size); }
+.separator-icon { width: var(--icon-size-small); height: var(--icon-size-small); background-color: var(--text-color); opacity: 0.5; transition: background-color 0.3s ease; }
+.icon-button { background: none; border: none; padding: 0; cursor: pointer; }
+.icon-placeholder { width: var(--icon-size-normal); height: var(--icon-size-normal); background-color: var(--text-color); transition: background-color 0.3s ease; }
 
-.lang-indicator {
-    font-weight: 900; /* Black */
-    font-size: var(--lang-size);
+.main-nav { display: flex; gap: 24px; }
+.nav-link { font-size: var(--nav-size); font-weight: 700; color: inherit; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s ease; }
+.nav-link:hover, .nav-link.active { color: var(--red-accent); }
+
+/* ПОДВАЛ (НОВАЯ СТРУКТУРА) */
+.site-footer {
+    position: fixed;
+    bottom: 0;
+    left: var(--frame-padding-horizontal);
+    right: var(--frame-padding-horizontal);
+    height: var(--frame-padding-vertical);
+    display: flex;
+    align-items: center;
+    z-index: 100;
 }
 
-.separator-icon {
-    width: var(--icon-size-small);
-    height: var(--icon-size-small);
+.footer-content {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* --- Общие стили для блоков --- */
+.footer-left, .footer-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрируем контент внутри блока */
+    gap: 8px; /* Отступ между верхней и нижней строкой */
+}
+
+.footer-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* --- Левый блок --- */
+.footer-socials {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Отступ между иконками */
+}
+
+.footer-socials .icon-placeholder {
+    width: 24px;
+    height: 24px;
+    background-color: var(--text-color);
+}
+.footer-socials .separator-icon {
+    width: 14px;
+    height: 14px;
     background-color: var(--text-color);
     opacity: 0.5;
-    transition: background-color 0.3s ease;
 }
 
-.icon-button { background: none; border: none; padding: 0; cursor: pointer; }
-.icon-placeholder {
-    width: var(--icon-size-normal);
-    height: var(--icon-size-normal);
-    background-color: var(--text-color);
-    transition: background-color 0.3s ease;
-}
-
-.main-nav {
-    display: flex;
-    /* ---- ИЗМЕНЕНИЕ 3: ОТСТУПЫ В НАВИГАЦИИ ---- */
-    gap: 24px; 
-}
-.nav-link {
-    font-size: var(--nav-size);
+.footer-email {
+    font-size: var(--ui-size);
     font-weight: 700; /* Bold */
-    color: inherit;
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: color 0.2s ease;
-}
-.nav-link:hover, .nav-link.active {
-    color: var(--red-accent);
+    opacity: 0.5;
+    margin: 0;
 }
 
-/* ПОДВАЛ */
-.footer-left, .footer-right, .footer-center { display: flex; align-items: center; }
-.footer-left { justify-content: flex-start; gap: 32px; }
-.footer-center { position: absolute; left: 50%; transform: translateX(-50%); flex-direction: column; gap: 16px; }
-.footer-right { justify-content: flex-end; }
-.footer-socials { display: flex; gap: 24px; }
-.footer-copyright { opacity: 0.5; font-size: var(--ui-size); }
-.footer-logos { display: flex; gap: 24px; }
-.icon-placeholder[data-logo] { opacity: 0.5; }
+/* --- Правый блок --- */
+.footer-logos {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Плотный отступ между лого */
+    opacity: 0.5;
+}
 
-/* Индикатор и QTE */
-#section-progress { display: flex; gap: 10px; }
-.progress-dot { width: 10px; height: 10px; border: 1px solid; transition: all var(--animation-duration) ease; }
-.progress-dot.active { background-color: var(--red-accent); border-color: var(--red-accent); }
-#qte-hint { display: flex; gap: 8px; }
-.hint-key-qte { width: 20px; height: 20px; border: 1px solid; opacity: 0.5; font-size: 0.8rem; /* ... */ }
+.footer-logos .logo-placeholder-me {
+    width: 42px;
+    height: 24px;
+    background-color: var(--text-color);
+}
+.footer-logos .separator-icon {
+    width: 14px;
+    height: 14px;
+    background-color: var(--text-color);
+}
+.footer-logos .logo-placeholder-skull {
+    width: 30px;
+    height: 30px;
+    background-color: var(--text-color);
+}
 
+.footer-copyright {
+    font-size: var(--ui-size);
+    font-weight: 700; /* Bold */
+    opacity: 0.5;
+    margin: 0;
+}
+
+/* --- Центральный блок --- */
+#section-progress {
+    display: flex;
+    gap: 6px; /* Отступ между квадратами */
+}
+
+.progress-dot {
+    width: 14px; /* Новый размер */
+    height: 14px; /* Новый размер */
+    border: 1px solid var(--text-color);
+    transition: all 0.4s ease;
+}
+
+.progress-dot.active {
+    background-color: var(--red-accent);
+    border-color: var(--red-accent);
+}
+
+/* Скрытие QTE-панели (она будет под индикатором) */
+#qte-hint {
+    display: none; 
+}
 /* ====================================================== */
 /* 4. СЕКЦИИ И АНИМАЦИИ                                   */
 /* ====================================================== */
@@ -169,14 +235,11 @@ main.sections-container {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
     box-sizing: border-box;
-    /* Убираем внутренний padding, так как рамка теперь определяет границы */
-
     opacity: 0; visibility: hidden;
     transition: opacity calc(var(--animation-duration) / 2) ease-in-out, visibility 0s calc(var(--animation-duration) / 2);
 }
 .full-page-section.active { opacity: 1; visibility: visible; z-index: 10; transition-delay: calc(var(--animation-duration) / 2); }
 
-/* Анимация появления элементов */
 .full-page-section.active .hero-content,
 .full-page-section.active .content-wrapper {
     animation: fadeIn var(--animation-duration) ease forwards;
@@ -191,13 +254,12 @@ main.sections-container {
 /* Секция 1 */
 .hero-background-banner { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1; opacity: 0.05; background: url('../images/banner-art.jpg') no-repeat center center; background-size: cover;}
 body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(1); }
-
 .hero-content { display: flex; align-items: center; justify-content: center; gap: 80px; width: 100%; }
 .hero-photo-placeholder { width: 360px; height: 480px; background-color: var(--text-color); opacity: 0.1; flex-shrink: 0; transition: background-color 0.3s ease; }
 .hero-text { text-align: left; max-width: 600px; }
 .hero-text h1 { font-size: var(--h1-size); }
-.hero-text .nickname { font-size: var(--h3-size); color: var(--red-accent); margin-top: 16px; font-weight: 400; /* Regular */ }
-.hero-text h2.profession { font-size: var(--h2-size); margin-top: 32px; text-align: left; margin-bottom: 0; font-weight: 700; /* Bold */ }
+.hero-text .nickname { font-size: var(--h3-size); color: var(--red-accent); margin-top: 16px; font-weight: 400; }
+.hero-text h2.profession { font-size: var(--h2-size); margin-top: 32px; text-align: left; margin-bottom: 0; font-weight: 700; }
 .hero-text .philosophy { font-size: var(--p-size); margin-top: 40px; opacity: 0.8; }
 
 /* Секция 2 */
@@ -205,20 +267,12 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
 h2 { text-align: center; font-size: var(--h2-size); margin-bottom: 80px; }
 .project-slide { display: flex; align-items: center; gap: 60px; }
 .project-card-placeholder { flex-shrink: 0; width: 560px; height: 315px; background-color: var(--text-color); opacity: 0.1; transition: background-color 0.3s ease; }
-.project-details h3 { font-size: var(--h3-size); color: var(--red-accent); font-weight: 400; /* Regular */ }
+.project-details h3 { font-size: var(--h3-size); color: var(--red-accent); font-weight: 400; }
 .project-details p { font-size: var(--p-size); }
 
 /* Секция 3 */
 .cta-buttons { display: flex; justify-content: center; gap: 32px; }
-.cta-button {
-    display: flex; align-items: center; gap: 16px;
-    padding: 16px 32px;
-    border: 1px solid;
-    border-color: var(--text-color);
-    color: inherit; text-decoration: none;
-    transition: all 0.2s ease;
-    font-size: var(--ui-size);
-}
+.cta-button { display: flex; align-items: center; gap: 16px; padding: 16px 32px; border: 1px solid; border-color: var(--text-color); color: inherit; text-decoration: none; transition: all 0.2s ease; font-size: var(--ui-size); }
 .cta-button:hover { background-color: var(--red-accent); border-color: var(--red-accent); color: var(--bg-color); }
 .cta-button .icon-placeholder { background-color: var(--text-color); }
 .cta-button:hover .icon-placeholder { background-color: var(--bg-color); }
