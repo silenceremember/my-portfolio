@@ -484,9 +484,68 @@ body[data-theme="light"] .hero-background-banner {
 
 
 
-/* Секция 3 */
-.cta-buttons { display: flex; justify-content: center; gap: 32px; }
-.cta-button { display: flex; align-items: center; gap: 16px; padding: 16px 32px; border: 1px solid; border-color: var(--text-color); color: inherit; text-decoration: none; transition: all 0.2s ease; font-size: var(--ui-size); }
-.cta-button:hover { background-color: var(--red-accent); border-color: var(--red-accent); color: var(--bg-color); }
-.cta-button .icon-placeholder { background-color: var(--text-color); }
-.cta-button:hover .icon-placeholder { background-color: var(--bg-color); }
+/* ====================================================== */
+/* 5.2 СТИЛИ ДЛЯ СЕКЦИИ 5: ФИНАЛЬНЫЙ CTA (ФИНАЛЬНАЯ ВЕРСТКА V3) */
+/* ====================================================== */
+
+.final-cta-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#final-section-title {
+    font-size: 42px;
+}
+
+
+/* !!! ГЛАВНОЕ ИЗМЕНЕНИЕ: Используем CSS Grid !!! */
+.nav-button-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+    width: 800px;
+    margin-top: 80px; /* Добавляем отступ СВЕРХУ к блоку кнопок */
+}
+
+/* Разделитель (простой плейсхолдер) */
+.cta-main-separator {
+    width: 50px;
+    height: 50px;
+    background-color: var(--text-color);
+    margin: 20px 0;
+}
+
+/* Общий стиль для ВСЕХ кнопок в этой секции */
+.nav-button {
+    display: block; /* Для Grid лучше использовать block */
+    font-family: var(--font-main);
+    font-weight: 700;
+    font-size: 18px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-color);
+    
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    padding: 16px 24px; /* Уменьшил горизонтальный padding, т.к. ширина теперь управляется Grid */
+    
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Кнопка Telegram, которая находится ВНЕ grid-контейнера */
+#cta-telegram-button {
+    width: 400px; /* !!! Задаем ей ту же ширину, что и у всей группы сверху !!! */
+}
+
+
+/* ЕДИНЫЙ эффект при наведении для всех кнопок */
+.nav-button:hover {
+    background-color: var(--red-accent);
+    border-color: var(--red-accent);
+    color: var(--bg-color);
+}
