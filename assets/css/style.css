@@ -377,13 +377,111 @@ body[data-theme="light"] .hero-background-banner {
     opacity: 1;
 }
 
-/* Секция 2 */
-.content-wrapper { width: 100%; }
-h2 { text-align: center; font-size: var(--h2-size); margin-bottom: 80px; }
-.project-slide { display: flex; align-items: center; gap: 60px; }
-.project-card-placeholder { flex-shrink: 0; width: 560px; height: 315px; background-color: var(--text-color); opacity: 0.1; transition: background-color 0.3s ease; }
-.project-details h3 { font-size: var(--h3-size); color: var(--red-accent); font-weight: 400; }
-.project-details p { font-size: var(--p-size); }
+/* ====================================================== */
+/* 5.1 СТИЛИ ДЛЯ СЕКЦИИ 2: ИЗБРАННЫЕ РАБОТЫ              */
+/* ====================================================== */
+
+/* Контейнер для слайда (левая + правая колонки) */
+.project-slide {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Выравниваем по низу для интересного эффекта */
+    gap: 60px;
+    width: 100%;
+}
+
+/* ЛЕВАЯ КОЛОНКА */
+.project-left-column {
+    width: 560px; /* Та же ширина, что и у визуала */
+    flex-shrink: 0;
+}
+
+/* Контейнер для верхних заголовков */
+.project-header {
+    display: flex;
+    justify-content: space-between; /* Главное слева, мета-инфо справа */
+    align-items: flex-end; /* Выравниваем по нижнему краю */
+    margin-bottom: 24px; /* Отступ до визуала */
+}
+
+/* Главная часть заголовка (Избранные + Название) */
+.project-header-main {
+    text-align: left;
+}
+
+.section-title {
+    font-size: 32px;
+    font-weight: 900; /* BLACK */
+    text-transform: uppercase;
+    margin: 0 0 4px 0; /* Маленький отступ до названия проекта */
+}
+
+.project-title {
+    font-size: 24px;
+    font-weight: 900; /* BLACK */
+    color: var(--red-accent);
+    margin: 0;
+    text-transform: uppercase;
+}
+
+/* Мета-информация (Жанр, Платформа) */
+.project-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700; /* BOLD */
+    font-style: italic;
+    /* margin-bottom: 4px; Добавляем небольшой отступ, чтобы быть на одном уровне с .project-title */
+}
+
+.meta-separator-icon {
+    width: 8px;
+    height: 8px;
+    background-color: var(--text-color);
+}
+
+/* Плейсхолдер для визуала */
+.project-visual-placeholder {
+    width: 100%; /* Занимает всю ширину левой колонки */
+    height: 315px; /* Соотношение 16:9 */
+    border: 1px solid var(--border-color);
+}
+
+
+/* ПРАВАЯ КОЛОНКА (без изменений) */
+.project-details {
+    width: 460px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.details-block { margin-bottom: 24px; }
+.details-heading {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--red-accent);
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+}
+.details-text { font-size: 18px; line-height: 1.6; margin: 0; }
+.project-cta-button {
+    font-size: 18px;
+    font-weight: 700;
+    color: inherit;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border: 1px solid var(--text-color);
+    margin-top: 16px;
+    transition: all 0.2s ease;
+}
+.project-cta-button:hover {
+    background-color: var(--red-accent);
+    border-color: var(--red-accent);
+    color: var(--bg-color);
+}
 
 /* Секция 3 */
 .cta-buttons { display: flex; justify-content: center; gap: 32px; }
