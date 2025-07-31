@@ -262,7 +262,7 @@ body[data-theme="light"] .hero-background-banner {
     display: flex;
     align-items: center;
     justify-content: center; 
-    gap: 80px;
+    gap: 48px;
 }
 
 .hero-photo-placeholder {
@@ -281,7 +281,7 @@ body[data-theme="light"] .hero-background-banner {
 #qte-container {
     position: absolute;
     bottom: calc(50% - 420px / 2);
-    left: calc(50% - (280px + 80px + 600px) / 2); 
+    left: calc(50% - (280px + 48px + 600px) / 2 - 1px);
     transform: translateY(calc(100% + 16px));
 
     display: flex;
@@ -385,21 +385,25 @@ body[data-theme="light"] .hero-background-banner {
 .project-slide {
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-    gap: 60px;
+    /* !!! ИЗМЕНЕНИЕ: Выравниваем по верху, так как высота колонок теперь разная !!! */
+    align-items: flex-start; 
+    gap: 24px;
     width: 100%;
 }
 
 .project-left-column {
     width: 560px;
     flex-shrink: 0;
+    display: flex; /* Делаем саму колонку flex-контейнером */
+    flex-direction: column; /* Элементы внутри будут идти друг под другом */
+    align-items: flex-start; /* Все элементы (включая кнопку) будут по левому краю */
 }
 
 .section-title {
     font-size: 32px;
     font-weight: 900;
     text-transform: uppercase;
-    margin: 0; /* !!! УБИРАЕМ ВСЕ ОТСТУПЫ !!! */
+    margin: 0;
 }
 
 .project-subtitle {
@@ -445,9 +449,7 @@ body[data-theme="light"] .hero-background-banner {
 /* ПРАВАЯ КОЛОНКА (без изменений) */
 .project-details {
     width: 460px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    padding-top: 76px; 
 }
 
 .details-block { margin-bottom: 24px; }
@@ -455,7 +457,7 @@ body[data-theme="light"] .hero-background-banner {
     font-size: 18px;
     font-weight: 700;
     color: var(--red-accent);
-    margin: 0 0 8px 0;
+    margin: 0;
     text-transform: uppercase;
 }
 .details-text { font-size: 18px; line-height: 1.6; margin: 0; }
@@ -467,7 +469,7 @@ body[data-theme="light"] .hero-background-banner {
     text-transform: uppercase;
     padding: 12px 24px;
     border: 1px solid var(--text-color);
-    margin-top: 16px;
+    margin-top: 16px; /* !!! Отступ от визуала сверху !!! */
     transition: all 0.2s ease;
 }
 .project-cta-button:hover {
