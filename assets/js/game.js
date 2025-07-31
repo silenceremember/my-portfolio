@@ -393,7 +393,8 @@ function createEnemyFromElement(element, hp) {
         height: rect.height,
         hp: hp, // Используем HP из конфига
         speed: Game.settings.enemyBaseSpeed + Math.random() * 0.5,
-        isText: isText
+        isText: isText,
+        isHit: false
     };
 
     // Стилизуем клона как "врага"
@@ -479,9 +480,17 @@ function updateEnemies() {
 
 function renderEnemies() {
     for (const enemy of Game.enemies) {
-        enemy.el.style.left = `${enemy.x}px`;
-        enemy.el.style.top = `${enemy.y}px`;
-        enemy.el.style.transform = `translate(-50%, -50%)`;
+        if (enemy.el) {
+            let scale = 1;
+            if (enemy.isHit) {
+                scale = 0.85; // Если есть попадание, уменьшаем масштаб
+            }
+            
+            enemy.el.style.left = `${enemy.x}px`;
+            enemy.el.style.top = `${enemy.y}px`;
+            // Совмещаем позиционирование и анимацию
+            enemy.el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
     }
 }
 
@@ -506,8 +515,10 @@ function checkCollisions() {
                 
                 enemy.hp--;
                 
-                enemy.el.classList.add('hit-shake');
-                setTimeout(() => enemy.el.classList.remove('hit-shake'), 100);
+                enemy.isHit = true;
+                setTimeout(() => {
+                    if (enemy) enemy.isHit = false;
+                }, 100); // Длительность эффекта
 
                 if (enemy.hp <= 0) {
                     enemy.el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -517,7 +528,7 @@ function checkCollisions() {
                     Game.enemies.splice(j, 1);
                 }
                 
-                return; // Выходим
+                return;
             }
         }
     }
