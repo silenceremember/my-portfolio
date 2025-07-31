@@ -1,5 +1,5 @@
 /* ====================================================== */
-/* СТИЛИ ДЛЯ ИГРЫ "INTERFACE SHOOTER" (V3 - FINAL)       */
+/* СТИЛИ ДЛЯ ИГРЫ "INTERFACE SHOOTER"                    */
 /* ====================================================== */
 
 /* --- СЦЕНА И ИГРОВОЕ ПОЛЕ --- */
@@ -7,7 +7,8 @@
 /* Скрываем ВЕСЬ интерфейс, когда игра активна */
 body.game-active .site-header,
 body.game-active .site-footer,
-body.game-active .sections-container {
+body.game-active .sections-container,
+body.game-active #qte-container {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -15,29 +16,93 @@ body.game-active .sections-container {
 
 /* Изменяем положение вертикальных линий, создавая игровое поле */
 body.game-active .vertical-guide-line.left {
-    left: calc(50% - 350px); /* 700px / 2 */
+    left: calc(50% - 350px);
     transition: left 0.8s ease-out 0.5s;
 }
 body.game-active .vertical-guide-line.right {
-    right: calc(50% - 350px); /* 700px / 2 */
+    right: calc(50% - 350px);
     transition: right 0.8s ease-out 0.5s;
 }
 
+/* Фон "космоса" */
+#stars-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10; /* Ниже всего остального */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease 0.5s;
+}
+body.game-active #stars-canvas {
+    opacity: 1;
+}
+
+/* Блокируем выделение текста в режиме игры */
+body.game-active {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
 /* --- ИГРОВОЙ UI --- */
+
+/* Текст перехода между уровнями */
+.level-transition-text {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-main);
+    font-weight: 900;
+    font-size: 48px;
+    color: var(--text-color);
+    text-transform: uppercase;
+    opacity: 1;
+    z-index: 510;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Шкала "Шума" */
+#noise-bar-container {
+    position: fixed;
+    bottom: calc(var(--frame-padding-vertical) + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 10px;
+    border: 1px solid var(--text-color);
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 500;
+}
+#noise-bar-container.visible {
+    opacity: 0.7;
+}
+
+#noise-bar-fill {
+    width: 0%;
+    height: 100%;
+    background-color: var(--red-accent);
+    transition: width 0.2s linear;
+}
 
 /* Контейнер для HP и счетчика смертей (вверху) */
 .game-ui-header {
     position: fixed;
-    top: 20px; /* Ближе к краю, т.к. хедера больше нет */
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    
     display: flex;
-    /* !!! ИЗМЕНЕНИЕ: Элементы теперь в столбик !!! */
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
-    gap: 10px; /* Отступ между HP и счетчиком */
-    
+    gap: 10px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -55,6 +120,7 @@ body.game-active .vertical-guide-line.right {
     width: 16px;
     height: 16px;
     border: 1px solid var(--text-color);
+    box-sizing: border-box;
 }
 .hp-block.full {
     background-color: var(--red-accent);
@@ -71,18 +137,14 @@ body.game-active .vertical-guide-line.right {
 /* Контейнер для уровней (внизу) */
 .game-ui-footer {
     position: fixed;
-    bottom: 0; /* Прижимаем к самому низу экрана */
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    
-    /* !!! ГЛАВНОЕ ИЗМЕНЕНИЕ: Задаем высоту и центрируем !!! */
-    height: var(--frame-padding-vertical); /* Задаем высоту, равную высоте старого футера */
+    height: var(--frame-padding-vertical);
     display: flex;
-    align-items: center; /* Это свойство выровняет уровни по вертикальному центру */
-    justify-content: center; /* И по горизонтальному центру */
-    
+    align-items: center;
+    justify-content: center;
     gap: 6px;
-
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -97,26 +159,11 @@ body.game-active .vertical-guide-line.right {
     height: 16px;
     box-sizing: border-box;
     transition: all 0.2s ease;
-    background-color: transparent; /* У всех по умолчанию прозрачный фон */
+    background-color: transparent;
 }
-
-/* Состояние "Предстоит" (по умолчанию) */
-.level-block.upcoming {
-    border: 1px solid var(--text-color); /* Белый контур */
-}
-
-/* Состояние "Идет" (активный уровень) */
-.level-block.active {
-    border: 1px solid var(--red-accent); /* Красный контур */
-    transform: scale(1.2); /* Слегка увеличиваем для акцента */
-}
-
-/* Состояние "Пройден" */
-.level-block.completed {
-    border: 1px solid var(--red-accent); /* Красная рамка */
-    background-color: var(--red-accent); /* Красное заполнение */
-}
-
+.level-block.upcoming { border: 1px solid var(--text-color); }
+.level-block.active { border: 1px solid var(--red-accent); transform: scale(1.2); }
+.level-block.completed { border: 1px solid var(--red-accent); background-color: var(--red-accent); }
 
 /* Подсказка для старта игры */
 .game-start-prompt {
@@ -133,95 +180,102 @@ body.game-active .vertical-guide-line.right {
     color: var(--text-color);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease 1.3s; /* Появляется после сужения линий */
+    transition: opacity 0.5s ease 1.3s;
 }
 .game-start-prompt.visible {
     opacity: 1;
 }
-
-.game-start-prompt p {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.game-start-prompt kbd {
-    display: inline-block;
-    padding: 4px 8px;
-    border: 1px solid var(--text-color);
-    margin: 0 4px;
-}
+.game-start-prompt p { margin: 0; font-size: 16px; font-weight: 700; text-transform: uppercase; }
+.game-start-prompt kbd { display: inline-block; padding: 4px 8px; border: 1px solid var(--text-color); margin: 0 4px; }
 
 
 /* --- ИГРОВЫЕ ОБЪЕКТЫ --- */
 
-/* Корабль игрока */
 #player-ship {
     position: fixed;
-    
-    /* Начальная позиция - за экраном. JS ее установит. */
-    opacity: 0; 
-    
-    /* Убираем transition, так как JS будет управлять анимацией */
-    
-    /* Стили самого треугольника */
-    width: 0;
-    height: 0;
+    opacity: 0;
+    width: 0; height: 0;
     border-left: 15px solid transparent;
     border-right: 15px solid transparent;
     border-bottom: 25px solid var(--red-accent);
     z-index: 502;
-    transform: translate(-50%, -50%); /* Всегда центрируем */
+    transform: translate(-50%, -50%);
 }
 
-/* Пуля игрока */
 .bullet {
     position: fixed;
     width: 4px;
     height: 12px;
     background-color: var(--red-accent);
-    z-index: 501; /* Чуть ниже корабля */
+    z-index: 501;
     pointer-events: none;
 }
 
-body.game-active {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-/* Анимация падения */
-@keyframes fall {
-    from {
-        /* Начальная позиция задается в .star, поэтому from можно оставить пустым */
-        /* или задать transform: translateY(0); */
-    }
-    to {
-        /* !!! ВОЗВРАЩАЕМ TRANSFORM !!! */
-        /* Это заставляет каждую "звезду" двигаться относительно СВОЕЙ начальной позиции */
-        transform: translateY(calc(100vh + 100px)); 
-    }
-}
-
-#stars-canvas {
+.enemy {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    pointer-events: none;
+    z-index: 500;
+    transition: transform 0.1s ease-out; 
+}
+
+.enemy.hit-shake {
+    transform: scale(0.85); /* Уменьшаем элемент до 85% от его размера */
+}
+  
+
+.enemy-letter {
+    font: inherit;
+    color: var(--text-color) !important;
+    white-space: pre;
+}
+
+.enemy-letter.destroyed {
     opacity: 0;
-    transition: opacity 1s ease 0.5s;
+    transition: opacity 0.2s ease;
 }
 
-body.game-active #stars-canvas {
-    opacity: 1;
+.enemy-bullet {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background-color: var(--red-accent);
+    z-index: 501;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 10px var(--red-accent);
 }
 
-.game-element.fading-out {
-    opacity: 0 !important; /* !important, чтобы перебить другие стили opacity */
-    transition: opacity 1s ease;
+.bonus {
+    position: fixed;
+    z-index: 510;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-main);
+    font-weight: 900;
+    font-size: 20px;
+    color: var(--text-color);
+    background-color: rgba(0,0,0,0.5);
+    cursor: pointer;
+    animation: bonus-pulse 2s infinite ease-in-out;
 }
+
+@keyframes bonus-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 5px var(--text-color);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px var(--text-color);
+    }
+}
+
+.bonus[data-type="weapon_upgrade"] { border-color: var(--red-accent); color: var(--red-accent); }
+.bonus[data-type="pierce"] { border-color: #4A90E2; color: #4A90E2; }
+.bonus[data-type="reset"] { border-color: #50E3C2; color: #50E3C2; }
+.bonus[data-type="shield"] { border-color: #F5A623; color: #F5A623; }
+.bonus[data-type="bomb"] { border-color: #BD10E0; color: #BD10E0; }
+.bonus[data-type="size"] { border-color: #7ED321; color: #7ED321; }
