@@ -1,0 +1,65 @@
+/* Общие стили для секций на главной */
+main.sections-container {
+    position: absolute;
+    top: var(--frame-padding-vertical);
+    bottom: var(--frame-padding-vertical);
+    left: var(--frame-padding-horizontal);
+    right: var(--frame-padding-horizontal);
+    overflow: hidden;
+}
+.full-page-section {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    box-sizing: border-box;
+    opacity: 0; visibility: hidden;
+    transition: opacity calc(var(--animation-duration) / 2) ease-in-out, visibility 0s calc(var(--animation-duration) / 2);
+}
+.full-page-section.active { opacity: 1; visibility: visible; z-index: 10; transition-delay: calc(var(--animation-duration) / 2); }
+.full-page-section.active .hero-content,
+.full-page-section.active .content-wrapper {
+    animation: fadeIn var(--animation-duration) ease forwards;
+    animation-delay: 0.3s;
+    opacity: 0;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* Секция 1: Манифест */
+.hero-background-banner {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    opacity: 0.05;
+    background: url('../images/banner-art.jpg') no-repeat center center;
+    background-size: cover;
+}
+body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(1); }
+.hero-content-v2 { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 48px; }
+.hero-photo-placeholder { width: 280px; height: 420px; border: 1px solid var(--border-color); flex-shrink: 0; }
+.hero-text-wrapper { position: relative; height: 420px; width: 600px; }
+.hero-top-text { position: absolute; top: 0; left: 0; text-align: left; transform: translateY(-13px); }
+.hero-top-text h1 { font-size: var(--h1-size); font-weight: 900; margin: 0; }
+.hero-top-text .nickname { font-size: 20px; font-weight: 700; color: var(--red-accent); margin: 0; }
+.profession-line { display: flex; align-items: center; margin: 0; font-size: var(--h2-size); font-weight: 700; }
+.separator-icon-large { width: 28px; height: 28px; background-color: var(--text-color); margin: 0 20px; }
+.hero-bottom-text { position: absolute; bottom: 0; left: 0; text-align: left; transform: translateY(5px); }
+.hero-bottom-text .philosophy { font-size: var(--p-size); font-weight: 400; width: 600px; margin: 0; opacity: 1; }
+
+/* Секции 2-4: Проекты */
+.project-slide { display: flex; justify-content: center; align-items: flex-start; gap: 24px; width: 100%; }
+.project-left-column { width: 560px; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-start; }
+.section-title { font-size: 32px; font-weight: 900; text-transform: uppercase; margin: 0; }
+.project-subtitle { display: flex; align-items: baseline; gap: 16px; margin-bottom: 12px; }
+.project-title { font-size: 24px; font-weight: 900; color: var(--red-accent); margin: 0; text-transform: uppercase; }
+.project-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; font-style: italic; white-space: nowrap; opacity: 0.7; }
+.meta-separator-icon { width: 8px; height: 8px; background-color: var(--text-color); }
+.project-visual-placeholder { width: 100%; height: 315px; border: 1px solid var(--border-color); box-sizing: border-box; }
+.project-progress-indicator { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 16px; }
+.indicator-icon { width: 27px; height: 27px; background-color: var(--text-color); opacity: 0.3; transition: all 0.3s ease; }
+.indicator-icon.active { background-color: var(--red-accent); opacity: 1; }
+.project-details { width: 460px; padding-top: 76px; }
+.details-block { margin-bottom: 24px; }
+.details-heading { font-size: 18px; font-weight: 700; color: var(--red-accent); margin: 0; text-transform: uppercase; }
+.details-text { font-size: 18px; line-height: 1.6; margin: 0; }
+
+/* Секция 5: Финальный CTA */
+.final-cta-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#final-section-title { font-size: 42px; }

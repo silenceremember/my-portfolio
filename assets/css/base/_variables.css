@@ -1,0 +1,29 @@
+:root {
+    /* Цвета */
+    --bg-color: #121212;
+    --text-color: #F5F5F5;
+    --red-accent: #D90429;
+    --border-color: #F5F5F5;
+    
+    /* Типографика */
+    --font-main: 'Inter', sans-serif;
+    --h1-size: 48px;
+    --h2-size: 32px;
+    --h3-size: 24px;
+    --p-size: 18px;
+    --nav-size: 18px;
+    --ui-size: 14px;
+    --lang-size: 24px;
+
+    /* Отступы и размеры */
+    --frame-padding-vertical: 80px;
+    --frame-padding-horizontal: 420px; 
+    --icon-size-small: 14px;
+    --icon-size-normal: 24px;
+    --icon-size-large: 30px;
+    --logo-me-width: 42px;
+    --logo-me-height: 24px;
+    
+    /* Анимация */
+    --animation-duration: 0.6s;
+}

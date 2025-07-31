@@ -1,0 +1,31 @@
+/* Горизонтальные линии */
+body::before, body::after {
+    content: '';
+    position: fixed;
+    background-color: var(--border-color);
+    z-index: 101;
+    left: 0;
+    right: 0;
+    height: 1px;
+    transition: background-color 0.3s ease;
+    pointer-events: none;
+}
+body::before { top: var(--frame-padding-vertical); }
+body::after { bottom: var(--frame-padding-vertical); }
+
+/* Вертикальные линии */
+.vertical-guide-line {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: var(--border-color);
+    z-index: 150;
+    pointer-events: none;
+}
+.vertical-guide-line.left {
+    left: 400px;
+}
+.vertical-guide-line.right {
+    right: 400px;
+}

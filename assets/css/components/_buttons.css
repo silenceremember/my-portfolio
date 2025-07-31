@@ -1,0 +1,38 @@
+/* Кнопки для финальной секции */
+.nav-button-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+    width: 800px;
+    margin-top: 80px;
+}
+.cta-main-separator {
+    width: 50px;
+    height: 50px;
+    background-color: var(--text-color);
+    margin: 20px 0;
+}
+.nav-button {
+    display: block;
+    font-family: var(--font-main);
+    font-weight: 700;
+    font-size: 18px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-color);
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    padding: 16px 24px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    text-align: center;
+    box-sizing: border-box;
+}
+#cta-telegram-button {
+    width: 400px;
+}
+.nav-button:hover {
+    background-color: var(--red-accent);
+    border-color: var(--red-accent);
+    color: var(--bg-color);
+}

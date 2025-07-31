@@ -1,0 +1,29 @@
+#qte-container {
+    position: absolute;
+    bottom: calc(50% - 420px / 2);
+    left: calc(50% - (280px + 48px + 600px) / 2 - 1px);
+    transform: translateY(calc(100% + 16px));
+    display: flex;
+    gap: 6px;
+    z-index: 11;
+}
+.qte-key {
+    width: 16px;
+    height: 16px;
+    background-color: transparent;
+    border: 1px solid var(--text-color);
+    box-sizing: border-box; 
+    transition: all 0.2s ease;
+}
+.qte-key.correct {
+    background-color: var(--red-accent);
+    border-color: var(--red-accent);
+}
+.qte-key.error-shake {
+    animation: qte-error-shake-vertical 0.4s ease-in-out;
+}
+@keyframes qte-error-shake-vertical {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(5px); }
+    75% { transform: translateY(0); }
+}

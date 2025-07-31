@@ -1,0 +1,46 @@
+/* Настройки для светлой темы */
+body[data-theme="light"] {
+    --bg-color: #F5F5F5;
+    --text-color: #121212;
+    --border-color: #121212;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    font-weight: 400;
+    margin: 0; padding: 0;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Глобальная типографика */
+h1, h2 { font-weight: 900; }
+strong, .nav-link, .cta-button, .footer-email, .footer-copyright { font-weight: 700; }
+
+/* Глобальное управление выделением */
+body, .site-frame {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+h1, h2, h3, p, .nav-link, .cta-button, .footer-icon-link {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+::selection {
+    background-color: var(--red-accent);
+    color: var(--bg-color);
+    text-shadow: none;
+}
+::-moz-selection {
+    background-color: var(--red-accent);
+    color: var(--bg-color);
+    text-shadow: none;
+}
