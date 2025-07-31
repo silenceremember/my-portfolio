@@ -10,10 +10,15 @@ const Game = {
     keys: new Set(),
     bullets: [],
     enemies: [],
+    enemyBullets: [],
     stars: [],
+    hp: 3,
+    noise: 0,
+    isInvulnerable: false,
     settings: {
         playerSpeed: 7, bulletSpeed: 12, fireCooldown: 150,
-        readyUpDelay: 2000, starCount: 150, enemyBaseSpeed: 0.5
+        readyUpDelay: 2000, starCount: 150, enemyBaseSpeed: 0.5,
+        enemyWaveInterval: 800
     },
     bounds: { top: 0, bottom: 0, left: 0, right: 0 },
     canFire: true,
@@ -61,6 +66,7 @@ function initGame() {
         console.log("GAME STARTED!");
         
         showGameUI();
+        document.getElementById('noise-bar-container').classList.add('visible');
         if (startPrompt) startPrompt.remove();
         
         loadLevel(1);
@@ -105,21 +111,24 @@ function handleGameKeys(event) {
 
 function gameLoop() {
     if (!document.body.classList.contains('game-active')) return;
+
     updateStars();
     if (Game.player.isFlyingIn) { updatePlayerFlyIn(); }
+    
     if (Game.isActive) {
         updatePlayerPosition();
         handleShooting();
         moveBullets();
         updateEnemies();
+        
+        // !!! ВОТ ИСПРАВЛЕНИЕ !!!
+        updateEnemyBullets(); 
+        
         checkCollisions();
     }
+    
     if (Game.player.el) { renderPlayer(); }
     renderEnemies();
+    
     requestAnimationFrame(gameLoop);
-}
-
-// Добавляем главную функцию в глобальную область видимости
-if (typeof window.initGame === 'undefined') {
-    window.initGame = initGame;
 }
