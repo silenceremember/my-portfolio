@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function onKonamiSuccess() {
         console.log("Konami Code Activated! Launching game mechanics...");
-        if (window.initDestruction) {
-            window.initDestruction();
+        if (window.initGame) {
+            window.initGame(); // <-- ВЫЗЫВАЕМ НОВУЮ ИГРУ
         }
         resetQTE();
     }
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showSection(0);
 
     window.addEventListener('wheel', (event) => {
-        if (isScrolling) return;
+        if (isScrolling || document.body.classList.contains('game-active')) return;
         let direction = event.deltaY > 0 ? 1 : -1;
         let nextIndex = currentSectionIndex + direction;
         if (nextIndex >= 0 && nextIndex < sections.length) {

@@ -1,0 +1,227 @@
+/* ====================================================== */
+/* СТИЛИ ДЛЯ ИГРЫ "INTERFACE SHOOTER" (V3 - FINAL)       */
+/* ====================================================== */
+
+/* --- СЦЕНА И ИГРОВОЕ ПОЛЕ --- */
+
+/* Скрываем ВЕСЬ интерфейс, когда игра активна */
+body.game-active .site-header,
+body.game-active .site-footer,
+body.game-active .sections-container {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+/* Изменяем положение вертикальных линий, создавая игровое поле */
+body.game-active .vertical-guide-line.left {
+    left: calc(50% - 350px); /* 700px / 2 */
+    transition: left 0.8s ease-out 0.5s;
+}
+body.game-active .vertical-guide-line.right {
+    right: calc(50% - 350px); /* 700px / 2 */
+    transition: right 0.8s ease-out 0.5s;
+}
+
+/* --- ИГРОВОЙ UI --- */
+
+/* Контейнер для HP и счетчика смертей (вверху) */
+.game-ui-header {
+    position: fixed;
+    top: 20px; /* Ближе к краю, т.к. хедера больше нет */
+    left: 50%;
+    transform: translateX(-50%);
+    
+    display: flex;
+    /* !!! ИЗМЕНЕНИЕ: Элементы теперь в столбик !!! */
+    flex-direction: column; 
+    align-items: center;
+    gap: 10px; /* Отступ между HP и счетчиком */
+    
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 500;
+}
+.game-ui-header.visible {
+    opacity: 1;
+}
+
+.game-hp-bar {
+    display: flex;
+    gap: 6px;
+}
+.hp-block {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--text-color);
+}
+.hp-block.full {
+    background-color: var(--red-accent);
+    border-color: var(--red-accent);
+}
+
+.game-deaths-counter {
+    font-family: var(--font-main);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+/* Контейнер для уровней (внизу) */
+.game-ui-footer {
+    position: fixed;
+    bottom: 0; /* Прижимаем к самому низу экрана */
+    left: 50%;
+    transform: translateX(-50%);
+    
+    /* !!! ГЛАВНОЕ ИЗМЕНЕНИЕ: Задаем высоту и центрируем !!! */
+    height: var(--frame-padding-vertical); /* Задаем высоту, равную высоте старого футера */
+    display: flex;
+    align-items: center; /* Это свойство выровняет уровни по вертикальному центру */
+    justify-content: center; /* И по горизонтальному центру */
+    
+    gap: 6px;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 500;
+}
+.game-ui-footer.visible {
+    opacity: 1;
+}
+
+.level-block {
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    background-color: transparent; /* У всех по умолчанию прозрачный фон */
+}
+
+/* Состояние "Предстоит" (по умолчанию) */
+.level-block.upcoming {
+    border: 1px solid var(--text-color); /* Белый контур */
+}
+
+/* Состояние "Идет" (активный уровень) */
+.level-block.active {
+    border: 1px solid var(--red-accent); /* Красный контур */
+    transform: scale(1.2); /* Слегка увеличиваем для акцента */
+}
+
+/* Состояние "Пройден" */
+.level-block.completed {
+    border: 1px solid var(--red-accent); /* Красная рамка */
+    background-color: var(--red-accent); /* Красное заполнение */
+}
+
+
+/* Подсказка для старта игры */
+.game-start-prompt {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 501;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-main);
+    color: var(--text-color);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease 1.3s; /* Появляется после сужения линий */
+}
+.game-start-prompt.visible {
+    opacity: 1;
+}
+
+.game-start-prompt p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.game-start-prompt kbd {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 1px solid var(--text-color);
+    margin: 0 4px;
+}
+
+
+/* --- ИГРОВЫЕ ОБЪЕКТЫ --- */
+
+/* Корабль игрока */
+#player-ship {
+    position: fixed;
+    
+    /* Начальная позиция - за экраном. JS ее установит. */
+    opacity: 0; 
+    
+    /* Убираем transition, так как JS будет управлять анимацией */
+    
+    /* Стили самого треугольника */
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 25px solid var(--red-accent);
+    z-index: 502;
+    transform: translate(-50%, -50%); /* Всегда центрируем */
+}
+
+/* Пуля игрока */
+.bullet {
+    position: fixed;
+    width: 4px;
+    height: 12px;
+    background-color: var(--red-accent);
+    z-index: 501; /* Чуть ниже корабля */
+    pointer-events: none;
+}
+
+body.game-active {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Анимация падения */
+@keyframes fall {
+    from {
+        /* Начальная позиция задается в .star, поэтому from можно оставить пустым */
+        /* или задать transform: translateY(0); */
+    }
+    to {
+        /* !!! ВОЗВРАЩАЕМ TRANSFORM !!! */
+        /* Это заставляет каждую "звезду" двигаться относительно СВОЕЙ начальной позиции */
+        transform: translateY(calc(100vh + 100px)); 
+    }
+}
+
+#stars-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease 0.5s;
+}
+
+body.game-active #stars-canvas {
+    opacity: 1;
+}
+
+.game-element.fading-out {
+    opacity: 0 !important; /* !important, чтобы перебить другие стили opacity */
+    transition: opacity 1s ease;
+}
