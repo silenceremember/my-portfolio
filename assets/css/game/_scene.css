@@ -1,0 +1,44 @@
+/* assets/css/game/_scene.css */
+
+/* --- СЦЕНА И ИГРОВОЕ ПОЛЕ --- */
+
+/* Скрываем ВЕСЬ интерфейс, когда игра активна */
+body.game-active .site-header,
+body.game-active .site-footer,
+body.game-active .sections-container,
+body.game-active #qte-container {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+/* Изменяем положение вертикальных линий, создавая игровое поле */
+body.game-active .vertical-guide-line.left {
+    left: calc(50% - 350px);
+    transition: left 0.8s ease-out 0.5s;
+}
+body.game-active .vertical-guide-line.right {
+    right: calc(50% - 350px);
+    transition: right 0.8s ease-out 0.5s;
+}
+
+/* Фон "космоса" */
+#stars-canvas {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease 0.5s;
+}
+body.game-active #stars-canvas {
+    opacity: 1;
+}
+
+/* Блокируем выделение текста в режиме игры */
+body.game-active {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
