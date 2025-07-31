@@ -385,54 +385,47 @@ body[data-theme="light"] .hero-background-banner {
 .project-slide {
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* Выравниваем по низу для интересного эффекта */
+    align-items: flex-end;
     gap: 60px;
     width: 100%;
 }
 
-/* ЛЕВАЯ КОЛОНКА */
 .project-left-column {
-    width: 560px; /* Та же ширина, что и у визуала */
+    width: 560px;
     flex-shrink: 0;
-}
-
-/* Контейнер для верхних заголовков */
-.project-header {
-    display: flex;
-    justify-content: space-between; /* Главное слева, мета-инфо справа */
-    align-items: flex-end; /* Выравниваем по нижнему краю */
-    margin-bottom: 24px; /* Отступ до визуала */
-}
-
-/* Главная часть заголовка (Избранные + Название) */
-.project-header-main {
-    text-align: left;
 }
 
 .section-title {
     font-size: 32px;
-    font-weight: 900; /* BLACK */
+    font-weight: 900;
     text-transform: uppercase;
-    margin: 0 0 4px 0; /* Маленький отступ до названия проекта */
+    margin: 0; /* !!! УБИРАЕМ ВСЕ ОТСТУПЫ !!! */
+}
+
+.project-subtitle {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 12px;
 }
 
 .project-title {
     font-size: 24px;
-    font-weight: 900; /* BLACK */
+    font-weight: 900;
     color: var(--red-accent);
     margin: 0;
     text-transform: uppercase;
 }
 
-/* Мета-информация (Жанр, Платформа) */
 .project-meta {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 11px;
-    font-weight: 700; /* BOLD */
+    font-weight: 700;
     font-style: italic;
-    /* margin-bottom: 4px; Добавляем небольшой отступ, чтобы быть на одном уровне с .project-title */
+    white-space: nowrap; /* Запрещаем перенос строки */
+    opacity: 0.7; /* Делаем чуть менее заметным, чтобы главный акцент был на названии */
 }
 
 .meta-separator-icon {
@@ -441,12 +434,12 @@ body[data-theme="light"] .hero-background-banner {
     background-color: var(--text-color);
 }
 
-/* Плейсхолдер для визуала */
 .project-visual-placeholder {
-    width: 100%; /* Занимает всю ширину левой колонки */
-    height: 315px; /* Соотношение 16:9 */
+    width: 100%;
+    height: 315px;
     border: 1px solid var(--border-color);
 }
+
 
 
 /* ПРАВАЯ КОЛОНКА (без изменений) */
