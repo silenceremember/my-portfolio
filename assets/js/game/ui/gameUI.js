@@ -79,7 +79,7 @@ function updateHpBar(oldHp = Game.hp) {
     const segments = Game.ui.hpBarSegments;
     const totalSegments = segments.length;
 
-    // Шаг 1: Обновление заполнения
+    // --- Шаг 1: Обновление заполнения ---
     const fullSegments = Math.floor(newHp / 20);
     const lastSegmentFill = (newHp % 20) / 20;
 
@@ -98,19 +98,29 @@ function updateHpBar(oldHp = Game.hp) {
         }
     }
     
-    // Шаг 2: Логика мерцания
+    // --- Шаг 2: Логика мерцания ---
     if (newHp > 0 && newHp <= 20) {
         if (segments[0]) segments[0].classList.add('is-blinking');
     }
 
-    // Шаг 3: Анимация восстановления
+    // --- Шаг 3: Анимация восстановления (ИСПРАВЛЕННАЯ ЛОГИКА) ---
     if (newHp > oldHp) {
-        const restoredSegmentIndex = Math.ceil(newHp / 20) - 1;
-        if (restoredSegmentIndex >= 0 && restoredSegmentIndex < totalSegments) {
-            pulseHpSegment(restoredSegmentIndex);
+        // Определяем, сколько полных сегментов было ДО восстановления
+        const oldFullSegments = Math.floor(oldHp / 20);
+        // Определяем, сколько полных сегментов стало ПОСЛЕ
+        const newFullSegments = Math.floor(newHp / 20);
+
+        // Если количество полных сегментов увеличилось,
+        // значит, мы только что заполнили один из них.
+        if (newFullSegments > oldFullSegments) {
+            // Анимируем последний из НОВЫХ полных сегментов.
+            // Его индекс будет newFullSegments - 1.
+            const segmentToPulse = newFullSegments - 1;
+            pulseHpSegment(segmentToPulse);
         }
     }
 }
+
 
 function updateLevelIndicators() {
     if (Game.ui.levelDots.length === 0) return;

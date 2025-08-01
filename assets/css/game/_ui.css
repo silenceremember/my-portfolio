@@ -114,6 +114,8 @@ body.game-mode .game-ui-bottom.visible {
 }
 
 .hp-segment-fill.pulse-animation {
+    /* Добавляем transform-origin: center, чтобы масштабирование было от центра */
+    transform-origin: center;
     animation: pulse 0.3s ease-out;
 }
 
