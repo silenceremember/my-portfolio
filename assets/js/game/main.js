@@ -9,7 +9,7 @@ const keyMap = {
 };
 
 /**
- * ОБРАБОТЧИКИ УПРАВЛЕНИЯ КЛАВИАТУРОЙ
+ * ОБРАБОТЧИКИ УПРАВЛЕНИЯ КЛАВИАТУРОЙ (для активной игры)
  */
 function handleKeyDown(e) {
     const action = keyMap[e.code]; 
@@ -47,22 +47,30 @@ function showCursor() {
 }
 
 // ======================================================
+// === ЛОГИКА ЗАПУСКА ИГРЫ ПО ДЕЙСТВИЮ ИГРОКА =========
+// ======================================================
+
+function handleFirstInput(e) {
+    if (!Game.isReadyToPlay || !keyMap[e.code]) return;
+    console.log("First player input detected. Starting gameplay!");
+    startGameplay();
+    window.removeEventListener('keydown', handleFirstInput);
+}
 
 function startGameplay() {
-    console.log("Gameplay ACTIVE!");
     Game.isActive = true;
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-    window.addEventListener('mousemove', showCursor);
-    hideCursor();
 }
+
+// ======================================================
 
 /**
  * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (ИСПРАВЛЕННАЯ ВЕРСИЯ)
  */
 function gameLoop(currentTime) {
-    // Эта проверка - единственный правильный способ остановить цикл.
+    // Эта проверка - единственный "выключатель" цикла.
     if (!document.body.classList.contains('game-mode')) return;
     
     updateStars();
@@ -70,8 +78,9 @@ function gameLoop(currentTime) {
     if (Game.isActive) updatePlayerPosition();
     renderPlayer();
 
-    // ИСПРАВЛЕНИЕ: Мы всегда запрашиваем следующий кадр, пока 'game-mode' активен.
+    // ИСПРАВЛЕНИЕ: Мы всегда запрашиваем следующий кадр.
     // Это гарантирует, что звезды будут двигаться во время анимации выхода.
+    // Цикл остановится сам, когда проверка выше вернет true.
     requestAnimationFrame(gameLoop);
 }
 
@@ -111,8 +120,11 @@ function initGame() {
 
     const timeUntilReady = gameElementsAppearTime + 800 + Game.settings.READY_UP_DELAY;
     setTimeout(() => {
-        Game.isReady = true;
-        startGameplay();
+        console.log("Game is ready. Waiting for player input...");
+        Game.isReadyToPlay = true;
+        window.addEventListener('mousemove', showCursor);
+        hideCursor();
+        window.addEventListener('keydown', handleFirstInput);
     }, timeUntilReady);
 
     requestAnimationFrame(gameLoop);
@@ -122,17 +134,21 @@ function initGame() {
  * ФУНКЦИЯ ВЫХОДА ИЗ ИГРЫ
  */
 function exitGame() {
-    // ВАЖНО: Мы больше не используем Game.isShuttingDown, так как цикл управляется иначе.
-    if (!document.body.classList.contains('game-mode')) return;
-
+    // Флаг isShuttingDown все еще полезен, чтобы предотвратить повторный вызов этой функции
+    if (Game.isShuttingDown || !document.body.classList.contains('game-mode')) return;
     console.log("Exiting game sequentially...");
+    Game.isShuttingDown = true;
     
-    Game.isActive = false; Game.isReady = false;
+    Game.isActive = false; Game.isReadyToPlay = false;
     Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
+    
     window.removeEventListener('keydown', handleKeyDown);
     window.removeEventListener('keyup', handleKeyUp);
+    window.removeEventListener('keydown', handleFirstInput);
+
     window.removeEventListener('mousemove', showCursor);
     if (cursorIdleTimer) clearTimeout(cursorIdleTimer);
+
     document.getElementById('game-cursor-blocker')?.classList.remove('is-hidden');
 
     document.getElementById('player-ship')?.classList.remove('visible');
@@ -156,8 +172,8 @@ function exitGame() {
         document.querySelector('.game-start-prompt')?.remove();
         document.getElementById('game-cursor-blocker')?.remove();
         
-        // Цикл остановится сам на следующем кадре, когда увидит, что этого класса нет.
-        document.body.classList.remove('game-mode'); 
+        Game.isShuttingDown = false; // Сбрасываем флаг на всякий случай
+        document.body.classList.remove('game-mode'); // Это остановит gameLoop
     }, 1800);
 }
 
