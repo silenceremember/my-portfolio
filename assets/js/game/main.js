@@ -43,23 +43,31 @@ function showCursor() {
     const blocker = document.getElementById('game-cursor-blocker');
     if (blocker) blocker.classList.remove('is-hidden');
     if (cursorIdleTimer) clearTimeout(cursorIdleTimer);
-    cursorIdleTimer = setTimeout(hideCursor, 2500);
+    cursorIdleTimer = setTimeout(hideCursor, 1000);
 }
 
 // ======================================================
 // === ЛОГИКА ЗАПУСКА ИГРЫ ПО ДЕЙСТВИЮ ИГРОКА =========
 // ======================================================
 
-function handleFirstInput(e) {
+function handlePreGameInput(e) {
+    // Сначала проверяем выход, так как он имеет приоритет
+    if (e.code === 'Escape') {
+        exitGame();
+        return; // Выходим из функции
+    }
+
+    // Затем проверяем старт игры
     if (!Game.isReadyToPlay || !keyMap[e.code]) return;
+
     console.log("First player input detected. Starting gameplay!");
     startGameplay();
-    window.removeEventListener('keydown', handleFirstInput);
 }
 
 function startGameplay() {
     Game.isActive = true;
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
+    window.removeEventListener('keydown', handlePreGameInput);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 }
@@ -124,7 +132,7 @@ function initGame() {
         Game.isReadyToPlay = true;
         window.addEventListener('mousemove', showCursor);
         hideCursor();
-        window.addEventListener('keydown', handleFirstInput);
+        window.addEventListener('keydown', handlePreGameInput);
     }, timeUntilReady);
 
     requestAnimationFrame(gameLoop);
@@ -144,7 +152,7 @@ function exitGame() {
     
     window.removeEventListener('keydown', handleKeyDown);
     window.removeEventListener('keyup', handleKeyUp);
-    window.removeEventListener('keydown', handleFirstInput);
+    window.addEventListener('keydown', handlePreGameInput);
 
     window.removeEventListener('mousemove', showCursor);
     if (cursorIdleTimer) clearTimeout(cursorIdleTimer);
