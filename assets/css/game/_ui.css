@@ -69,47 +69,38 @@ body.game-mode .game-ui-bottom.visible {
     opacity: 1;
 }
 
-/* --- Топливная шкала (НОВАЯ ВЕРСИЯ) --- */
+/* --- Шкала HP --- */
 
-/* Внешний контейнер, который просто центрирует шкалу */
-#fuel-bar-wrapper {
-    position: relative; /* Нужно для позиционирования слоев */
+#hp-bar-wrapper {
+    position: relative;
 }
 
-/* Контейнер для фоновых (пустых) сегментов */
-.fuel-bar-background {
-    display: flex;
-    gap: 6px; /* Расстояние между сегментами */
-}
-
-/* Контейнер для заполненных сегментов. Он будет масштабироваться. */
-#fuel-bar-level {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%; /* Растягивается на всю ширину фона */
-    height: 100%;
+.hp-bar-background {
     display: flex;
     gap: 6px;
-    transform-origin: left; /* Масштабирование от левого края */
-    transition: transform 0.2s linear;
-    overflow: hidden; /* Важно, чтобы скрыть части заполненных сегментов */
 }
 
-/* Стили для одного сегмента */
-.fuel-segment {
+#hp-bar-level {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex;
+    gap: 6px;
+    transform-origin: left;
+    transition: transform 0.2s linear;
+    overflow: hidden;
+}
+
+.hp-segment {
     width: 16px;
     height: 16px;
     box-sizing: border-box;
 }
 
-/* Пустой сегмент - это просто рамка */
-.fuel-segment-empty {
+.hp-segment-empty {
     border: 1px solid var(--text-color);
 }
 
-/* Заполненный сегмент - это красный квадрат */
-.fuel-segment-filled {
+.hp-segment-filled {
     background-color: var(--red-accent);
 }
 

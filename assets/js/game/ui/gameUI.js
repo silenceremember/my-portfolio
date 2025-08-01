@@ -7,35 +7,35 @@ function createGameUI() {
     topUI.className = 'game-ui-top';
     
     // 1. Создаем главный контейнер-обертку
-    const fuelBarWrapper = document.createElement('div');
-    fuelBarWrapper.id = 'fuel-bar-wrapper';
+    const hpBarWrapper = document.createElement('div');
+    hpBarWrapper.id = 'hp-bar-wrapper';
 
     // 2. Создаем фоновый слой с пустыми сегментами
     const backgroundLayer = document.createElement('div');
-    backgroundLayer.className = 'fuel-bar-background';
+    backgroundLayer.className = 'hp-bar-background';
     for (let i = 0; i < 5; i++) {
         const emptySegment = document.createElement('div');
-        emptySegment.className = 'fuel-segment fuel-segment-empty';
+        emptySegment.className = 'hp-segment hp-segment-empty';
         backgroundLayer.appendChild(emptySegment);
     }
 
     // 3. Создаем слой уровня топлива с заполненными сегментами
     const levelLayer = document.createElement('div');
-    levelLayer.id = 'fuel-bar-level'; // JS будет управлять этим элементом
+    levelLayer.id = 'hp-bar-level'; // JS будет управлять этим элементом
     for (let i = 0; i < 5; i++) {
         const filledSegment = document.createElement('div');
-        filledSegment.className = 'fuel-segment fuel-segment-filled';
+        filledSegment.className = 'hp-segment hp-segment-filled';
         levelLayer.appendChild(filledSegment);
     }
 
     // 4. Собираем структуру: level поверх background, и все это в wrapper
-    fuelBarWrapper.appendChild(backgroundLayer);
-    fuelBarWrapper.appendChild(levelLayer);
-    topUI.appendChild(fuelBarWrapper);
+    hpBarWrapper.appendChild(backgroundLayer);
+    hpBarWrapper.appendChild(levelLayer);
+    topUI.appendChild(hpBarWrapper);
     
     document.body.appendChild(topUI);
     // Сохраняем ссылку на элемент, которым будем управлять
-    Game.ui.fuelBar = levelLayer;
+    Game.ui.hpBar = levelLayer;
 
     // --- Создание нижнего UI (Уровни) ---
     const bottomUI = document.createElement('div');
@@ -67,19 +67,18 @@ function showGameUI() {
 /**
  * Обновляет визуальное состояние топливной шкалы.
  */
-function updateFuelBar() {
-    if (!Game.ui.fuelBar) return;
+function updateHpBar() {
+    if (!Game.ui.hpBar) return;
     
-    const percentage = Game.fuel;
+    const percentage = Game.hp;
     
-    // Обновляем ширину шкалы. Логика остается той же!
-    Game.ui.fuelBar.style.transform = `scaleX(${percentage / 100})`;
+    Game.ui.hpBar.style.transform = `scaleX(${percentage / 100})`;
     
-    // Проверяем, нужно ли мерцание
-    if (percentage > 0 && percentage < 20) {
-        Game.ui.fuelBar.classList.add('blinking');
+    // Порог мерцания теперь 20% (одна ячейка)
+    if (percentage > 0 && percentage <= 20) {
+        Game.ui.hpBar.classList.add('blinking');
     } else {
-        Game.ui.fuelBar.classList.remove('blinking');
+        Game.ui.hpBar.classList.remove('blinking');
     }
 }
 

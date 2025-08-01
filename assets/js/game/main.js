@@ -84,17 +84,23 @@ function gameLoop(currentTime) {
     if (Game.player.isFlyingIn) updatePlayerFlyIn(currentTime);
     
     if (Game.isActive) {
-        // === Тестовый блок для UI (позже убрать) ===
-        // Game.fuel -= 0.1;
-        // if (Game.fuel < 0) {
-        //     Game.fuel = 100;
-        //     Game.currentLevel++;
-        //     if (Game.currentLevel > 5) Game.currentLevel = 1;
-        // }
-        // ===========================================
+        // --- Логика расхода HP ---
+        // Расход -0.5% в секунду.
+        // requestAnimationFrame вызывается примерно 60 раз в секунду.
+        // Значит, за один кадр нужно вычесть 0.5 / 60.
+        const hpLossPerFrame = 0.5 / 60;
+        Game.hp -= hpLossPerFrame;
+
+        // Проверяем, не закончились ли HP
+        if (Game.hp <= 0) {
+            Game.hp = 0;
+            console.log("GAME OVER - HP is 0");
+            // Здесь будет логика смерти
+            // Например, Game.isActive = false;
+        }
 
         updatePlayerPosition();
-        updateFuelBar();
+        updateHpBar();
         updateLevelIndicators();
     }
     

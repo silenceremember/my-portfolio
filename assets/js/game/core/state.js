@@ -5,8 +5,8 @@ const Game = {
     isReadyToPlay: false,
     isShuttingDown: false, // Добавляем этот флаг для надежности
 
-    fuel: 100,
-    currentLevel: 1, // Начинаем с 1-го уровня
+    hp: 100, // Health Points (0-100)
+    currentLevel: 1,
 
     player: {
         el: null, x: 0, y: 0,
@@ -22,7 +22,7 @@ const Game = {
     },
 
     ui: {
-        fuelBar: null,
+        hpBar: null, // Было fuelBar
         levelDots: []
     },
 
@@ -38,14 +38,14 @@ function resetGameState() {
     Game.isReadyToPlay = false;
     Game.isShuttingDown = false;
     
-    Game.fuel = 100;
+    Game.hp = 100;
     Game.currentLevel = 1;
 
     // Сбрасываем управление
     Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
 
     // Очищаем ссылки на UI элементы, чтобы они пересоздавались
-    Game.ui.fuelBar = null;
+    Game.ui.hpBar = null;
     Game.ui.levelDots = [];
     
     console.log("Game state has been reset.");
