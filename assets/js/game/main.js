@@ -21,9 +21,13 @@ function handleKeyDown(e) {
     // --- ТЕСТОВЫЙ КОД ДЛЯ HP ---
     // Нажатие 'T' симулирует получение урона (-20% HP)
     if (e.code === 'KeyT') {
-        console.log("Damage taken! -20 HP");
-        Game.hp -= 20;
-        if (Game.hp < 0) Game.hp = 0;
+        if (Game.hp > 0) { // Наносим урон только если есть HP
+            console.log("Damage taken! -20 HP");
+            Game.hp -= 20;
+            if (Game.hp < 0) Game.hp = 0;
+            
+            shakeHpBar();
+        }
     }
     // Нажатие 'Y' симулирует подбор аптечки (+20% HP)
     if (e.code === 'KeyY') {

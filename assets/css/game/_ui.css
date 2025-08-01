@@ -95,6 +95,24 @@ body.game-mode .game-ui-bottom.visible {
     100% { opacity: 1; }
 }
 
+/* Класс, который мы будем добавлять через JS для запуска анимации */
+.shake-animation {
+    animation: shake 0.4s ease-in-out;
+}
+
+/* Сама анимация тряски */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
 /* --- Индикаторы уровней --- */
 #level-indicators {
     display: flex;

@@ -51,6 +51,22 @@ function showGameUI() {
     if (bottomUI) bottomUI.classList.add('visible');
 }
 
+function shakeHpBar() {
+    // Находим главный контейнер шкалы HP
+    const hpBarContainer = document.getElementById('hp-bar-container');
+    if (!hpBarContainer) return;
+
+    // Добавляем класс, чтобы запустить анимацию
+    hpBarContainer.classList.add('shake-animation');
+
+    // Убираем класс после завершения анимации,
+    // чтобы ее можно было запустить снова.
+    // Время (400ms) должно совпадать с 'animation-duration' в CSS.
+    setTimeout(() => {
+        hpBarContainer.classList.remove('shake-animation');
+    }, 400);
+}
+
 /**
  * Обновляет визуальное состояние шкалы HP, управляя каждым сегментом отдельно.
  * (ФИНАЛЬНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ)
