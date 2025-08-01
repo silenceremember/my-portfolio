@@ -150,34 +150,39 @@ function initGame() {
 }
 
 /**
- * ФУНКЦИЯ ВЫХОДА ИЗ ИГРЫ
+ * ФУНКЦИЯ ВЫХОДА ИЗ ИГРЫ (с корректным сбросом состояния)
  */
 function exitGame() {
-    // Флаг isShuttingDown все еще полезен, чтобы предотвратить повторный вызов этой функции
+    // Защита от повторного вызова
     if (Game.isShuttingDown || !document.body.classList.contains('game-mode')) return;
     console.log("Exiting game sequentially...");
+    
+    // Устанавливаем флаг, что мы в процессе выхода
     Game.isShuttingDown = true;
     
-    Game.isActive = false; Game.isReadyToPlay = false;
-    Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
-    
+    // Немедленно отключаем все обработчики, чтобы предотвратить ввод
     window.removeEventListener('keydown', handleKeyDown);
     window.removeEventListener('keyup', handleKeyUp);
-    window.addEventListener('keydown', handlePreGameInput);
-
+    window.removeEventListener('keydown', handlePreGameInput);
     window.removeEventListener('mousemove', showCursor);
     if (cursorIdleTimer) clearTimeout(cursorIdleTimer);
-
+    
+    // Принудительно показываем курсор
     document.getElementById('game-cursor-blocker')?.classList.remove('is-hidden');
 
+    // Запускаем анимации растворения игровых элементов
     document.getElementById('player-ship')?.classList.remove('visible');
     document.getElementById('stars-canvas')?.classList.remove('visible');
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
     
-    setTimeout(() => { document.body.classList.remove('game-active'); }, 500);
+    // Запускаем анимацию возврата линий (через 0.5с)
+    setTimeout(() => { 
+        document.body.classList.remove('game-active'); 
+    }, 500);
 
+    // Запускаем анимацию появления UI сайта (через 1.3с)
     setTimeout(() => {
         const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
         siteUI.forEach(el => {
@@ -186,8 +191,11 @@ function exitGame() {
         });
     }, 1300);
 
+    // Финальная очистка и сброс состояния после всех анимаций
     setTimeout(() => {
         console.log("Cleanup complete. Game mode OFF.");
+        
+        // Удаляем все созданные элементы
         document.getElementById('player-ship')?.remove();
         document.getElementById('stars-canvas')?.remove();
         document.querySelector('.game-start-prompt')?.remove();
@@ -195,8 +203,11 @@ function exitGame() {
         document.querySelector('.game-ui-bottom')?.remove();
         document.getElementById('game-cursor-blocker')?.remove();
         
-        Game.isShuttingDown = false; // Сбрасываем флаг на всякий случай
-        document.body.classList.remove('game-mode'); // Это остановит gameLoop
+        // ИСПРАВЛЕНИЕ: Вызываем функцию полного сброса состояния
+        resetGameState();
+        
+        // Убираем главный класс, чтобы остановить gameLoop
+        document.body.classList.remove('game-mode');
     }, 1800);
 }
 

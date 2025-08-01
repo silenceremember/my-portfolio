@@ -25,10 +25,28 @@ const Game = {
         fuelBar: null,
         levelDots: []
     },
-    
+
     stars: [],
     settings: {},
     bounds: {},
     canvas: null,
     ctx: null
 };
+
+function resetGameState() {
+    Game.isActive = false;
+    Game.isReadyToPlay = false;
+    Game.isShuttingDown = false;
+    
+    Game.fuel = 100;
+    Game.currentLevel = 1;
+
+    // Сбрасываем управление
+    Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
+
+    // Очищаем ссылки на UI элементы, чтобы они пересоздавались
+    Game.ui.fuelBar = null;
+    Game.ui.levelDots = [];
+    
+    console.log("Game state has been reset.");
+}
