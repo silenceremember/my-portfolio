@@ -128,7 +128,7 @@ function initGame() {
         document.querySelector('.game-start-prompt')?.classList.add('visible');
     }, gameElementsAppearTime);
 
-    const timeUntilReady = gameElementsAppearTime + 800 + Game.settings.READY_UP_DELAY;
+    const timeUntilReady = gameElementsAppearTime + 800;
     setTimeout(() => {
         console.log("Game is ready. Waiting for player input...");
         Game.isReadyToPlay = true;

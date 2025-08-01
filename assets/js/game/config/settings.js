@@ -3,9 +3,6 @@
 // Проверяем, существует ли Game.settings, и если да, наполняем его
 if (typeof Game !== 'undefined' && typeof Game.settings === 'object') {
     Object.assign(Game.settings, {
-        // Общие
-        READY_UP_DELAY: 1000,
-
         // Игрок
         PLAYER_WIDTH: 30,
         PLAYER_HEIGHT: 25,
