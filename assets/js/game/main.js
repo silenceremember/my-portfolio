@@ -103,6 +103,8 @@ function initGame() {
     const cursorBlocker = document.createElement('div');
     cursorBlocker.id = 'game-cursor-blocker';
     document.body.appendChild(cursorBlocker);
+    window.addEventListener('mousemove', showCursor);
+    hideCursor();
 
     const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
     siteUI.forEach(el => {
@@ -131,7 +133,6 @@ function initGame() {
         console.log("Game is ready. Waiting for player input...");
         Game.isReadyToPlay = true;
         window.addEventListener('mousemove', showCursor);
-        hideCursor();
         window.addEventListener('keydown', handlePreGameInput);
     }, timeUntilReady);
 
