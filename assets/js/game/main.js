@@ -88,11 +88,16 @@ function handlePreGameInput(e) {
     startGameplay();
 }
 
+let lastTime = 0;
+
 function startGameplay() {
     Game.isActive = true;
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
     showGameUI();
-    startScenario();
+    lastTime = performance.now();
+    
+    startScenario(); 
+
     window.removeEventListener('keydown', handlePreGameInput);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -104,23 +109,22 @@ function startGameplay() {
  * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (ИСПРАВЛЕННАЯ ВЕРСИЯ)
  */
 
-let lastTime = 0;
-
 function gameLoop(currentTime) {
     if (!document.body.classList.contains('game-mode')) {
-        lastTime = 0; // Сбрасываем время при выходе
-        return;
+        return; // Просто выходим, не сбрасывая lastTime здесь
     }
 
-    if (lastTime === 0) lastTime = currentTime;
+    // Расчет deltaTime для стабильной физики и таймеров
     const deltaTime = (currentTime - lastTime) / 1000; // в секундах
     lastTime = currentTime;
+
+    // Вызываем обновление сценария
+    updateScenario(deltaTime);
     
     updateStars();
     if (Game.player.isFlyingIn) updatePlayerFlyIn(currentTime);
     
     if (Game.isActive) {
-        // ИСПРАВЛЕНИЕ: Расход HP теперь зависит от фазы
         if (Game.phase === 'level') {
             const hpLossPerSecond = 0.5;
             Game.hp -= hpLossPerSecond * deltaTime;
@@ -128,7 +132,7 @@ function gameLoop(currentTime) {
             if (Game.hp <= 0) {
                 Game.hp = 0;
                 console.log("GAME OVER - HP is 0");
-                Game.isActive = false; // Останавливаем игру
+                Game.isActive = false;
             }
         }
 
