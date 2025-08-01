@@ -84,6 +84,7 @@ function startGameplay() {
     Game.isActive = true;
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
     showGameUI();
+    startScenario();
     window.removeEventListener('keydown', handlePreGameInput);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -94,27 +95,35 @@ function startGameplay() {
 /**
  * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (ИСПРАВЛЕННАЯ ВЕРСИЯ)
  */
+
+let lastTime = 0;
+
 function gameLoop(currentTime) {
-    if (!document.body.classList.contains('game-mode')) return;
+    if (!document.body.classList.contains('game-mode')) {
+        lastTime = 0; // Сбрасываем время при выходе
+        return;
+    }
+
+    if (lastTime === 0) lastTime = currentTime;
+    const deltaTime = (currentTime - lastTime) / 1000; // в секундах
+    lastTime = currentTime;
     
     updateStars();
     if (Game.player.isFlyingIn) updatePlayerFlyIn(currentTime);
     
     if (Game.isActive) {
-        // --- Логика расхода HP ---
-        // ИСПРАВЛЕНИЕ: Возвращаем пассивный расход HP.
-        // Расход -0.5% в секунду (делим на ~60 кадров).
-        const hpLossPerFrame = 2 / 60;
-        Game.hp -= hpLossPerFrame;
+        // ИСПРАВЛЕНИЕ: Расход HP теперь зависит от фазы
+        if (Game.phase === 'level') {
+            const hpLossPerSecond = 0.5;
+            Game.hp -= hpLossPerSecond * deltaTime;
 
-        // Проверяем, не закончились ли HP
-        if (Game.hp <= 0) {
-            Game.hp = 0;
-            console.log("GAME OVER - HP is 0");
-            // Здесь будет логика смерти
+            if (Game.hp <= 0) {
+                Game.hp = 0;
+                console.log("GAME OVER - HP is 0");
+                Game.isActive = false; // Останавливаем игру
+            }
         }
 
-        // Обновляем геймплей и UI
         updatePlayerPosition();
         updateHpBar();
         updateLevelIndicators();

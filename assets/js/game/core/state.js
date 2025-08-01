@@ -8,6 +8,9 @@ const Game = {
     hp: 100, // Health Points (0-100)
     currentLevel: 1,
 
+    phase: 'none',
+    phaseTimer: 0,
+
     player: {
         el: null, x: 0, y: 0,
         isFlyingIn: false,
@@ -40,6 +43,9 @@ function resetGameState() {
     
     Game.hp = 100;
     Game.currentLevel = 1;
+
+    Game.phase = 'none';
+    Game.phaseTimer = 0;
 
     // Сбрасываем управление
     Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
