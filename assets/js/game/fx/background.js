@@ -22,7 +22,7 @@ function initStarsCanvas() {
 function updateStars() {
     if (!Game.ctx) return;
     Game.ctx.clearRect(0, 0, Game.canvas.width, Game.canvas.height);
-    Game.ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+    Game.ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
     for (const star of Game.stars) {
         star.y += star.speed;
         if (star.y > Game.canvas.height) {
