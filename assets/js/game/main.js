@@ -1,134 +1,80 @@
-// assets/js/game/main.js
+/**
+ * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ
+ */
+function gameLoop(currentTime) {
+    // Эта проверка важна, чтобы цикл остановился, если мы выйдем из игры
+    if (!document.body.classList.contains('game-active')) return;
 
-const Game = {
-    isActive: false,
-    player: {
-        el: null, x: 0, y: 0, width: 30, height: 25,
-        isFlyingIn: false,
-        flyIn: { startY: 0, targetY: 0, duration: 800, startTime: 0 }
-    },
-    keys: new Set(),
-    bullets: [],
-    enemies: [],
-    enemyBullets: [],
-    stars: [],
-    hp: 3,
-    noise: 0,
-    isInvulnerable: false,
-    settings: {
-        playerSpeed: 7, bulletSpeed: 12, fireCooldown: 150,
-        readyUpDelay: 2000, starCount: 150, enemyBaseSpeed: 0.5,
-        enemyWaveInterval: 800
-    },
-    bounds: { top: 0, bottom: 0, left: 0, right: 0 },
-    canFire: true,
-    canvas: null,
-    ctx: null
-};
+    // Фон должен двигаться всегда, пока игра активна
+    updateStars();
+    
+    // Анимация вылета корабля
+    if (Game.player.isFlyingIn) {
+        updatePlayerFlyIn(currentTime);
+    }
+    
+    // Геймплей (когда будет реализован)
+    if (Game.isActive) {
+        // updatePlayerPosition();
+        // updateEnemies();
+        // checkCollisions();
+    }
+    
+    // Отрисовка игрока
+    renderPlayer();
 
+    // Продолжаем цикл на следующем кадре
+    requestAnimationFrame(gameLoop);
+}
+
+
+/**
+ * ФУНКЦИЯ ЗАПУСКА ИГРЫ
+ */
 function initGame() {
     if (document.body.classList.contains('game-active')) return;
     console.log("Game mode INITIALIZED.");
 
-    const body = document.body;
-    let gameIsReady = false;
+    // Этап 1: Блокировка интерфейса и вычисление границ
+    document.body.classList.add('game-active');
+    Game.bounds = {
+        top: 80, bottom: window.innerHeight - 80,
+        left: (window.innerWidth / 2) - 350,
+        right: (window.innerWidth / 2) + 350,
+    };
 
-    body.classList.add('game-active');
-
-    const framePaddingVertical = 80;
-    const gameFieldWidth = 700;
-    Game.bounds.top = framePaddingVertical;
-    Game.bounds.bottom = window.innerHeight - framePaddingVertical;
-    Game.bounds.left = (window.innerWidth / 2) - (gameFieldWidth / 2);
-    Game.bounds.right = (window.innerWidth / 2) + (gameFieldWidth / 2);
-
+    // Этап 2: Подготовка сцены (создаем невидимые элементы)
     initStarsCanvas();
-    createGameUI();
     createPlayer();
+    const startPrompt = createStartPrompt();
 
-    const startPrompt = document.querySelector('.game-start-prompt');
-    
-    const totalAnimationTime = 2100;
+    // Этап 3: Запуск анимаций ПОСЛЕ того, как сработают начальные CSS-переходы
+    // Общее время на скрытие UI (0.5s) и сдвиг линий (0.8s, но они начинаются с задержкой 0.5s)
+    // Итого, ждем 0.5 + 0.8 = 1.3 секунды.
+    const totalAnimationTime = 1300; 
+
     setTimeout(() => {
-        startPlayerFlyIn();
+        console.log("Starting secondary animations...");
+        const starsCanvas = document.getElementById('stars-canvas');
+        if (starsCanvas) starsCanvas.classList.add('visible');
+        
+        startPlayerFlyIn(); // Эта функция делает корабль видимым и запускает его полет
         if (startPrompt) startPrompt.classList.add('visible');
-    }, 100);
+    }, totalAnimationTime);
+
+    // Этап 4: Установка флага готовности игры
+    // Ждем, пока пройдут все анимации: 1.3s (линии) + 0.8s (полет корабля) + 2s (пауза для игрока)
+    const timeUntilReady = totalAnimationTime + 800 + Game.settings.READY_UP_DELAY;
     setTimeout(() => {
         console.log("Game is ready to start.");
-        gameIsReady = true;
-    }, totalAnimationTime + Game.settings.readyUpDelay);
+        Game.isReady = true;
+        // Здесь можно будет запустить сам геймплей, например, первую волну врагов
+    }, timeUntilReady); 
 
-    requestAnimationFrame(gameLoop);
-
-    function startGameLoop() {
-        if (Game.isActive) return;
-        Game.isActive = true;
-        console.log("GAME STARTED!");
-        
-        showGameUI();
-        document.getElementById('noise-bar-container').classList.add('visible');
-        if (startPrompt) startPrompt.remove();
-        
-        loadLevel(1);
-        
-        window.addEventListener('keydown', handleGameKeys);
-        window.addEventListener('keyup', handleGameKeys);
-        window.removeEventListener('keydown', startGameTrigger);
-    }
-    function startGameTrigger(event) {
-        if (!gameIsReady) return;
-        const key = event.code;
-        if (key === 'KeyW' || key === 'KeyA' || key === 'KeyS' || key === 'KeyD' || key === 'Space') {
-            startGameLoop();
-        }
-    }
-    
-    window.addEventListener('keydown', startGameTrigger);
-    window.addEventListener('keydown', handleGlobalKeys);
-}
-
-function handleGlobalKeys(event) {
-    if (!document.body.classList.contains('game-active')) return;
-    if (event.code === 'Escape') {
-        window.removeEventListener('keydown', handleGlobalKeys);
-        try {
-            window.removeEventListener('keydown', startGameTrigger);
-            window.removeEventListener('keydown', handleGameKeys);
-            window.removeEventListener('keyup', handleGameKeys);
-        } catch (e) {}
-        console.log("Exiting game, reloading page.");
-        window.location.reload();
-    }
-}
-
-function handleGameKeys(event) {
-    if (event.type === 'keydown') {
-        Game.keys.add(event.code);
-    } else if (event.type === 'keyup') {
-        Game.keys.delete(event.code);
-    }
-}
-
-function gameLoop() {
-    if (!document.body.classList.contains('game-active')) return;
-
-    updateStars();
-    if (Game.player.isFlyingIn) { updatePlayerFlyIn(); }
-    
-    if (Game.isActive) {
-        updatePlayerPosition();
-        handleShooting();
-        moveBullets();
-        updateEnemies();
-        
-        // !!! ВОТ ИСПРАВЛЕНИЕ !!!
-        updateEnemyBullets(); 
-        
-        checkCollisions();
-    }
-    
-    if (Game.player.el) { renderPlayer(); }
-    renderEnemies();
-    
+    // Этап 5: Запуск игрового цикла СРАЗУ
+    // Он будет отрисовывать фон и полет корабля.
     requestAnimationFrame(gameLoop);
 }
+
+// Привязываем initGame к window, чтобы app.js мог ее найти
+window.initGame = initGame;

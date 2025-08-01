@@ -10,7 +10,6 @@ function initSectionManager() {
     const scrollTimeout = 800;
     const progressDots = [];
 
-    // --- Внутренние функции ---
     function showSection(index) {
         sections.forEach((section, i) => section.classList.toggle('active', i === index));
         progressDots.forEach((dot, i) => dot.classList.toggle('active', i === index));
@@ -30,7 +29,6 @@ function initSectionManager() {
         }
     }
 
-    // --- Инициализация ---
     sections.forEach((section, index) => {
         const dot = document.createElement('div');
         dot.classList.add('progress-dot');
@@ -39,7 +37,6 @@ function initSectionManager() {
         progressDots.push(dot);
     });
 
-    // --- Обработчик событий ---
     window.addEventListener('wheel', (event) => {
         if (isScrolling || document.body.classList.contains('game-active')) return;
         const direction = event.deltaY > 0 ? 1 : -1;
@@ -47,6 +44,5 @@ function initSectionManager() {
         changeSection(nextIndex);
     });
 
-    // --- Первоначальное отображение ---
     showSection(0);
 }

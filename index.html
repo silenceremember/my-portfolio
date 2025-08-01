@@ -248,15 +248,20 @@
     <script src="assets/js/ui/theme.js"></script>
     <script src="assets/js/ui/qte.js"></script>
     <script src="assets/js/ui/transitions.js"></script>
+
+    <!-- 1. Глобальные объекты и настройки, которые нужны всем -->
+    <script src="assets/js/game/core/state.js"></script>
+    <script src="assets/js/game/config/settings.js"></script>
+
+    <!-- 2. "Помощники": функции для графики, UI, игрока -->
+    <script src="assets/js/game/fx/background.js"></script>
+    <script src="assets/js/game/ui/prompts.js"></script>
+    <script src="assets/js/game/gameplay/player.js"></script>
     
-    <!-- Модули Игры -->
-    <script src="assets/js/game/background.js"></script>
-    <script src="assets/js/game/ui.js"></script>
-    <script src="assets/js/game/player.js"></script>
-    <script src="assets/js/game/enemy.js"></script>
+    <!-- 3. Главный игровой скрипт, который использует все, что выше -->
     <script src="assets/js/game/main.js"></script>
     
-    <!-- Главный "загрузчик" приложения (в самом конце) -->
+    <!-- 4. Главный "загрузчик" приложения (в самом конце) -->
     <script src="assets/js/app.js"></script>
     
 </body>

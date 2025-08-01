@@ -2,44 +2,7 @@
 
 /* --- ИГРОВОЙ UI --- */
 
-/* Контейнеры для UI (Header/Footer) */
-.game-ui-header, .game-ui-footer {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-    z-index: 500;
-}
-.game-ui-header {
-    top: 20px;
-    flex-direction: column;
-    gap: 10px;
-}
-.game-ui-footer {
-    bottom: 0;
-    height: var(--frame-padding-vertical);
-    justify-content: center;
-    gap: 6px;
-}
-.game-ui-header.visible, .game-ui-footer.visible {
-    opacity: 1;
-}
-
-/* HP, Deaths, Levels */
-.game-hp-bar { display: flex; gap: 6px; }
-.hp-block { width: 16px; height: 16px; border: 1px solid var(--text-color); }
-.hp-block.full { background-color: var(--red-accent); border-color: var(--red-accent); }
-.game-deaths-counter { font-family: var(--font-main); font-weight: 700; font-size: 16px; color: var(--text-color); }
-.level-block { width: 16px; height: 16px; box-sizing: border-box; background-color: transparent; }
-.level-block.upcoming { border: 1px solid var(--text-color); }
-.level-block.active { border: 1px solid var(--red-accent); transform: scale(1.2); }
-.level-block.completed { border: 1px solid var(--red-accent); background-color: var(--red-accent); }
-
-/* Подсказка */
+/* Подсказка для старта игры */
 .game-start-prompt {
     position: fixed;
     top: 50%; left: 50%;
@@ -53,10 +16,16 @@
     color: var(--text-color);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease 1.3s;
+    /* 
+    ИСПРАВЛЕНИЕ: Убираем задержку 'transition-delay' (было 'transition: opacity 0.5s ease 1.3s;').
+    JavaScript уже обеспечивает нужную паузу.
+    */
+    transition: opacity 0.5s ease;
 }
+
 .game-start-prompt.visible {
     opacity: 1;
 }
+
 .game-start-prompt p { margin: 0; font-size: 16px; font-weight: 700; text-transform: uppercase; }
 .game-start-prompt kbd { display: inline-block; padding: 4px 8px; border: 1px solid var(--text-color); margin: 0 4px; }

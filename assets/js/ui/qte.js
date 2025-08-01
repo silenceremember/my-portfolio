@@ -9,7 +9,6 @@ function initQTE(successCallback) {
     let isQteLocked = false;
     const qteKeys = [];
 
-    // --- Внутренние функции ---
     function setupQTE() {
         qteContainer.innerHTML = '';
         qteKeys.length = 0;
@@ -37,7 +36,6 @@ function initQTE(successCallback) {
         resetQTE();
     }
 
-    // --- Обработчик событий ---
     window.addEventListener('keydown', (event) => {
         const section1 = document.getElementById('section-1');
         if (!qteContainer || !section1 || !section1.classList.contains('active') || isQteLocked) {
@@ -59,14 +57,11 @@ function initQTE(successCallback) {
                 lastCorrectKeyElement.classList.add('error-shake');
                 setTimeout(() => {
                     resetQTE();
-                    setTimeout(() => {
-                        isQteLocked = false;
-                    }, 200);
+                    setTimeout(() => { isQteLocked = false; }, 200);
                 }, 400);
             }
         }
     });
 
-    // --- Инициализация ---
     setupQTE();
 }
