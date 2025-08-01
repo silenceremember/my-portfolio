@@ -31,6 +31,14 @@ function handleKeyDown(e) {
         Game.hp += 20;
         if (Game.hp > 100) Game.hp = 100;
     }
+
+    // --- ТЕСТОВЫЙ КОД ДЛЯ ЗАВЕРШЕНИЯ УРОВНЯ ---
+    // Нажатие 'N' (Next) принудительно завершает текущий уровень
+    if (e.code === 'KeyN') {
+        if (Game.phase === 'level') { // Работает только в фазе уровня
+            endCurrentLevel();
+        }
+    }
     // ----------------------------
 
     if (e.code === 'Escape') exitGame();

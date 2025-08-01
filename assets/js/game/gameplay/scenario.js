@@ -19,7 +19,7 @@ function updateScenario(deltaTime) {
     Game.phaseTimer += deltaTime;
 
     const currentLevelData = LevelData[Game.currentLevel];
-    if (!currentLevelData) return; // Уровня нет в данных
+    if (!currentLevelData) return;
 
     // Проверяем, не пора ли сменить фазу
     switch (Game.phase) {
@@ -30,17 +30,24 @@ function updateScenario(deltaTime) {
             break;
         
         case 'level':
-            if (Game.phaseTimer >= currentLevelData.levelDuration) {
-                // Логика завершения уровня (пока просто переходим на следующий)
-                Game.currentLevel++;
-                if (LevelData[Game.currentLevel]) {
-                    startScenario(); // Начинаем сценарий следующего уровня
-                } else {
-                    console.log("ALL LEVELS COMPLETED! (VICTORY)");
-                    Game.isActive = false; // Останавливаем игру
-                }
+            // ИСПРАВЛЕНИЕ: Завершаем уровень по таймеру ТОЛЬКО если это 'survival'
+            if (currentLevelData.type === 'survival' && Game.phaseTimer >= currentLevelData.levelDuration) {
+                endCurrentLevel(); // Вызываем новую функцию для завершения
             }
+            // Для уровней типа 'boss' этот блок никогда не выполнится по таймеру.
             break;
+    }
+}
+
+function endCurrentLevel() {
+    console.log(`Level ${Game.currentLevel} completed!`);
+    Game.currentLevel++;
+    
+    if (LevelData[Game.currentLevel]) {
+        startScenario(); // Начинаем сценарий следующего уровня
+    } else {
+        console.log("ALL LEVELS COMPLETED! (VICTORY)");
+        Game.isActive = false; // Останавливаем игру
     }
 }
 

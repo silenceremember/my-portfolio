@@ -1,11 +1,28 @@
 const LevelData = {
     1: {
-        transitionDuration: 8, // секунд
-        levelDuration: 52      // секунд
+        type: 'survival', // 'survival' - обычный уровень на время
+        transitionDuration: 8,
+        levelDuration: 52
     },
     2: {
-        transitionDuration: 8, // секунд
-        levelDuration: 52      // секунд (для босса это будет иначе, но пока так)
+        type: 'boss', // 'boss' - уровень с боссом
+        transitionDuration: 8,
+        // levelDuration можно убрать, но лучше оставить для справки или будущих механик
+        levelDuration: Infinity // Явный признак бесконечности
     },
-    // и так далее для всех 5 уровней
+    3: {
+        type: 'boss',
+        transitionDuration: 8,
+        levelDuration: Infinity
+    },
+    4: {
+        type: 'boss',
+        transitionDuration: 8,
+        levelDuration: Infinity
+    },
+    5: {
+        type: 'boss',
+        transitionDuration: 8,
+        levelDuration: Infinity
+    }
 };
