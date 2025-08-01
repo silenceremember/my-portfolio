@@ -1,3 +1,5 @@
+/* assets/css/pages/_home.css */
+
 /* Общие стили для секций на главной */
 main.sections-container {
     position: absolute;
@@ -6,6 +8,7 @@ main.sections-container {
     left: var(--frame-padding-horizontal);
     right: var(--frame-padding-horizontal);
     overflow: hidden;
+    transition: opacity 0.5s ease;
 }
 .full-page-section {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;

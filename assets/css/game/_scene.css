@@ -2,27 +2,28 @@
 
 /* --- СЦЕНА И ИГРОВОЕ ПОЛЕ --- */
 
+body.game-mode {
+    /* Этот класс нужен только для JS, чтобы игровой цикл работал */
+    /* Визуально он ничего не делает */
+}
+
 body.game-active {
     cursor: none;
     -webkit-user-select: none;
     user-select: none;
 }
 
-body.game-active .site-header,
-body.game-active .site-footer,
-body.game-active .sections-container {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
+/* ИЗМЕНЕНИЕ: Убираем отсюда свойство 'transition'.
+   Вместо этого мы добавляем 'transition-delay' ТОЛЬКО для анимации входа. */
+body.game-active .vertical-guide-line {
+    transition-delay: 0.5s;
 }
 
 body.game-active .vertical-guide-line.left {
     left: calc(50% - 350px);
-    transition: left 0.8s ease-out 0.5s;
 }
 body.game-active .vertical-guide-line.right {
     right: calc(50% - 350px);
-    transition: right 0.8s ease-out 0.5s;
 }
 
 /* Фон на Canvas */
@@ -34,7 +35,6 @@ body.game-active .vertical-guide-line.right {
     opacity: 0;
     transition: opacity 1s ease;
 }
-
-body.game-active #stars-canvas.visible {
+body.game-mode #stars-canvas.visible { /* Привязка к game-mode */
     opacity: 1;
 }

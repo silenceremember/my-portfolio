@@ -4,7 +4,7 @@
 if (typeof Game !== 'undefined' && typeof Game.settings === 'object') {
     Object.assign(Game.settings, {
         // Общие
-        READY_UP_DELAY: 2000,
+        READY_UP_DELAY: 1000,
 
         // Игрок
         PLAYER_WIDTH: 30,

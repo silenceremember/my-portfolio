@@ -4,6 +4,9 @@
 
 #player-ship {
     position: fixed;
+    left: 0; 
+    top: 0;
+
     opacity: 0;
     width: 0; height: 0;
     border-left: 15px solid transparent;
@@ -11,6 +14,10 @@
     border-bottom: 25px solid var(--red-accent);
     z-index: 502;
     transform: translate(-50%, -50%);
+
+    /* ИЗМЕНЕНИЕ: Оставляем transition ТОЛЬКО для opacity.
+       Время можно сделать короче для эффекта "растворения". */
+    transition: opacity 0.5s ease-out;
 }
 
 #player-ship.visible {

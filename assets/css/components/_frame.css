@@ -1,3 +1,5 @@
+/* assets/css/components/_frame.css */
+
 /* Горизонтальные линии */
 body::before, body::after {
     content: '';
@@ -22,6 +24,7 @@ body::after { bottom: var(--frame-padding-vertical); }
     background-color: var(--border-color);
     z-index: 150;
     pointer-events: none;
+    transition: left 0.8s ease-out, right 0.8s ease-out;
 }
 .vertical-guide-line.left {
     left: 400px;

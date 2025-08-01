@@ -1,3 +1,5 @@
+/* assets/css/components/_footer.css */
+
 .site-footer {
     position: fixed;
     left: var(--frame-padding-horizontal);
@@ -8,6 +10,7 @@
     height: var(--frame-padding-vertical);
     display: flex;
     align-items: center;
+    transition: opacity 0.5s ease;
 }
 .footer-content {
     width: 100%;

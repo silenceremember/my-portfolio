@@ -1,3 +1,5 @@
+/* assets/css/base/_global.css */
+
 /* Настройки для светлой темы */
 body[data-theme="light"] {
     --bg-color: #F5F5F5;
