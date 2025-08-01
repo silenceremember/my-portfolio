@@ -3,6 +3,7 @@
 const Game = {
     isActive: false,
     isReady: false,
+    isReadyToPlay: false,
     player: {
         el: null, x: 0, y: 0,
         isFlyingIn: false,

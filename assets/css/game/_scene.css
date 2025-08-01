@@ -2,21 +2,29 @@
 
 /* --- СЦЕНА И ИГРОВОЕ ПОЛЕ --- */
 
+#game-cursor-blocker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999; /* Поверх абсолютно всего */
+}
+
+#game-cursor-blocker.is-hidden {
+    cursor: none;
+}
+
+
 body.game-mode {
-    /* Технический класс для JS, визуала нет */
+    /* Технический класс для JS */
 }
 
 body.game-active {
-    cursor: none;
     -webkit-user-select: none;
     user-select: none;
 }
 
-/* 
-ИЗМЕНЕНИЕ: Мы полностью убираем 'transition-delay'.
-Теперь анимация линий будет начинаться сразу же,
-как только на body появится класс .game-active
-*/
 body.game-active .vertical-guide-line.left {
     left: calc(50% - 350px);
 }
