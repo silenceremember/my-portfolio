@@ -52,6 +52,11 @@ function showGameUI() {
 function shakeHpBar() {
     const hpBarContainer = document.getElementById('hp-bar-container');
     if (!hpBarContainer) return;
+
+    if (hpBarContainer.classList.contains('shake-animation')) {
+        return;
+    }
+
     hpBarContainer.classList.add('shake-animation');
     setTimeout(() => {
         hpBarContainer.classList.remove('shake-animation');
@@ -61,6 +66,11 @@ function shakeHpBar() {
 function pulseHpSegment(segmentIndex) {
     if (!Game.ui.hpBarSegments || !Game.ui.hpBarSegments[segmentIndex]) return;
     const segmentFill = Game.ui.hpBarSegments[segmentIndex];
+
+    if (segmentFill.classList.contains('pulse-animation')) {
+        return;
+    }
+
     segmentFill.classList.add('pulse-animation');
     setTimeout(() => {
         segmentFill.classList.remove('pulse-animation');
