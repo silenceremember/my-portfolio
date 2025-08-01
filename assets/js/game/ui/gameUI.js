@@ -2,40 +2,35 @@
  * Создает все DOM-элементы для игрового интерфейса (HUD).
  */
 function createGameUI() {
-    // --- Создание верхнего UI (Топливо) ---
+    // --- Создание верхнего UI (HP) ---
     const topUI = document.createElement('div');
     topUI.className = 'game-ui-top';
     
-    // 1. Создаем главный контейнер-обертку
     const hpBarWrapper = document.createElement('div');
     hpBarWrapper.id = 'hp-bar-wrapper';
 
-    // 2. Создаем фоновый слой с пустыми сегментами
-    const backgroundLayer = document.createElement('div');
-    backgroundLayer.className = 'hp-bar-background';
-    for (let i = 0; i < 5; i++) {
-        const emptySegment = document.createElement('div');
-        emptySegment.className = 'hp-segment hp-segment-empty';
-        backgroundLayer.appendChild(emptySegment);
-    }
+    const hpBarContainer = document.createElement('div');
+    hpBarContainer.id = 'hp-bar-container';
 
-    // 3. Создаем слой уровня топлива с заполненными сегментами
-    const levelLayer = document.createElement('div');
-    levelLayer.id = 'hp-bar-level'; // JS будет управлять этим элементом
+    // Создаем 5 сегментов
     for (let i = 0; i < 5; i++) {
-        const filledSegment = document.createElement('div');
-        filledSegment.className = 'hp-segment hp-segment-filled';
-        levelLayer.appendChild(filledSegment);
-    }
+        const segmentContainer = document.createElement('div');
+        segmentContainer.className = 'hp-segment-container';
 
-    // 4. Собираем структуру: level поверх background, и все это в wrapper
-    hpBarWrapper.appendChild(backgroundLayer);
-    hpBarWrapper.appendChild(levelLayer);
-    topUI.appendChild(hpBarWrapper);
+        const segmentFill = document.createElement('div');
+        segmentFill.className = 'hp-segment-fill';
+        
+        segmentContainer.appendChild(segmentFill);
+        hpBarContainer.appendChild(segmentContainer);
+        
+        // Сохраняем ссылку на элемент ЗАЛИВКИ
+        if (!Game.ui.hpBarSegments) Game.ui.hpBarSegments = [];
+        Game.ui.hpBarSegments.push(segmentFill);
+    }
     
+    hpBarWrapper.appendChild(hpBarContainer);
+    topUI.appendChild(hpBarWrapper);
     document.body.appendChild(topUI);
-    // Сохраняем ссылку на элемент, которым будем управлять
-    Game.ui.hpBar = levelLayer;
 
     // --- Создание нижнего UI (Уровни) ---
     const bottomUI = document.createElement('div');
@@ -68,17 +63,46 @@ function showGameUI() {
  * Обновляет визуальное состояние топливной шкалы.
  */
 function updateHpBar() {
-    if (!Game.ui.hpBar) return;
+    if (!Game.ui.hpBarSegments || Game.ui.hpBarSegments.length === 0) return;
+
+    const hp = Game.hp; // от 0 до 100
+    const segments = Game.ui.hpBarSegments;
+    const totalSegments = segments.length; // 5
+
+    // 1. Вычисляем, сколько сегментов полностью заполнено
+    const fullSegments = Math.floor(hp / 20);
+
+    // 2. Вычисляем процент заполнения для "пограничного" сегмента
+    const lastSegmentFill = (hp % 20) / 20;
+
+    // 3. Обновляем каждый сегмент
+    for (let i = 0; i < totalSegments; i++) {
+        if (i < fullSegments) {
+            // Этот сегмент полностью заполнен
+            segments[i].style.transform = 'scaleX(1)';
+        } else if (i === fullSegments) {
+            // Это пограничный сегмент
+            // Если lastSegmentFill равен 0 и hp не 100, это значит, что мы ровно на границе
+            // (например, 80 HP), и этот сегмент должен быть пустым.
+            if (lastSegmentFill === 0 && hp !== 100) {
+                 segments[i].style.transform = 'scaleX(0)';
+            } else {
+                 segments[i].style.transform = `scaleX(${lastSegmentFill})`;
+            }
+        } else {
+            // Этот сегмент полностью пуст
+            segments[i].style.transform = 'scaleX(0)';
+        }
+    }
     
-    const percentage = Game.hp;
-    
-    Game.ui.hpBar.style.transform = `scaleX(${percentage / 100})`;
-    
-    // Порог мерцания теперь 20% (одна ячейка)
-    if (percentage > 0 && percentage <= 20) {
-        Game.ui.hpBar.classList.add('blinking');
-    } else {
-        Game.ui.hpBar.classList.remove('blinking');
+    // 4. Управляем мерцанием
+    const wrapper = document.getElementById('hp-bar-wrapper');
+    if (wrapper) {
+        if (hp > 0 && hp <= 20) {
+            wrapper.classList.add('blinking');
+        } else {
+            wrapper.classList.remove('blinking');
+        }
     }
 }
 

@@ -22,7 +22,7 @@ const Game = {
     },
 
     ui: {
-        hpBar: null, // Было fuelBar
+        hpBarSegments: [], // Было hpBar: null
         levelDots: []
     },
 
@@ -45,7 +45,7 @@ function resetGameState() {
     Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
 
     // Очищаем ссылки на UI элементы, чтобы они пересоздавались
-    Game.ui.hpBar = null;
+    Game.ui.hpBarSegments = [];
     Game.ui.levelDots = [];
     
     console.log("Game state has been reset.");

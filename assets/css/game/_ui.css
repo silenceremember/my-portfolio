@@ -75,33 +75,34 @@ body.game-mode .game-ui-bottom.visible {
     position: relative;
 }
 
-.hp-bar-background {
+/* Контейнер для всех сегментов. Теперь один. */
+#hp-bar-container {
     display: flex;
     gap: 6px;
 }
 
-#hp-bar-level {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    display: flex;
-    gap: 6px;
-    transform-origin: left;
-    transition: transform 0.2s linear;
-    overflow: hidden;
-}
-
-.hp-segment {
+/* Стили для одного сегмента-контейнера */
+.hp-segment-container {
     width: 16px;
     height: 16px;
     box-sizing: border-box;
+    border: 1px solid var(--text-color); /* Рамка теперь на контейнере */
+    position: relative; /* Для позиционирования заливки */
+    overflow: hidden; /* Обрезаем заливку внутри сегмента */
 }
 
-.hp-segment-empty {
-    border: 1px solid var(--text-color);
-}
-
-.hp-segment-filled {
+/* Заливка внутри сегмента */
+.hp-segment-fill {
+    width: 100%;
+    height: 100%;
     background-color: var(--red-accent);
+    transform-origin: left;
+}
+
+
+/* Анимация мерцания (теперь применяется ко всей шкале) */
+.hp-segment-fill.is-blinking {
+    animation: blink-animation 0.8s infinite;
 }
 
 

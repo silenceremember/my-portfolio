@@ -17,6 +17,22 @@ function handleKeyDown(e) {
         e.preventDefault(); 
         Game.controls[action] = true;
     }
+
+    // --- ТЕСТОВЫЙ КОД ДЛЯ HP ---
+    // Нажатие 'T' симулирует получение урона (-20% HP)
+    if (e.code === 'KeyT') {
+        console.log("Damage taken! -20 HP");
+        Game.hp -= 20;
+        if (Game.hp < 0) Game.hp = 0;
+    }
+    // Нажатие 'Y' симулирует подбор аптечки (+20% HP)
+    if (e.code === 'KeyY') {
+        console.log("HP restored! +20 HP");
+        Game.hp += 20;
+        if (Game.hp > 100) Game.hp = 100;
+    }
+    // ----------------------------
+
     if (e.code === 'Escape') exitGame();
 }
 
@@ -80,14 +96,14 @@ function startGameplay() {
  */
 function gameLoop(currentTime) {
     if (!document.body.classList.contains('game-mode')) return;
+    
     updateStars();
     if (Game.player.isFlyingIn) updatePlayerFlyIn(currentTime);
     
     if (Game.isActive) {
         // --- Логика расхода HP ---
-        // Расход -0.5% в секунду.
-        // requestAnimationFrame вызывается примерно 60 раз в секунду.
-        // Значит, за один кадр нужно вычесть 0.5 / 60.
+        // ИСПРАВЛЕНИЕ: Возвращаем пассивный расход HP.
+        // Расход -0.5% в секунду (делим на ~60 кадров).
         const hpLossPerFrame = 0.5 / 60;
         Game.hp -= hpLossPerFrame;
 
@@ -96,9 +112,9 @@ function gameLoop(currentTime) {
             Game.hp = 0;
             console.log("GAME OVER - HP is 0");
             // Здесь будет логика смерти
-            // Например, Game.isActive = false;
         }
 
+        // Обновляем геймплей и UI
         updatePlayerPosition();
         updateHpBar();
         updateLevelIndicators();
