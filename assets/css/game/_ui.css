@@ -29,3 +29,124 @@
 
 .game-start-prompt p { margin: 0; font-size: 16px; font-weight: 700; text-transform: uppercase; }
 .game-start-prompt kbd { display: inline-block; padding: 4px 8px; border: 1px solid var(--text-color); margin: 0 4px; }
+
+/* Контейнер для верхнего UI (топливо) */
+.game-ui-top {
+    position: fixed;
+    top: 0;
+    left: calc(50% - 350px);
+    width: 700px;
+    height: var(--frame-padding-vertical);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 600;
+    opacity: 0;
+    /* ИСПРАВЛЕНИЕ: Устанавливаем время анимации 0.5с,
+       чтобы оно совпадало с временем растворения корабля. */
+    transition: opacity 0.5s ease-out;
+}
+
+/* Контейнер для нижнего UI (уровни) */
+.game-ui-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: var(--frame-padding-vertical);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 600;
+    opacity: 0;
+    /* ИСПРАВЛЕНИЕ: То же самое время - 0.5с */
+    transition: opacity 0.5s ease-out;
+}
+
+/* Делаем UI видимым, когда игра готова */
+body.game-mode .game-ui-top.visible,
+body.game-mode .game-ui-bottom.visible {
+    opacity: 1;
+}
+
+/* --- Топливная шкала (НОВАЯ ВЕРСИЯ) --- */
+
+/* Внешний контейнер, который просто центрирует шкалу */
+#fuel-bar-wrapper {
+    position: relative; /* Нужно для позиционирования слоев */
+}
+
+/* Контейнер для фоновых (пустых) сегментов */
+.fuel-bar-background {
+    display: flex;
+    gap: 6px; /* Расстояние между сегментами */
+}
+
+/* Контейнер для заполненных сегментов. Он будет масштабироваться. */
+#fuel-bar-level {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; /* Растягивается на всю ширину фона */
+    height: 100%;
+    display: flex;
+    gap: 6px;
+    transform-origin: left; /* Масштабирование от левого края */
+    transition: transform 0.2s linear;
+    overflow: hidden; /* Важно, чтобы скрыть части заполненных сегментов */
+}
+
+/* Стили для одного сегмента */
+.fuel-segment {
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+}
+
+/* Пустой сегмент - это просто рамка */
+.fuel-segment-empty {
+    border: 1px solid var(--text-color);
+}
+
+/* Заполненный сегмент - это красный квадрат */
+.fuel-segment-filled {
+    background-color: var(--red-accent);
+}
+
+
+/* Анимация мерцания для низкого уровня топлива */
+.blinking {
+    animation: blink-animation 0.8s infinite;
+}
+
+@keyframes blink-animation {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+/* --- Индикаторы уровней --- */
+#level-indicators {
+    display: flex;
+    gap: 6px;
+}
+
+.level-dot {
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    /* Состояние 1: Неактивная (по умолчанию) */
+    border: 1px solid var(--text-color);
+    transition: all 0.3s ease;
+}
+
+/* Состояние 2: Текущая */
+.level-dot.current {
+    border-color: var(--red-accent);
+}
+
+/* Состояние 3: Пройденная */
+.level-dot.completed {
+    background-color: var(--red-accent);
+    border-color: var(--red-accent);
+}

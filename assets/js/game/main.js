@@ -67,6 +67,7 @@ function handlePreGameInput(e) {
 function startGameplay() {
     Game.isActive = true;
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
+    showGameUI();
     window.removeEventListener('keydown', handlePreGameInput);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -78,17 +79,26 @@ function startGameplay() {
  * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (ИСПРАВЛЕННАЯ ВЕРСИЯ)
  */
 function gameLoop(currentTime) {
-    // Эта проверка - единственный "выключатель" цикла.
     if (!document.body.classList.contains('game-mode')) return;
-    
     updateStars();
     if (Game.player.isFlyingIn) updatePlayerFlyIn(currentTime);
-    if (Game.isActive) updatePlayerPosition();
-    renderPlayer();
+    
+    if (Game.isActive) {
+        // === Тестовый блок для UI (позже убрать) ===
+        // Game.fuel -= 0.1;
+        // if (Game.fuel < 0) {
+        //     Game.fuel = 100;
+        //     Game.currentLevel++;
+        //     if (Game.currentLevel > 5) Game.currentLevel = 1;
+        // }
+        // ===========================================
 
-    // ИСПРАВЛЕНИЕ: Мы всегда запрашиваем следующий кадр.
-    // Это гарантирует, что звезды будут двигаться во время анимации выхода.
-    // Цикл остановится сам, когда проверка выше вернет true.
+        updatePlayerPosition();
+        updateFuelBar();
+        updateLevelIndicators();
+    }
+    
+    renderPlayer();
     requestAnimationFrame(gameLoop);
 }
 
@@ -119,7 +129,7 @@ function initGame() {
         left: (window.innerWidth / 2) - 350,
         right: (window.innerWidth / 2) + 350,
     };
-    initStarsCanvas(); createPlayer(); const startPrompt = createStartPrompt();
+    initStarsCanvas(); createPlayer(); const startPrompt = createStartPrompt(); createGameUI(); 
     
     const gameElementsAppearTime = 1300; 
     setTimeout(() => {
@@ -163,6 +173,8 @@ function exitGame() {
     document.getElementById('player-ship')?.classList.remove('visible');
     document.getElementById('stars-canvas')?.classList.remove('visible');
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
+    document.querySelector('.game-ui-top')?.classList.remove('visible');
+    document.querySelector('.game-ui-bottom')?.classList.remove('visible');
     
     setTimeout(() => { document.body.classList.remove('game-active'); }, 500);
 
@@ -179,6 +191,8 @@ function exitGame() {
         document.getElementById('player-ship')?.remove();
         document.getElementById('stars-canvas')?.remove();
         document.querySelector('.game-start-prompt')?.remove();
+        document.querySelector('.game-ui-top')?.remove();
+        document.querySelector('.game-ui-bottom')?.remove();
         document.getElementById('game-cursor-blocker')?.remove();
         
         Game.isShuttingDown = false; // Сбрасываем флаг на всякий случай
