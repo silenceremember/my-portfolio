@@ -104,7 +104,7 @@ function gameLoop(currentTime) {
         // --- Логика расхода HP ---
         // ИСПРАВЛЕНИЕ: Возвращаем пассивный расход HP.
         // Расход -0.5% в секунду (делим на ~60 кадров).
-        const hpLossPerFrame = 0.5 / 60;
+        const hpLossPerFrame = 2 / 60;
         Game.hp -= hpLossPerFrame;
 
         // Проверяем, не закончились ли HP
