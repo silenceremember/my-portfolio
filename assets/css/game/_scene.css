@@ -3,8 +3,7 @@
 /* --- СЦЕНА И ИГРОВОЕ ПОЛЕ --- */
 
 body.game-mode {
-    /* Этот класс нужен только для JS, чтобы игровой цикл работал */
-    /* Визуально он ничего не делает */
+    /* Технический класс для JS, визуала нет */
 }
 
 body.game-active {
@@ -13,12 +12,11 @@ body.game-active {
     user-select: none;
 }
 
-/* ИЗМЕНЕНИЕ: Убираем отсюда свойство 'transition'.
-   Вместо этого мы добавляем 'transition-delay' ТОЛЬКО для анимации входа. */
-body.game-active .vertical-guide-line {
-    transition-delay: 0.5s;
-}
-
+/* 
+ИЗМЕНЕНИЕ: Мы полностью убираем 'transition-delay'.
+Теперь анимация линий будет начинаться сразу же,
+как только на body появится класс .game-active
+*/
 body.game-active .vertical-guide-line.left {
     left: calc(50% - 350px);
 }
@@ -35,6 +33,6 @@ body.game-active .vertical-guide-line.right {
     opacity: 0;
     transition: opacity 1s ease;
 }
-body.game-mode #stars-canvas.visible { /* Привязка к game-mode */
+body.game-mode #stars-canvas.visible {
     opacity: 1;
 }
