@@ -83,8 +83,8 @@ function updatePlayerPosition() {
     Game.player.x = Math.max(Game.bounds.left + playerWidth / 2, Game.player.x);
     Game.player.x = Math.min(Game.bounds.right - playerWidth / 2, Game.player.x);
     
-    Game.player.y = Math.max(Game.bounds.top, Game.player.y);
-    Game.player.y = Math.min(Game.bounds.bottom - playerHeight, Game.player.y);
+    Game.player.y = Math.max(Game.bounds.top + (playerHeight / 2), Game.player.y);
+    Game.player.y = Math.min(Game.bounds.bottom - (playerHeight / 2), Game.player.y);
 }
 
 

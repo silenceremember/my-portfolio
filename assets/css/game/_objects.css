@@ -4,19 +4,23 @@
 
 #player-ship {
     position: fixed;
-    left: 0; 
-    top: 0;
-
     opacity: 0;
-    width: 0; height: 0;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-bottom: 25px solid var(--red-accent);
+
+    /* Размеры остаются 28x28, как в JS и в самом SVG */
+    width: 28px;
+    height: 28px;
+    
+    /* 
+      ИСПРАВЛЕНИЕ: Мы убираем background-color и вместо этого
+      вставляем ваш SVG прямо в фон.
+    */
+    background-image: url("data:image/svg+xml,%3csvg width='28' height='28' viewBox='0 0 28 28' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M14 4.5L22 0L28 6L27 16L14 28.0002V4.5Z' fill='%23D90429'/%3e%3cpath d='M14 4.5L6 0L0 6L1 16L14 28.0002V4.5Z' fill='%23D90429'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    /* Технические стили, которые остаются */
     z-index: 502;
     transform: translate(-50%, -50%);
-
-    /* ИЗМЕНЕНИЕ: Оставляем transition ТОЛЬКО для opacity.
-       Время можно сделать короче для эффекта "растворения". */
     transition: opacity 0.5s ease-out;
 }
 

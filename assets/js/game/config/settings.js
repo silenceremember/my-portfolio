@@ -4,8 +4,8 @@
 if (typeof Game !== 'undefined' && typeof Game.settings === 'object') {
     Object.assign(Game.settings, {
         // Игрок
-        PLAYER_WIDTH: 30,
-        PLAYER_HEIGHT: 25,
+        PLAYER_WIDTH: 28,
+        PLAYER_HEIGHT: 28,
         PLAYER_SPEED: 7,
 
         // Фон
