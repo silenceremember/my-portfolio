@@ -1,80 +1,148 @@
+// assets/js/game/main.js
+
+/**
+ * Карта соответствия ФИЗИЧЕСКОГО КОДА клавиши и игровых действий.
+ * Использует event.code, чтобы работать независимо от раскладки клавиатуры.
+ */
+const keyMap = {
+    // Стрелки
+    'ArrowUp': 'up',
+    'ArrowDown': 'down',
+    'ArrowLeft': 'left',
+    'ArrowRight': 'right',
+    // WASD
+    'KeyW': 'up',
+    'KeyS': 'down',
+    'KeyA': 'left',
+    'KeyD': 'right'
+};
+
+/**
+ * ОБРАБОТЧИКИ УПРАВЛЕНИЯ
+ * Обновляют состояние в Game.controls на основе event.code.
+ */
+function handleKeyDown(e) {
+    // Используем e.code вместо e.key
+    const action = keyMap[e.code]; 
+    if (action !== undefined) {
+        e.preventDefault(); 
+        Game.controls[action] = true;
+    }
+
+    // Выход по Escape работает как и раньше, т.к. его код 'Escape' совпадает с ключом
+    if (e.code === 'Escape') {
+        exitGame();
+    }
+}
+
+function handleKeyUp(e) {
+    // Используем e.code вместо e.key
+    const action = keyMap[e.code];
+    if (action !== undefined) {
+        e.preventDefault();
+        Game.controls[action] = false;
+    }
+}
+
+/**
+ * ФУНКЦИЯ ЗАПУСКА АКТИВНОГО ГЕЙМПЛЕЯ
+ * Вызывается после всех стартовых анимаций.
+ */
+function startGameplay() {
+    console.log("Gameplay ACTIVE!");
+    Game.isActive = true;
+
+    const prompt = document.querySelector('.game-start-prompt');
+    if (prompt) {
+        prompt.classList.remove('visible');
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+}
+
 /**
  * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ
+ * Сердце игры, которое работает каждый кадр.
  */
 function gameLoop(currentTime) {
-    // Эта проверка важна, чтобы цикл остановился, если мы выйдем из игры
     if (!document.body.classList.contains('game-active')) return;
 
-    // Фон должен двигаться всегда, пока игра активна
     updateStars();
     
-    // Анимация вылета корабля
     if (Game.player.isFlyingIn) {
         updatePlayerFlyIn(currentTime);
     }
     
-    // Геймплей (когда будет реализован)
     if (Game.isActive) {
-        // updatePlayerPosition();
-        // updateEnemies();
-        // checkCollisions();
+        updatePlayerPosition();
     }
     
-    // Отрисовка игрока
     renderPlayer();
 
-    // Продолжаем цикл на следующем кадре
     requestAnimationFrame(gameLoop);
 }
 
 
 /**
  * ФУНКЦИЯ ЗАПУСКА ИГРЫ
+ * Вызывается из app.js.
  */
 function initGame() {
     if (document.body.classList.contains('game-active')) return;
     console.log("Game mode INITIALIZED.");
 
-    // Этап 1: Блокировка интерфейса и вычисление границ
     document.body.classList.add('game-active');
     Game.bounds = {
-        top: 80, bottom: window.innerHeight - 80,
+        top: 80, 
+        bottom: window.innerHeight - 80,
         left: (window.innerWidth / 2) - 350,
         right: (window.innerWidth / 2) + 350,
     };
 
-    // Этап 2: Подготовка сцены (создаем невидимые элементы)
     initStarsCanvas();
     createPlayer();
     const startPrompt = createStartPrompt();
 
-    // Этап 3: Запуск анимаций ПОСЛЕ того, как сработают начальные CSS-переходы
-    // Общее время на скрытие UI (0.5s) и сдвиг линий (0.8s, но они начинаются с задержкой 0.5s)
-    // Итого, ждем 0.5 + 0.8 = 1.3 секунды.
     const totalAnimationTime = 1300; 
 
     setTimeout(() => {
-        console.log("Starting secondary animations...");
         const starsCanvas = document.getElementById('stars-canvas');
         if (starsCanvas) starsCanvas.classList.add('visible');
         
-        startPlayerFlyIn(); // Эта функция делает корабль видимым и запускает его полет
+        startPlayerFlyIn();
         if (startPrompt) startPrompt.classList.add('visible');
     }, totalAnimationTime);
 
-    // Этап 4: Установка флага готовности игры
-    // Ждем, пока пройдут все анимации: 1.3s (линии) + 0.8s (полет корабля) + 2s (пауза для игрока)
     const timeUntilReady = totalAnimationTime + 800 + Game.settings.READY_UP_DELAY;
     setTimeout(() => {
         console.log("Game is ready to start.");
         Game.isReady = true;
-        // Здесь можно будет запустить сам геймплей, например, первую волну врагов
-    }, timeUntilReady); 
+        startGameplay();
+    }, timeUntilReady);
 
-    // Этап 5: Запуск игрового цикла СРАЗУ
-    // Он будет отрисовывать фон и полет корабля.
     requestAnimationFrame(gameLoop);
 }
 
-// Привязываем initGame к window, чтобы app.js мог ее найти
+/**
+ * ФУНКЦИЯ ВЫХОДА ИЗ ИГРЫ
+ */
+function exitGame() {
+    console.log("Exiting game...");
+    
+    document.body.classList.remove('game-active');
+    
+    Game.isActive = false;
+    Game.isReady = false;
+    Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
+
+    document.getElementById('stars-canvas')?.remove();
+    document.getElementById('player-ship')?.remove();
+    document.querySelector('.game-start-prompt')?.remove();
+
+    window.removeEventListener('keydown', handleKeyDown);
+    window.removeEventListener('keyup', handleKeyUp);
+}
+
+// Привязываем initGame к window
 window.initGame = initGame;

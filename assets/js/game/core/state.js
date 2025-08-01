@@ -8,8 +8,15 @@ const Game = {
         isFlyingIn: false,
         flyIn: { startY: 0, targetY: 0, duration: 800, startTime: 0 }
     },
+    // НОВАЯ СТРУКТУРА: отслеживаем не клавиши, а НАПРАВЛЕНИЯ
+    controls: {
+        up: false,
+        down: false,
+        left: false,
+        right: false
+    },
     stars: [],
-    settings: {}, // !!! ПУСТОЙ ОБЪЕКТ !!!
+    settings: {},
     bounds: {},
     canvas: null,
     ctx: null

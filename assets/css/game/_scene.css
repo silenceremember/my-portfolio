@@ -32,10 +32,6 @@ body.game-active .vertical-guide-line.right {
     z-index: 10;
     pointer-events: none;
     opacity: 0;
-    /* 
-    ИСПРАВЛЕНИЕ: Убираем задержку 'transition-delay' (было 'transition: opacity 1s ease 0.5s;').
-    Теперь анимация начнется СРАЗУ, как только JS добавит класс .visible.
-    */
     transition: opacity 1s ease;
 }
 
