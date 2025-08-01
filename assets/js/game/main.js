@@ -1,3 +1,5 @@
+// assets/js/game/main.js
+
 /**
  * Карта соответствия ФИЗИЧЕСКОГО КОДА клавиши и игровых действий.
  */
@@ -21,19 +23,24 @@ function handleKeyDown(e) {
     // --- ТЕСТОВЫЙ КОД ДЛЯ HP ---
     // Нажатие 'T' симулирует получение урона (-20% HP)
     if (e.code === 'KeyT') {
-        if (Game.hp > 0) { // Наносим урон только если есть HP
-            console.log("Damage taken! -20 HP");
+        if (Game.hp > 0) {
+            const oldHp = Game.hp; // Запоминаем HP до урона
             Game.hp -= 20;
             if (Game.hp < 0) Game.hp = 0;
             
             shakeHpBar();
+            updateHpBar(oldHp);
         }
     }
     // Нажатие 'Y' симулирует подбор аптечки (+20% HP)
     if (e.code === 'KeyY') {
-        console.log("HP restored! +20 HP");
-        Game.hp += 20;
-        if (Game.hp > 100) Game.hp = 100;
+        if (Game.hp < 100) {
+            const oldHp = Game.hp; // Запоминаем HP до восстановления
+            Game.hp += 20;
+            if (Game.hp > 100) Game.hp = 100;
+
+            updateHpBar(oldHp); 
+        }
     }
 
     // --- ТЕСТОВЫЙ КОД ДЛЯ ЗАВЕРШЕНИЯ УРОВНЯ ---
@@ -114,34 +121,35 @@ function startGameplay() {
  */
 
 function gameLoop(currentTime) {
-    if (!document.body.classList.contains('game-mode')) {
-        return; // Просто выходим, не сбрасывая lastTime здесь
-    }
-
-    // Расчет deltaTime для стабильной физики и таймеров
-    const deltaTime = (currentTime - lastTime) / 1000; // в секундах
+    if (!document.body.classList.contains('game-mode')) return;
+    
+    const deltaTime = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
 
-    // Вызываем обновление сценария
     updateScenario(deltaTime);
-    
     updateStars();
     if (Game.player.isFlyingIn) updatePlayerFlyIn(currentTime);
     
     if (Game.isActive) {
+        // Сохраняем HP перед пассивными изменениями
+        const oldHp = Game.hp;
+
         if (Game.phase === 'level') {
             const hpLossPerSecond = 0.5;
             Game.hp -= hpLossPerSecond * deltaTime;
+        }
 
-            if (Game.hp <= 0) {
-                Game.hp = 0;
-                console.log("GAME OVER - HP is 0");
-                Game.isActive = false;
-            }
+        if (Game.hp <= 0) {
+            Game.hp = 0;
+            console.log("GAME OVER - HP is 0");
+            Game.isActive = false;
         }
 
         updatePlayerPosition();
-        updateHpBar();
+        
+        // ИСПРАВЛЕНИЕ: Передаем oldHp, который был до пассивного расхода.
+        // Это нужно для плавной анимации расхода.
+        updateHpBar(oldHp); 
         updateLevelIndicators();
     }
     

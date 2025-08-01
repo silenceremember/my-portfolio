@@ -113,6 +113,22 @@ body.game-mode .game-ui-bottom.visible {
     }
 }
 
+.hp-segment-fill.pulse-animation {
+    animation: pulse 0.3s ease-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.4);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 /* --- Индикаторы уровней --- */
 #level-indicators {
     display: flex;

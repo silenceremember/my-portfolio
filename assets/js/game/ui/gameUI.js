@@ -2,7 +2,6 @@
  * Создает все DOM-элементы для игрового интерфейса (HUD).
  */
 function createGameUI() {
-
     // --- Создание верхнего UI (HP) ---
     const topUI = document.createElement('div');
     topUI.className = 'game-ui-top';
@@ -18,7 +17,6 @@ function createGameUI() {
         
         hpBarContainer.appendChild(segmentFill);
         
-        // Сохраняем ссылку на сам сегмент
         Game.ui.hpBarSegments.push(segmentFill);
     }
     
@@ -52,43 +50,45 @@ function showGameUI() {
 }
 
 function shakeHpBar() {
-    // Находим главный контейнер шкалы HP
     const hpBarContainer = document.getElementById('hp-bar-container');
     if (!hpBarContainer) return;
-
-    // Добавляем класс, чтобы запустить анимацию
     hpBarContainer.classList.add('shake-animation');
-
-    // Убираем класс после завершения анимации,
-    // чтобы ее можно было запустить снова.
-    // Время (400ms) должно совпадать с 'animation-duration' в CSS.
     setTimeout(() => {
         hpBarContainer.classList.remove('shake-animation');
     }, 400);
 }
 
+function pulseHpSegment(segmentIndex) {
+    if (!Game.ui.hpBarSegments || !Game.ui.hpBarSegments[segmentIndex]) return;
+    const segmentFill = Game.ui.hpBarSegments[segmentIndex];
+    segmentFill.classList.add('pulse-animation');
+    setTimeout(() => {
+        segmentFill.classList.remove('pulse-animation');
+    }, 300);
+}
+
 /**
- * Обновляет визуальное состояние шкалы HP, управляя каждым сегментом отдельно.
- * (ФИНАЛЬНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ)
+ * Обновляет визуальное состояние шкалы HP.
+ * (ЕДИНСТВЕННАЯ И ПРАВИЛЬНАЯ ВЕРСИЯ)
+ * @param {number} oldHp - Значение HP до изменения.
  */
-function updateHpBar() {
+function updateHpBar(oldHp = Game.hp) {
     if (!Game.ui.hpBarSegments || Game.ui.hpBarSegments.length === 0) return;
 
-    const hp = Game.hp;
+    const newHp = Game.hp;
     const segments = Game.ui.hpBarSegments;
     const totalSegments = segments.length;
 
-    // Шаг 1: Обновление заполнения сегментов
-    const fullSegments = Math.floor(hp / 20);
-    const lastSegmentFill = (hp % 20) / 20;
+    // Шаг 1: Обновление заполнения
+    const fullSegments = Math.floor(newHp / 20);
+    const lastSegmentFill = (newHp % 20) / 20;
 
     for (let i = 0; i < totalSegments; i++) {
         segments[i].classList.remove('is-blinking');
-
         if (i < fullSegments) {
             segments[i].style.transform = 'scaleX(1)';
         } else if (i === fullSegments) {
-            if (lastSegmentFill === 0 && hp > 0 && hp < 100) {
+            if (lastSegmentFill === 0 && newHp !== 100) {
                  segments[i].style.transform = 'scaleX(0)';
             } else {
                  segments[i].style.transform = `scaleX(${lastSegmentFill})`;
@@ -99,9 +99,15 @@ function updateHpBar() {
     }
     
     // Шаг 2: Логика мерцания
-    if (hp > 0 && hp <= 20) {
-        if (segments[0]) {
-            segments[0].classList.add('is-blinking');
+    if (newHp > 0 && newHp <= 20) {
+        if (segments[0]) segments[0].classList.add('is-blinking');
+    }
+
+    // Шаг 3: Анимация восстановления
+    if (newHp > oldHp) {
+        const restoredSegmentIndex = Math.ceil(newHp / 20) - 1;
+        if (restoredSegmentIndex >= 0 && restoredSegmentIndex < totalSegments) {
+            pulseHpSegment(restoredSegmentIndex);
         }
     }
 }
