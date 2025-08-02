@@ -144,7 +144,24 @@ function gameLoop(currentTime) {
  * ФУНКЦИЯ ЗАПУСКА ИГРЫ
  */
 function initGame() {
-    if (document.body.classList.contains('game-mode')) return;
+    // Константы лучше определить в самом начале файла
+    const MIN_WIDTH = 700;
+    const MIN_HEIGHT = 700;
+
+    if (window.innerWidth < MIN_WIDTH || window.innerHeight < MIN_HEIGHT) {
+        console.warn(`Game launch failed: Window size is ${window.innerWidth}x${window.innerHeight}.`);
+        if (typeof window.triggerQteSystemError === 'function') {
+            window.triggerQteSystemError('ТРЕБУЕТСЯ ОКНО 700x700');
+        }
+        
+        // --- ИЗМЕНЕНИЕ: Сообщаем о неудаче ---
+        return false; 
+    }
+
+    if (document.body.classList.contains('game-mode')) {
+        return false; // Игра уже запущена, тоже считаем "неудачей" для этого вызова.
+    }
+
     console.log("Game mode INITIALIZED (Sequential).");
 
     // Сбрасываем флаги при каждом новом старте
@@ -190,6 +207,8 @@ function initGame() {
     }, timeUntilReady);
 
     requestAnimationFrame(gameLoop);
+
+    return true;
 }
 
 /**

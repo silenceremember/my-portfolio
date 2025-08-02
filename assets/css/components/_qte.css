@@ -1,27 +1,67 @@
 /* assets/css/components/_qte.css */
 
-#qte-container {
-    position: absolute;
-    bottom: calc(50% - 420px / 2);
+#qte-wrapper {
+    position: fixed;
+    z-index: 1000;
     left: calc(50% - (280px + 48px + 600px) / 2 - 1px);
-    transform: translateY(calc(100% + 16px));
+    top: 50%;
+    transform: translateY(calc(420px / 2 + 16px));
+    /* Добавляем это для позиционирования дочерней подсказки */
+}
+
+#qte-container {
     display: flex;
     gap: 6px;
-    z-index: 11;
 }
+
+/* --- ВОЗВРАЩАЕМ СТИЛИ ДЛЯ ПОДСКАЗКИ --- */
+#qte-hint {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+    
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--red-accent);
+    text-transform: uppercase;
+    
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease; 
+
+    white-space: nowrap; 
+}
+
+#qte-hint.visible {
+    opacity: 1;
+}
+
+@keyframes fade-out-hint {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
 .qte-key {
     width: 16px;
     height: 16px;
     background-color: transparent;
     border: 1px solid var(--text-color);
     box-sizing: border-box; 
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+
+.qte-key.is-fading-with-hint {
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
 .qte-key.correct {
     background-color: var(--red-accent);
     border-color: var(--red-accent);
 }
-.qte-key.error-shake {
+
+/* --- АНИМАЦИЯ №1: Ошибка ввода (вертикальная тряска клавиши) --- */
+.qte-key.error-shake-vertical {
     animation: qte-error-shake-vertical 0.4s ease-in-out;
 }
 @keyframes qte-error-shake-vertical {
