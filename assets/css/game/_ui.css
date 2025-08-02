@@ -6,9 +6,11 @@
 
 /* Переменные для легкой настройки */
 :root {
-    --prompt-key-size: 44px;
-    --prompt-key-gap: 8px;
+    --prompt-key-size: 32px;
+    --prompt-key-gap: 6px;
     --prompt-border: 2px solid var(--text-color);
+    /* НОВАЯ ПЕРЕМЕННАЯ: Отступ между группами клавиш */
+    --prompt-wrapper-gap: 32px; 
 }
 
 .game-start-prompt {
@@ -19,7 +21,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 48px;
+    gap: 64px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -32,95 +34,100 @@
     opacity: 1;
 }
 
-/* Общий контейнер для одной строки (например, УПРАВЛЕНИЕ + клавиши) */
 .prompt-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    gap: 12px;
 }
 
-/* Контейнер для двух групп клавиш (WASD и стрелки) */
 .prompt-keys-wrapper {
     display: flex;
     align-items: center;
-    gap: 48px;
+    /* Используем новую переменную */
+    gap: var(--prompt-wrapper-gap); 
 }
 
-/* Заголовки "УПРАВЛЕНИЕ" и "ВЫХОД" */
-.prompt-title {
+.prompt-title.control {
+    /* 
+     * Расчет: (ширина одной группы клавиш * 2) + отступ между ними
+     * Ширина группы = (размер клавиши * 3) + (отступ * 2)
+     */
+    width: calc( (var(--prompt-key-size) * 3 + var(--prompt-key-gap) * 2) * 2 + var(--prompt-wrapper-gap) );
     border: var(--prompt-border);
-    padding: 12px 24px;
-    font-size: 24px;
-    letter-spacing: 0.1em;
+    padding: 8px 18px;
+    font-size: 18px;
     text-transform: uppercase;
+    text-align: center; /* Центрируем текст внутри */
+    box-sizing: border-box; /* Важно, чтобы padding не ломал ширину */
 }
 
-/* Базовый стиль для одной клавиши */
-.prompt-key {
+/* 
+  ИСПРАВЛЕНИЕ: Заголовок "ВЫХОД" 
+  Для единообразия делаем его такой же ширины.
+*/
+.prompt-title.exit {
+    /* Копируем тот же расчет ширины */
+    width: calc( (var(--prompt-key-size) * 3 + var(--prompt-key-gap) * 2) * 2 + var(--prompt-wrapper-gap) );
     border: var(--prompt-border);
+    padding: 8px 18px;
+    font-size: 18px;
+    text-transform: uppercase;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* 
+  Контейнер для SVG-иконки.
+  Он не имеет рамки, так как рамка встроена в сам SVG.
+*/
+.prompt-key {
+    border: var(--prompt-border); /* <-- РАМКА ВЕРНУЛАСЬ СЮДА */
     width: var(--prompt-key-size);
     height: var(--prompt-key-size);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
-    box-sizing: border-box; /* Чтобы border не влиял на размер */
+    font-size: 20px;
+    box-sizing: border-box;
 }
 
-/* Группа клавиш WASD - используем Grid для позиционирования */
-.key-group-wasd {
-    display: grid;
-    grid-template-columns: repeat(3, var(--prompt-key-size));
-    grid-template-rows: repeat(2, var(--prompt-key-size));
-    gap: var(--prompt-key-gap);
-    grid-template-areas:
-        ". w ."
-        "a s d";
-}
-/* Распределяем клавиши по "карте" */
-.key-w { grid-area: w; }
-.key-a { grid-area: a; }
-.key-s { grid-area: s; }
-.key-d { grid-area: d; }
-
-/* Группа стрелок - используем Flexbox */
+/* Группы клавиш (Grid-логика) */
+.key-group-wasd,
 .key-group-arrows {
     display: grid;
     grid-template-columns: repeat(3, var(--prompt-key-size));
     grid-template-rows: repeat(2, var(--prompt-key-size));
     gap: var(--prompt-key-gap);
-    /* Карта расположения та же самая */
     grid-template-areas:
         ". w ."
         "a s d";
 }
+.key-w { grid-area: w; }
+.key-a { grid-area: a; }
+.key-s { grid-area: s; }
+.key-d { grid-area: d; }
+.key-up { grid-area: w; }
+.key-left { grid-area: a; }
+.key-down { grid-area: s; }
+.key-right { grid-area: d; }
 
-.key-up { grid-area: w; }    /* Up -> на место W */
-.key-left { grid-area: a; }  /* Left -> на место A */
-.key-down { grid-area: s; }  /* Down -> на место S */
-.key-right { grid-area: d; } /* Right -> на место D */
-
-/* Для стрелок ВВЕРХ и ВНИЗ (они выше и уже) */
-.prompt-arrow-icon.vertical {
-    width: 16px;
-    height: 19px; /* Делаем контейнер чуть выше, чтобы соответствовать пропорциям */
-    margin: auto;
+/* Правила для SVG внутри .prompt-key */
+.prompt-key svg {
+    width: 100%;
+    height: 100%;
 }
 
-/* Для стрелок ВЛЕВО и ВПРАВО (они шире) */
-.prompt-arrow-icon.horizontal {
-    width: 19px; /* Делаем контейнер чуть шире */
-    height: 16px;
-    margin: auto;
-}
-
-/* Клавиша ESC - просто шире */
+/* Клавиша ESC (текстовая) */
 .key-esc {
-    width: 100px;
+    border: var(--prompt-border); /* Возвращаем рамку, так как это текст */
+    width: 72px;
     height: auto;
-    padding: 8px 0;
+    font-size: 18px;
+    padding: 6px 0;
 }
+
+/* --- Игровой HUD (ИНТЕРФЕЙС) --- */
 
 .game-start-prompt.visible {
     opacity: 1;
