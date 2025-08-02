@@ -1,0 +1,7 @@
+const SVGLibrary = {
+    // Я оставил currentColor, чтобы иконки могли менять цвет в зависимости от контекста
+    arrowUp: `<svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.96902 11.1818V4.78835L1.64232 7.125L0.220443 5.71307L5.00311 0.94034L9.77584 5.71307L8.37385 7.125L6.0372 4.78835V11.1818H3.96902Z" fill="currentColor"/></svg>`,
+    arrowDown: `<svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.0372 0.818182V7.21165L8.3639 4.875L9.78578 6.28693L5.00311 11.0597L0.23038 6.28693L1.63237 4.875L3.96902 7.21165V0.818182H6.0372Z" fill="currentColor"/></svg>`,
+    arrowLeft: `<svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.08265 10.9247L0.703391 5.54545L6.08265 0.166193L7.49458 1.56818L4.5514 4.51136H10.9349V6.57955H4.5514L7.49458 9.52273L6.08265 10.9247Z" fill="currentColor"/></svg>`,
+    arrowRight: `<svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.92356 10.9247L3.51163 9.52273L6.45481 6.57955H0.0712891V4.51136H6.45481L3.51163 1.56818L4.92356 0.166193L10.3028 5.54545L4.92356 10.9247Z" fill="currentColor"/></svg>`
+};

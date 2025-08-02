@@ -2,7 +2,15 @@
 
 /* --- ИГРОВОЙ UI --- */
 
-/* Подсказка для старта игры */
+/* --- Подсказка для старта игры (ТЕКСТОВАЯ ВЕРСИЯ) --- */
+
+/* Переменные для легкой настройки */
+:root {
+    --prompt-key-size: 44px;
+    --prompt-key-gap: 8px;
+    --prompt-border: 2px solid var(--text-color);
+}
+
 .game-start-prompt {
     position: fixed;
     top: 50%; left: 50%;
@@ -11,16 +19,107 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    font-family: var(--font-main);
-    color: var(--text-color);
+    gap: 48px;
     opacity: 0;
     pointer-events: none;
-    /* 
-    ИСПРАВЛЕНИЕ: Убираем задержку 'transition-delay' (было 'transition: opacity 0.5s ease 1.3s;').
-    JavaScript уже обеспечивает нужную паузу.
-    */
     transition: opacity 0.5s ease;
+    font-family: var(--font-main);
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.game-start-prompt.visible {
+    opacity: 1;
+}
+
+/* Общий контейнер для одной строки (например, УПРАВЛЕНИЕ + клавиши) */
+.prompt-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+/* Контейнер для двух групп клавиш (WASD и стрелки) */
+.prompt-keys-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+}
+
+/* Заголовки "УПРАВЛЕНИЕ" и "ВЫХОД" */
+.prompt-title {
+    border: var(--prompt-border);
+    padding: 12px 24px;
+    font-size: 24px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* Базовый стиль для одной клавиши */
+.prompt-key {
+    border: var(--prompt-border);
+    width: var(--prompt-key-size);
+    height: var(--prompt-key-size);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    box-sizing: border-box; /* Чтобы border не влиял на размер */
+}
+
+/* Группа клавиш WASD - используем Grid для позиционирования */
+.key-group-wasd {
+    display: grid;
+    grid-template-columns: repeat(3, var(--prompt-key-size));
+    grid-template-rows: repeat(2, var(--prompt-key-size));
+    gap: var(--prompt-key-gap);
+    grid-template-areas:
+        ". w ."
+        "a s d";
+}
+/* Распределяем клавиши по "карте" */
+.key-w { grid-area: w; }
+.key-a { grid-area: a; }
+.key-s { grid-area: s; }
+.key-d { grid-area: d; }
+
+/* Группа стрелок - используем Flexbox */
+.key-group-arrows {
+    display: grid;
+    grid-template-columns: repeat(3, var(--prompt-key-size));
+    grid-template-rows: repeat(2, var(--prompt-key-size));
+    gap: var(--prompt-key-gap);
+    /* Карта расположения та же самая */
+    grid-template-areas:
+        ". w ."
+        "a s d";
+}
+
+.key-up { grid-area: w; }    /* Up -> на место W */
+.key-left { grid-area: a; }  /* Left -> на место A */
+.key-down { grid-area: s; }  /* Down -> на место S */
+.key-right { grid-area: d; } /* Right -> на место D */
+
+/* Для стрелок ВВЕРХ и ВНИЗ (они выше и уже) */
+.prompt-arrow-icon.vertical {
+    width: 16px;
+    height: 19px; /* Делаем контейнер чуть выше, чтобы соответствовать пропорциям */
+    margin: auto;
+}
+
+/* Для стрелок ВЛЕВО и ВПРАВО (они шире) */
+.prompt-arrow-icon.horizontal {
+    width: 19px; /* Делаем контейнер чуть шире */
+    height: 16px;
+    margin: auto;
+}
+
+/* Клавиша ESC - просто шире */
+.key-esc {
+    width: 100px;
+    height: auto;
+    padding: 8px 0;
 }
 
 .game-start-prompt.visible {

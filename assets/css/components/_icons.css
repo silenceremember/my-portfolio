@@ -1,0 +1,16 @@
+/* assets/css/components/_icons.css */
+
+/* Общий контейнер для SVG-иконок */
+.icon-container {
+    display: inline-block; /* Позволяет иконке быть в строке с текстом */
+    color: var(--text-color);
+    line-height: 0;
+}
+
+/* Правило для самого SVG внутри контейнера */
+.icon-container svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+    stroke: currentColor;
+}
