@@ -10,51 +10,65 @@ const keyMap = {
     'ArrowRight': 'right', 'KeyD': 'right'
 };
 
+let hasStartedMoving = false; // Флаг: игрок уже начал двигаться?
+let lastTime = 0; // Для расчета deltaTime
+
 /**
- * ОБРАБОТЧИКИ УПРАВЛЕНИЯ КЛАВИАТУРОЙ (для активной игры)
+ * ОСНОВНОЙ обработчик нажатия клавиш.
+ * Он один и работает всегда после готовности игры.
  */
-function handleKeyDown(e) {
+function handleGameInput(e) {
+    // 1. Выход по ESC работает всегда
+    if (e.code === 'Escape') {
+        exitGame();
+        return;
+    }
+
+    // 2. Обрабатываем движение
     const action = keyMap[e.code]; 
     if (action !== undefined) {
         e.preventDefault(); 
+        
+        // Если это первое нажатие клавиши движения...
+        if (!hasStartedMoving) {
+            console.log("First player movement detected. Starting UI and Scenario.");
+            hasStartedMoving = true;
+            
+            // Запускаем UI и сценарий
+            document.querySelector('.game-start-prompt')?.classList.remove('visible');
+            showGameUI();
+            startScenario();
+        }
+        
         Game.controls[action] = true;
     }
-
-    // --- ТЕСТОВЫЙ КОД ДЛЯ HP ---
-    // Нажатие 'T' симулирует получение урона (-20% HP)
+    
+    // --- Тестовый код ---
     if (e.code === 'KeyT') {
         if (Game.hp > 0) {
-            const oldHp = Game.hp; // Запоминаем HP до урона
+            const oldHp = Game.hp;
             Game.hp -= 20;
             if (Game.hp < 0) Game.hp = 0;
-            
             shakeHpBar();
             updateHpBar(oldHp);
         }
     }
-    // Нажатие 'Y' симулирует подбор аптечки (+20% HP)
     if (e.code === 'KeyY') {
         if (Game.hp < 100) {
-            const oldHp = Game.hp; // Запоминаем HP до восстановления
+            const oldHp = Game.hp;
             Game.hp += 20;
             if (Game.hp > 100) Game.hp = 100;
-
             updateHpBar(oldHp); 
         }
     }
-
-    // --- ТЕСТОВЫЙ КОД ДЛЯ ЗАВЕРШЕНИЯ УРОВНЯ ---
-    // Нажатие 'N' (Next) принудительно завершает текущий уровень
-    if (e.code === 'KeyN') {
-        if (Game.phase === 'level') { // Работает только в фазе уровня
-            endCurrentLevel();
-        }
+    if (e.code === 'KeyN' && Game.phase === 'level') {
+        endCurrentLevel();
     }
-    // ----------------------------
-
-    if (e.code === 'Escape') exitGame();
 }
 
+/**
+ * Обработчик отпускания клавиш.
+ */
 function handleKeyUp(e) {
     const action = keyMap[e.code];
     if (action !== undefined) {
@@ -66,14 +80,11 @@ function handleKeyUp(e) {
 // ======================================================
 // === УПРАВЛЕНИЕ ВИДИМОСТЬЮ КУРСОРА ЧЕРЕЗ БЛОКИРАТОР ===
 // ======================================================
-
 let cursorIdleTimer = null;
-
 function hideCursor() {
     const blocker = document.getElementById('game-cursor-blocker');
     if (blocker) blocker.classList.add('is-hidden');
 }
-
 function showCursor() {
     const blocker = document.getElementById('game-cursor-blocker');
     if (blocker) blocker.classList.remove('is-hidden');
@@ -82,58 +93,34 @@ function showCursor() {
 }
 
 // ======================================================
-// === ЛОГИКА ЗАПУСКА ИГРЫ ПО ДЕЙСТВИЮ ИГРОКА =========
-// ======================================================
-
-function handlePreGameInput(e) {
-    // Сначала проверяем выход, так как он имеет приоритет
-    if (e.code === 'Escape') {
-        exitGame();
-        return; // Выходим из функции
-    }
-
-    // Затем проверяем старт игры
-    if (!Game.isReadyToPlay || !keyMap[e.code]) return;
-
-    console.log("First player input detected. Starting gameplay!");
-    startGameplay();
-}
-
-let lastTime = 0;
-
-function startGameplay() {
-    Game.isActive = true;
-    document.querySelector('.game-start-prompt')?.classList.remove('visible');
-    showGameUI();
-    lastTime = performance.now();
-    
-    startScenario(); 
-
-    window.removeEventListener('keydown', handlePreGameInput);
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-}
-
-// ======================================================
-
 /**
- * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (ИСПРАВЛЕННАЯ ВЕРСИЯ)
+ * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ
  */
-
 function gameLoop(currentTime) {
     if (!document.body.classList.contains('game-mode')) return;
     
+    if (lastTime === 0) lastTime = currentTime;
     const deltaTime = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
-
-    updateScenario(deltaTime);
-    updateStars();
-    if (Game.player.isFlyingIn) updatePlayerFlyIn(currentTime);
     
+    // Сценарий работает, только если игрок начал двигаться
+    if (hasStartedMoving) {
+        updateScenario(deltaTime);
+    }
+    
+    updateStars();
+    if (Game.player.isFlyingIn) {
+        updatePlayerFlyIn(currentTime);
+    }
+    
+    // Движение игрока зависит от Game.isActive
     if (Game.isActive) {
-        // Сохраняем HP перед пассивными изменениями
+        updatePlayerPosition();
+    }
+    
+    // Геймплей и UI обновляются, только если игрок начал двигаться
+    if (hasStartedMoving) {
         const oldHp = Game.hp;
-
         if (Game.phase === 'level') {
             const hpLossPerSecond = 0.5;
             Game.hp -= hpLossPerSecond * deltaTime;
@@ -145,10 +132,6 @@ function gameLoop(currentTime) {
             Game.isActive = false;
         }
 
-        updatePlayerPosition();
-        
-        // ИСПРАВЛЕНИЕ: Передаем oldHp, который был до пассивного расхода.
-        // Это нужно для плавной анимации расхода.
         updateHpBar(oldHp); 
         updateLevelIndicators();
     }
@@ -163,6 +146,12 @@ function gameLoop(currentTime) {
 function initGame() {
     if (document.body.classList.contains('game-mode')) return;
     console.log("Game mode INITIALIZED (Sequential).");
+
+    // Сбрасываем флаги при каждом новом старте
+    hasStartedMoving = false;
+    lastTime = 0;
+    resetGameState();
+
     document.body.classList.add('game-mode');
 
     const cursorBlocker = document.createElement('div');
@@ -172,10 +161,7 @@ function initGame() {
     hideCursor();
 
     const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
-    siteUI.forEach(el => {
-        el.style.opacity = '0';
-        el.style.pointerEvents = 'none';
-    });
+    siteUI.forEach(el => { el.style.opacity = '0'; el.style.pointerEvents = 'none'; });
 
     setTimeout(() => { document.body.classList.add('game-active'); }, 500);
 
@@ -184,7 +170,7 @@ function initGame() {
         left: (window.innerWidth / 2) - 350,
         right: (window.innerWidth / 2) + 350,
     };
-    initStarsCanvas(); createPlayer(); const startPrompt = createStartPrompt(); createGameUI(); 
+    initStarsCanvas(); createPlayer(); createStartPrompt(); createGameUI(); 
     
     const gameElementsAppearTime = 1300; 
     setTimeout(() => {
@@ -193,51 +179,44 @@ function initGame() {
         document.querySelector('.game-start-prompt')?.classList.add('visible');
     }, gameElementsAppearTime);
 
+    // Этот таймер теперь только включает управление и вешает главный слушатель
     const timeUntilReady = gameElementsAppearTime + 800;
     setTimeout(() => {
-        console.log("Game is ready. Waiting for player input...");
-        Game.isReadyToPlay = true;
-        window.addEventListener('mousemove', showCursor);
-        window.addEventListener('keydown', handlePreGameInput);
+        console.log("Game is ready. Player can move now.");
+        Game.isActive = true; // <-- ВКЛЮЧАЕМ УПРАВЛЕНИЕ
+        
+        window.addEventListener('keydown', handleGameInput);
+        window.addEventListener('keyup', handleKeyUp);
     }, timeUntilReady);
 
     requestAnimationFrame(gameLoop);
 }
 
 /**
- * ФУНКЦИЯ ВЫХОДА ИЗ ИГРЫ (с корректным сбросом состояния)
+ * ФУНКЦИЯ ВЫХОДА ИЗ ИГРЫ
  */
 function exitGame() {
-    // Защита от повторного вызова
     if (Game.isShuttingDown || !document.body.classList.contains('game-mode')) return;
     console.log("Exiting game sequentially...");
-    
-    // Устанавливаем флаг, что мы в процессе выхода
     Game.isShuttingDown = true;
     
-    // Немедленно отключаем все обработчики, чтобы предотвратить ввод
-    window.removeEventListener('keydown', handleKeyDown);
+    // Удаляем все активные слушатели
+    window.removeEventListener('keydown', handleGameInput);
     window.removeEventListener('keyup', handleKeyUp);
-    window.removeEventListener('keydown', handlePreGameInput);
     window.removeEventListener('mousemove', showCursor);
     if (cursorIdleTimer) clearTimeout(cursorIdleTimer);
     
-    // Принудительно показываем курсор
     document.getElementById('game-cursor-blocker')?.classList.remove('is-hidden');
 
-    // Запускаем анимации растворения игровых элементов
+    // Анимации выхода
     document.getElementById('player-ship')?.classList.remove('visible');
     document.getElementById('stars-canvas')?.classList.remove('visible');
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
     
-    // Запускаем анимацию возврата линий (через 0.5с)
-    setTimeout(() => { 
-        document.body.classList.remove('game-active'); 
-    }, 500);
+    setTimeout(() => { document.body.classList.remove('game-active'); }, 500);
 
-    // Запускаем анимацию появления UI сайта (через 1.3с)
     setTimeout(() => {
         const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
         siteUI.forEach(el => {
@@ -246,22 +225,18 @@ function exitGame() {
         });
     }, 1300);
 
-    // Финальная очистка и сброс состояния после всех анимаций
+    // Финальная очистка
     setTimeout(() => {
         console.log("Cleanup complete. Game mode OFF.");
-        
-        // Удаляем все созданные элементы
         document.getElementById('player-ship')?.remove();
         document.getElementById('stars-canvas')?.remove();
         document.querySelector('.game-start-prompt')?.remove();
-        document.querySelector('.game-ui-top')?.remove();
-        document.querySelector('.game-ui-bottom')?.remove();
         document.getElementById('game-cursor-blocker')?.remove();
+        destroyGameUI();
         
-        // ИСПРАВЛЕНИЕ: Вызываем функцию полного сброса состояния
-        resetGameState();
+        // Сбрасываем состояние после удаления элементов
+        resetGameState(); 
         
-        // Убираем главный класс, чтобы остановить gameLoop
         document.body.classList.remove('game-mode');
     }, 1800);
 }

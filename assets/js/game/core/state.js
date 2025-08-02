@@ -1,34 +1,34 @@
 // assets/js/game/core/state.js
 
 const Game = {
+    // --- Флаги состояния ---
     isActive: false,
-    isReadyToPlay: false,
-    isShuttingDown: false, // Добавляем этот флаг для надежности
+    isShuttingDown: false, // <-- ВОЗВРАЩАЕМ ЭТОТ ФЛАГ
 
-    hp: 100, // Health Points (0-100)
+    // --- Игровые переменные ---
+    hp: 100,
     currentLevel: 1,
-
     phase: 'none',
     phaseTimer: 0,
 
+    // --- Объекты игры ---
     player: {
         el: null, x: 0, y: 0,
         isFlyingIn: false,
         flyIn: { startY: 0, targetY: 0, duration: 800, startTime: 0 }
     },
-    // НОВАЯ СТРУКТУРА: отслеживаем не клавиши, а НАПРАВЛЕНИЯ
     controls: {
         up: false,
         down: false,
         left: false,
         right: false
     },
-
     ui: {
-        hpBarSegments: [], // Было hpBar: null
+        hpBarSegments: [],
         levelDots: []
     },
 
+    // --- Технические объекты ---
     stars: [],
     settings: {},
     bounds: {},
@@ -36,21 +36,20 @@ const Game = {
     ctx: null
 };
 
+/**
+ * Сбрасывает все игровые переменные в начальное состояние.
+ */
 function resetGameState() {
     Game.isActive = false;
-    Game.isReadyToPlay = false;
-    Game.isShuttingDown = false;
+    Game.isShuttingDown = false; // <-- ВОЗВРАЩАЕМ СБРОС ФЛАГА
     
     Game.hp = 100;
     Game.currentLevel = 1;
-
     Game.phase = 'none';
     Game.phaseTimer = 0;
 
-    // Сбрасываем управление
     Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
 
-    // Очищаем ссылки на UI элементы, чтобы они пересоздавались
     Game.ui.hpBarSegments = [];
     Game.ui.levelDots = [];
     
