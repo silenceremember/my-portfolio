@@ -52,6 +52,9 @@ function resetGameState() {
 
     Game.ui.hpBarSegments = [];
     Game.ui.levelDots = [];
+
+    window.hasStartedMoving = false;
+    window.lastTime = 0;
     
     console.log("Game state has been reset.");
 }

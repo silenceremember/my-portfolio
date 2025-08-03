@@ -7,8 +7,8 @@ if (typeof Game !== 'undefined' && typeof Game.settings === 'object') {
         // --- НОВЫЕ НАСТРОЙКИ РАЗМЕРОВ ---
         GAME_WIDTH: 600,
         GAME_HEIGHT: 600,
-        MIN_WINDOW_WIDTH: 600,
-        MIN_WINDOW_HEIGHT: 600,
+        MIN_WINDOW_WIDTH: 700,
+        MIN_WINDOW_HEIGHT: 700,
 
         // Игрок
         PLAYER_WIDTH: 28,

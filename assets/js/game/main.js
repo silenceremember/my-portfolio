@@ -11,8 +11,8 @@ const keyMap = {
 };
 
 let isGameLoopActive = false;
-let hasStartedMoving = false; // Флаг: игрок уже начал двигаться?
-let lastTime = 0; // Для расчета deltaTime
+window.hasStartedMoving = false;
+window.lastTime = 0;
 
 /**
  * ОСНОВНОЙ обработчик нажатия клавиш.
@@ -100,6 +100,10 @@ function updateLayout() {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
+        // --- ОТЛАДОЧНЫЙ БЛОК ---
+        console.log("updateLayout called. GAME_WIDTH from settings is:", Game.settings.GAME_WIDTH);
+        // -------------------------
+
     // Проверка на минимальный размер
     if (windowWidth < Game.settings.MIN_WINDOW_WIDTH || windowHeight < Game.settings.MIN_WINDOW_HEIGHT) {
         if (document.body.classList.contains('game-mode')) {
@@ -119,6 +123,10 @@ function updateLayout() {
         left: offsetX,
         right: offsetX + Game.settings.GAME_WIDTH
     };
+
+        // --- ЕЩЕ ОДИН ОТЛАДОЧНЫЙ БЛОК ---
+        console.log(`Calculated offsets: offsetX=${offsetX}, offsetY=${offsetY}`);
+        // ---------------------------------
 
     // --- ИЗМЕНЕНИЕ: Устанавливаем ТОЛЬКО 4 переменные для краев ---
     const root = document.documentElement;
@@ -191,7 +199,6 @@ function gameLoop(currentTime) {
 /**
  * ФУНКЦИЯ ЗАПУСКА ИГРЫ
  */
-// assets/js/game/main.js
 
 function initGame() {
     // 1. Все проверки (на запуск, на размер)
@@ -209,9 +216,6 @@ function initGame() {
 
     console.log("Game mode INITIALIZED.");
 
-    // 2. Подготовка: сброс состояния, запуск цикла, создание элементов
-    hasStartedMoving = false;
-    lastTime = 0;
     resetGameState();
     if (!isGameLoopActive) {
         isGameLoopActive = true;
@@ -235,16 +239,21 @@ function initGame() {
         el.style.opacity = '0';
         el.style.pointerEvents = 'none';
     });
-    const siteFadeOutDuration = 500;
+    const siteFadeOutDuration = 500
+    const lineMoveDuration = 500; // Длительность анимации линий из CSS
 
     // ЭТАП 2: Сдвигаются линии (Начинается после Этапа 1)
     setTimeout(() => {
         console.log("Step 2: Moving guide lines.");
         // Добавляем классы, которые запускают transition для линий
         document.body.classList.add('game-mode');
-        document.body.classList.add('game-active');
+        // document.body.classList.add('game-active'); // <-- УДАЛИТЕ ЭТУ СТРОКУ
     }, siteFadeOutDuration);
-    const lineMoveDuration = 500; // Длительность анимации линий из CSS
+
+    const disableTransitionsDelay = siteFadeOutDuration + lineMoveDuration;
+    setTimeout(() => {
+        document.body.classList.add('no-line-transitions');
+    }, disableTransitionsDelay);
 
     // ЭТАП 3: Появляются игровые элементы (Начинается после Этапа 2)
     const gameElementsAppearDelay = siteFadeOutDuration + lineMoveDuration;
@@ -280,6 +289,8 @@ function exitGame() {
     
     console.log("Exiting game sequentially...");
     Game.isShuttingDown = true; // Сигнал для gameLoop "успокоиться"
+
+    document.body.classList.remove('no-line-transitions');
     
     // 2. Удаляем все активные слушатели
     window.removeEventListener('resize', updateLayout);
@@ -305,7 +316,7 @@ function exitGame() {
     const lineReturnDelay = 100;
     setTimeout(() => { 
         document.body.classList.remove('game-mode'); 
-        document.body.classList.remove('game-active');
+        // document.body.classList.remove('game-active'); // <-- УДАЛИТЕ И ЭТУ
     }, lineReturnDelay);
 
     // 6. Показываем UI сайта после завершения анимации линий
