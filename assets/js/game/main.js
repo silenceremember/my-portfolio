@@ -191,17 +191,14 @@ function gameLoop(currentTime) {
 /**
  * ФУНКЦИЯ ЗАПУСКА ИГРЫ
  */
-function initGame() {
-    // Проверка, не запущена ли игра уже
-    if (document.body.classList.contains('game-mode') || Game.isShuttingDown) {
-        console.warn("Cannot start game: Game is already running or in the process of shutting down.");
-        return false; // Немедленно выходим, ничего не делаем
-    }
-    
-    // Первоначальный расчет макета
-    updateLayout();
+// assets/js/game/main.js
 
-    // Проверка на минимальный размер окна
+function initGame() {
+    // 1. Все проверки (на запуск, на размер)
+    if (document.body.classList.contains('game-mode') || Game.isShuttingDown) {
+        return false;
+    }
+    updateLayout();
     if (window.innerWidth < Game.settings.MIN_WINDOW_WIDTH || window.innerHeight < Game.settings.MIN_WINDOW_HEIGHT) {
         if (typeof window.triggerQteSystemError === 'function') {
             const msg = `ТРЕБУЕТСЯ ОКНО ${Game.settings.MIN_WINDOW_WIDTH}x${Game.settings.MIN_WINDOW_HEIGHT}`;
@@ -212,52 +209,55 @@ function initGame() {
 
     console.log("Game mode INITIALIZED.");
 
-    // Сброс всех игровых состояний и флагов
+    // 2. Подготовка: сброс состояния, запуск цикла, создание элементов
     hasStartedMoving = false;
     lastTime = 0;
     resetGameState();
-
-    // Устанавливаем флаг и запускаем игровой цикл, если он еще не запущен
     if (!isGameLoopActive) {
         isGameLoopActive = true;
         requestAnimationFrame(gameLoop);
     }
-
-    // Добавляем классы для переключения в игровой режим
-    document.body.classList.add('game-mode');
-    document.body.classList.add('game-active'); // Если он все еще используется для каких-то стилей
-
-    // Создаем игровые элементы
     initStarsCanvas(); 
     createPlayer(); 
     createStartPrompt(); 
     createGameUI(); 
-    
     const cursorBlocker = document.createElement('div');
     cursorBlocker.id = 'game-cursor-blocker';
     document.body.appendChild(cursorBlocker);
-    
-    // Вешаем слушатели событий
     window.addEventListener('mousemove', showCursor);
     window.addEventListener('resize', updateLayout);
 
-    // Скрываем основной UI сайта
+    // --- НАЧАЛО ПОСЛЕДОВАТЕЛЬНОСТИ АНИМАЦИЙ ---
+
+    // ЭТАП 1: Исчезает UI сайта (Длительность: 500ms)
     const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
     siteUI.forEach(el => {
         el.style.opacity = '0';
         el.style.pointerEvents = 'none';
     });
+    const siteFadeOutDuration = 500;
 
-    // Запускаем анимации появления игровых элементов
-    const gameElementsAppearTime = 500;
+    // ЭТАП 2: Сдвигаются линии (Начинается после Этапа 1)
     setTimeout(() => {
-        document.getElementById('stars-canvas')?.classList.add('visible');
-        startPlayerFlyIn();
-        document.querySelector('.game-start-prompt')?.classList.add('visible');
-    }, gameElementsAppearTime);
+        console.log("Step 2: Moving guide lines.");
+        // Добавляем классы, которые запускают transition для линий
+        document.body.classList.add('game-mode');
+        document.body.classList.add('game-active');
+    }, siteFadeOutDuration);
+    const lineMoveDuration = 500; // Длительность анимации линий из CSS
 
-    // Включаем управление после анимаций
-    const timeUntilReady = gameElementsAppearTime + 800;
+    // ЭТАП 3: Появляются игровые элементы (Начинается после Этапа 2)
+    const gameElementsAppearDelay = siteFadeOutDuration + lineMoveDuration;
+    setTimeout(() => {
+        console.log("Step 3: Spawning game elements.");
+        document.getElementById('stars-canvas')?.classList.add('visible');
+        startPlayerFlyIn(); // Анимация вылета корабля
+        document.querySelector('.game-start-prompt')?.classList.add('visible');
+    }, gameElementsAppearDelay);
+    const playerFlyInDuration = 800; // Длительность анимации вылета корабля
+
+    // ВКЛЮЧЕНИЕ УПРАВЛЕНИЯ: Происходит после ВСЕХ визуальных этапов
+    const timeUntilReady = gameElementsAppearDelay + playerFlyInDuration;
     setTimeout(() => {
         console.log("Game is ready. Player can move now.");
         Game.isActive = true;
