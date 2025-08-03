@@ -10,6 +10,7 @@ const keyMap = {
     'ArrowRight': 'right', 'KeyD': 'right'
 };
 
+let isGameLoopActive = false;
 let hasStartedMoving = false; // Флаг: игрок уже начал двигаться?
 let lastTime = 0; // Для расчета deltaTime
 
@@ -92,51 +93,98 @@ function showCursor() {
     cursorIdleTimer = setTimeout(hideCursor, 1000);
 }
 
+/**
+ * Рассчитывает и применяет положение игрового поля и его границ.
+ */
+function updateLayout() {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    // Проверка на минимальный размер
+    if (windowWidth < Game.settings.MIN_WINDOW_WIDTH || windowHeight < Game.settings.MIN_WINDOW_HEIGHT) {
+        if (document.body.classList.contains('game-mode')) {
+            exitGame();
+        }
+        return;
+    }
+
+    // Рассчитываем отступы от краев ОКНА до краев РАМКИ
+    const offsetX = (windowWidth - Game.settings.GAME_WIDTH) / 2;
+    const offsetY = (windowHeight - Game.settings.GAME_HEIGHT) / 2;
+
+    // Обновляем виртуальные границы для логики игры
+    Game.bounds = {
+        top: offsetY,
+        bottom: offsetY + Game.settings.GAME_HEIGHT,
+        left: offsetX,
+        right: offsetX + Game.settings.GAME_WIDTH
+    };
+
+    // --- ИЗМЕНЕНИЕ: Устанавливаем ТОЛЬКО 4 переменные для краев ---
+    const root = document.documentElement;
+    root.style.setProperty('--game-border-top', `${offsetY}px`);
+    root.style.setProperty('--game-border-bottom', `${offsetY}px`);
+    root.style.setProperty('--game-border-left', `${offsetX}px`);
+    root.style.setProperty('--game-border-right', `${offsetX}px`); 
+}
+
 // ======================================================
 /**
  * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ
  */
 function gameLoop(currentTime) {
-    if (!document.body.classList.contains('game-mode')) return;
-    
-    if (lastTime === 0) lastTime = currentTime;
-    const deltaTime = (currentTime - lastTime) / 1000;
-    lastTime = currentTime;
-    
-    // Сценарий работает, только если игрок начал двигаться
-    if (hasStartedMoving) {
-        updateScenario(deltaTime);
+    // 1. Главный "рубильник". Если флаг выключен - цикл полностью останавливается.
+    if (!isGameLoopActive) {
+        console.log("Game loop has been terminated.");
+        return;
     }
-    
-    updateStars();
-    if (Game.player.isFlyingIn) {
-        updatePlayerFlyIn(currentTime);
-    }
-    
-    // Движение игрока зависит от Game.isActive
-    if (Game.isActive) {
-        updatePlayerPosition();
-    }
-    
-    // Геймплей и UI обновляются, только если игрок начал двигаться
-    if (hasStartedMoving) {
-        const oldHp = Game.hp;
-        if (Game.phase === 'level') {
-            const hpLossPerSecond = 0.5;
-            Game.hp -= hpLossPerSecond * deltaTime;
-        }
 
-        if (Game.hp <= 0) {
-            Game.hp = 0;
-            console.log("GAME OVER - HP is 0");
-            Game.isActive = false;
-        }
-
-        updateHpBar(oldHp); 
-        updateLevelIndicators();
+    // 2. Анимация звезд работает всегда, пока активен цикл (даже при выходе).
+    if (Game.canvas) {
+        updateStars();
     }
     
-    renderPlayer();
+    // 3. Основная игровая логика работает только если игра не в процессе выхода.
+    if (!Game.isShuttingDown) {
+        // Расчет deltaTime
+        if (lastTime === 0) lastTime = currentTime;
+        const deltaTime = (currentTime - lastTime) / 1000;
+        lastTime = currentTime;
+        
+        // Логика сценария и появления игрока
+        if (hasStartedMoving) {
+            updateScenario(deltaTime);
+        }
+        if (Game.player.isFlyingIn) {
+            updatePlayerFlyIn(currentTime);
+        }
+        
+        // Логика управления и состояния игрока
+        if (Game.isActive) {
+            updatePlayerPosition();
+        }
+        
+        // Логика геймплея (потеря HP, и т.д.)
+        if (hasStartedMoving) {
+            const oldHp = Game.hp;
+            if (Game.phase === 'level') {
+                const hpLossPerSecond = 0.5; // Пример
+                Game.hp -= hpLossPerSecond * deltaTime;
+            }
+            if (Game.hp <= 0) {
+                Game.hp = 0;
+                console.log("GAME OVER - HP is 0");
+                Game.isActive = false;
+            }
+            updateHpBar(oldHp); 
+            updateLevelIndicators();
+        }
+        
+        // Отрисовка игрока на новой позиции
+        renderPlayer();
+    }
+    
+    // 4. Продолжаем цикл, запрашивая следующий кадр.
     requestAnimationFrame(gameLoop);
 }
 
@@ -144,69 +192,78 @@ function gameLoop(currentTime) {
  * ФУНКЦИЯ ЗАПУСКА ИГРЫ
  */
 function initGame() {
-    // Константы лучше определить в самом начале файла
-    const MIN_WIDTH = 700;
-    const MIN_HEIGHT = 700;
+    // Проверка, не запущена ли игра уже
+    if (document.body.classList.contains('game-mode') || Game.isShuttingDown) {
+        console.warn("Cannot start game: Game is already running or in the process of shutting down.");
+        return false; // Немедленно выходим, ничего не делаем
+    }
+    
+    // Первоначальный расчет макета
+    updateLayout();
 
-    if (window.innerWidth < MIN_WIDTH || window.innerHeight < MIN_HEIGHT) {
-        console.warn(`Game launch failed: Window size is ${window.innerWidth}x${window.innerHeight}.`);
+    // Проверка на минимальный размер окна
+    if (window.innerWidth < Game.settings.MIN_WINDOW_WIDTH || window.innerHeight < Game.settings.MIN_WINDOW_HEIGHT) {
         if (typeof window.triggerQteSystemError === 'function') {
-            window.triggerQteSystemError('ТРЕБУЕТСЯ ОКНО 700x700');
+            const msg = `ТРЕБУЕТСЯ ОКНО ${Game.settings.MIN_WINDOW_WIDTH}x${Game.settings.MIN_WINDOW_HEIGHT}`;
+            window.triggerQteSystemError(msg);
         }
-        
-        // --- ИЗМЕНЕНИЕ: Сообщаем о неудаче ---
-        return false; 
+        return false;
     }
 
-    if (document.body.classList.contains('game-mode')) {
-        return false; // Игра уже запущена, тоже считаем "неудачей" для этого вызова.
-    }
+    console.log("Game mode INITIALIZED.");
 
-    console.log("Game mode INITIALIZED (Sequential).");
-
-    // Сбрасываем флаги при каждом новом старте
+    // Сброс всех игровых состояний и флагов
     hasStartedMoving = false;
     lastTime = 0;
     resetGameState();
 
-    document.body.classList.add('game-mode');
+    // Устанавливаем флаг и запускаем игровой цикл, если он еще не запущен
+    if (!isGameLoopActive) {
+        isGameLoopActive = true;
+        requestAnimationFrame(gameLoop);
+    }
 
+    // Добавляем классы для переключения в игровой режим
+    document.body.classList.add('game-mode');
+    document.body.classList.add('game-active'); // Если он все еще используется для каких-то стилей
+
+    // Создаем игровые элементы
+    initStarsCanvas(); 
+    createPlayer(); 
+    createStartPrompt(); 
+    createGameUI(); 
+    
     const cursorBlocker = document.createElement('div');
     cursorBlocker.id = 'game-cursor-blocker';
     document.body.appendChild(cursorBlocker);
-    window.addEventListener('mousemove', showCursor);
-    hideCursor();
-
-    const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
-    siteUI.forEach(el => { el.style.opacity = '0'; el.style.pointerEvents = 'none'; });
-
-    setTimeout(() => { document.body.classList.add('game-active'); }, 500);
-
-    Game.bounds = {
-        top: 80, bottom: window.innerHeight - 80,
-        left: (window.innerWidth / 2) - 350,
-        right: (window.innerWidth / 2) + 350,
-    };
-    initStarsCanvas(); createPlayer(); createStartPrompt(); createGameUI(); 
     
-    const gameElementsAppearTime = 1300; 
+    // Вешаем слушатели событий
+    window.addEventListener('mousemove', showCursor);
+    window.addEventListener('resize', updateLayout);
+
+    // Скрываем основной UI сайта
+    const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
+    siteUI.forEach(el => {
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+    });
+
+    // Запускаем анимации появления игровых элементов
+    const gameElementsAppearTime = 500;
     setTimeout(() => {
         document.getElementById('stars-canvas')?.classList.add('visible');
         startPlayerFlyIn();
         document.querySelector('.game-start-prompt')?.classList.add('visible');
     }, gameElementsAppearTime);
 
-    // Этот таймер теперь только включает управление и вешает главный слушатель
+    // Включаем управление после анимаций
     const timeUntilReady = gameElementsAppearTime + 800;
     setTimeout(() => {
         console.log("Game is ready. Player can move now.");
-        Game.isActive = true; // <-- ВКЛЮЧАЕМ УПРАВЛЕНИЕ
-        
+        Game.isActive = true;
         window.addEventListener('keydown', handleGameInput);
         window.addEventListener('keyup', handleKeyUp);
     }, timeUntilReady);
-
-    requestAnimationFrame(gameLoop);
 
     return true;
 }
@@ -214,50 +271,79 @@ function initGame() {
 /**
  * ФУНКЦИЯ ВЫХОДА ИЗ ИГРЫ
  */
+
 function exitGame() {
-    if (Game.isShuttingDown || !document.body.classList.contains('game-mode')) return;
-    console.log("Exiting game sequentially...");
-    Game.isShuttingDown = true;
+    // 1. Проверка и установка флага "выхода"
+    if (Game.isShuttingDown || !document.body.classList.contains('game-mode')) {
+        return;
+    }
     
-    // Удаляем все активные слушатели
+    console.log("Exiting game sequentially...");
+    Game.isShuttingDown = true; // Сигнал для gameLoop "успокоиться"
+    
+    // 2. Удаляем все активные слушатели
+    window.removeEventListener('resize', updateLayout);
     window.removeEventListener('keydown', handleGameInput);
     window.removeEventListener('keyup', handleKeyUp);
     window.removeEventListener('mousemove', showCursor);
-    if (cursorIdleTimer) clearTimeout(cursorIdleTimer);
+    if (cursorIdleTimer) {
+        clearTimeout(cursorIdleTimer);
+    }
     
+    // 3. Возвращаем курсор
     document.getElementById('game-cursor-blocker')?.classList.remove('is-hidden');
 
-    // Анимации выхода
+    // 4. Запускаем анимации исчезновения игровых элементов
     document.getElementById('player-ship')?.classList.remove('visible');
     document.getElementById('stars-canvas')?.classList.remove('visible');
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
-    
-    setTimeout(() => { document.body.classList.remove('game-active'); }, 500);
 
+    // 5. Запускаем анимацию возврата линий, убирая CSS-классы.
+    // gameLoop продолжит работать и анимировать фон, т.к. isGameLoopActive еще true.
+    const lineReturnDelay = 100;
+    setTimeout(() => { 
+        document.body.classList.remove('game-mode'); 
+        document.body.classList.remove('game-active');
+    }, lineReturnDelay);
+
+    // 6. Показываем UI сайта после завершения анимации линий
+    const lineAnimationDuration = 500;
+    const siteAppearDelay = lineReturnDelay + lineAnimationDuration;
     setTimeout(() => {
         const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
         siteUI.forEach(el => {
             el.style.opacity = '1';
             el.style.pointerEvents = 'auto';
         });
-    }, 1300);
+    }, siteAppearDelay);
 
-    // Финальная очистка
+    // 7. Финальная очистка и ОСТАНОВКА ЦИКЛА
+    const siteAnimationDuration = 500;
+    const cleanupDelay = siteAppearDelay + siteAnimationDuration;
     setTimeout(() => {
-        console.log("Cleanup complete. Game mode OFF.");
+        console.log("Cleanup complete.");
+        
+        // Удаляем игровые DOM-элементы
         document.getElementById('player-ship')?.remove();
         document.getElementById('stars-canvas')?.remove();
         document.querySelector('.game-start-prompt')?.remove();
         document.getElementById('game-cursor-blocker')?.remove();
         destroyGameUI();
         
-        // Сбрасываем состояние после удаления элементов
+        // Очищаем CSS-переменные
+        const root = document.documentElement;
+        const propertiesToRemove = ['--game-border-top', '--game-border-bottom', '--game-border-left', '--game-border-right'];
+        propertiesToRemove.forEach(prop => root.style.removeProperty(prop));
+        
+        // Сбрасываем состояние игры
         resetGameState(); 
         
-        document.body.classList.remove('game-mode');
-    }, 1800);
+        // Выключаем флаг, что приведет к полной остановке gameLoop на следующем кадре.
+        isGameLoopActive = false;
+
+    }, cleanupDelay);
 }
 
 window.initGame = initGame;

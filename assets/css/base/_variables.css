@@ -13,7 +13,7 @@
     --h2-size: 32px;
     --h3-size: 24px;
     --p-size: 18px;
-    --nav-size: 18px;
+    --nav-size: 16px;
     --ui-size: 14px;
     --lang-size: 24px;
 
@@ -28,4 +28,13 @@
     
     /* Анимация */
     --animation-duration: 0.6s;
+
+    /* --- НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ ИГРОВОЙ РАМКИ --- */
+    --vertical-line-left: 400px;
+    --vertical-line-right: calc(100% - 400px);
+    --vertical-line-top: 0px;
+    --vertical-line-height: 100%;
+
+    --horizontal-line-left: 0px;
+    --horizontal-line-width: 100%;
 }

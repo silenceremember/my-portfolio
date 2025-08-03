@@ -1,34 +1,74 @@
 /* assets/css/components/_frame.css */
 
-/* Горизонтальные линии */
+/* --- ГОРИЗОНТАЛЬНЫЕ ЛИНИИ --- */
 body::before, body::after {
     content: '';
     position: fixed;
     background-color: var(--border-color);
     z-index: 101;
+    height: 1px;
+    /* ВСЕГДА растянуты на всю ширину */
     left: 0;
     right: 0;
-    height: 1px;
-    transition: background-color 0.3s ease;
+    /* Анимируем ТОЛЬКО ВЕРТИКАЛЬНОЕ смещение */
+    transition: top 0.5s ease, bottom 0.5s ease; 
     pointer-events: none;
 }
-body::before { top: var(--frame-padding-vertical); }
-body::after { bottom: var(--frame-padding-vertical); }
+/* По умолчанию: */
+body::before {
+    top: var(--frame-padding-vertical);
+    left: 0;
+    right: 0;
+}
+body::after {
+    bottom: var(--frame-padding-vertical);
+    left: 0;
+    right: 0;
+}
+/* В режиме игры: */
+body.game-mode::before {
+    /* --- ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЕ ИМЕНА --- */
+    top: var(--game-border-top);
+}
+body.game-mode::after {
+    /* --- ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЕ ИМЕНА --- */
+    bottom: var(--game-border-bottom);
+    top: auto;
+}
 
-/* Вертикальные линии */
+
+/* --- ВЕРТИКАЛЬНЫЕ ЛИНИИ --- */
 .vertical-guide-line {
     position: fixed;
-    top: 0;
-    bottom: 0;
     width: 1px;
     background-color: var(--border-color);
     z-index: 150;
     pointer-events: none;
-    transition: left 0.8s ease-out, right 0.8s ease-out;
+    transition: all 0.5s ease;
+}
+/* По умолчанию: */
+.vertical-guide-line {
+    top: 0;
+    bottom: 0;
 }
 .vertical-guide-line.left {
     left: 400px;
+    right: auto;
 }
 .vertical-guide-line.right {
     right: 400px;
+    left: auto;
+}
+/* В режиме игры: */
+body.game-mode .vertical-guide-line {
+    height: auto; /* Сбрасываем height */
+}
+body.game-mode .vertical-guide-line.left {
+    left: var(--game-border-left);
+    right: auto;
+}
+body.game-mode .vertical-guide-line.right {
+    /* --- ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЕ ИМЕНА --- */
+    right: var(--game-border-right); /* Используем right, а не left */
+    left: auto;
 }
