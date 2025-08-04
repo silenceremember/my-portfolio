@@ -192,8 +192,10 @@ function updateLayout() {
             }
         }
 
-        if (typeof handleEnemyResize === 'function') {
-            handleEnemyResize();
+        if (Game.enemies && Game.enemies.length > 0 && oldBounds.left !== undefined) {
+            if (typeof handleEnemyResize === 'function') {
+                handleEnemyResize(oldBounds);
+            }
         }
     }
 }

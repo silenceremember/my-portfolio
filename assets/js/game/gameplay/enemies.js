@@ -180,12 +180,22 @@ function checkCollisions() {
  * Корректирует позицию врагов при изменении размера окна.
  * Это предотвращает "застревание" врагов за пределами нового игрового поля.
  */
-function handleEnemyResize() {
+function handleEnemyResize(oldBounds) {
+    // Если старых границ нет или нет врагов, ничего не делаем
+    if (!oldBounds || oldBounds.left === undefined || Game.enemies.length === 0) {
+        return;
+    }
+
+    // Рассчитываем, на сколько пикселей сместилась левая граница игровой зоны
+    const deltaX = Game.bounds.left - oldBounds.left;
+    
+    // Если смещения не было, выходим
+    if (deltaX === 0) {
+        return;
+    }
+
+    // Применяем это смещение к каждому врагу
     Game.enemies.forEach(enemy => {
-        // Просто ограничиваем их текущие координаты новыми границами
-        enemy.x = Math.max(
-            Game.bounds.left,
-            Math.min(enemy.x, Game.bounds.right - enemy.width)
-        );
+        enemy.x += deltaX;
     });
 }
