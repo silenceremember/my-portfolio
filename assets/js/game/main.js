@@ -206,6 +206,15 @@ function initGame() {
     if (document.body.classList.contains('game-mode') || Game.isShuttingDown) {
         return false;
     }
+
+    if (window.getSelection) {
+        const selection = window.getSelection();
+        // Проверяем, есть ли что сбрасывать
+        if (selection.rangeCount > 0) {
+            selection.removeAllRanges();
+        }
+    }
+
     updateLayout();
     if (window.innerWidth < Game.settings.MIN_WINDOW_WIDTH || window.innerHeight < Game.settings.MIN_WINDOW_HEIGHT) {
         if (typeof window.triggerQteSystemError === 'function') {
