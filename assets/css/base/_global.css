@@ -24,13 +24,14 @@ h1, h2 { font-weight: 900; }
 strong, .nav-link, .cta-button, .footer-email, .footer-copyright { font-weight: 700; }
 
 /* Глобальное управление выделением */
-body, .site-frame {
+body, .site-frame, .nav-link {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
-h1, h2, h3, p, .nav-link, .cta-button, .footer-icon-link {
+
+h1, h2, h3, p, .cta-button, .footer-icon-link { 
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
