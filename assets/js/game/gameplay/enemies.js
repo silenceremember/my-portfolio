@@ -79,25 +79,21 @@ function convertPromptToEnemies() {
  * @param {number} deltaTime - Время, прошедшее с прошлого кадра.
  */
 function updateEnemies(deltaTime) {
-    // Используем `slice()` для создания копии, чтобы безопасно удалять элементы во время итерации
-    // Это более надежный подход, чем фильтрация после цикла.
-    Game.enemies.forEach((enemy, index) => {
+    Game.enemies.forEach(enemy => {
         // Двигаем врага вниз
         enemy.y += enemy.vy * deltaTime;
 
-        // --- ГЛАВНОЕ ИСПРАВЛЕНИЕ ---
+        // --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
         // Проверяем, если ВЕРХНИЙ край врага (`enemy.y`) опустился ниже
-        // НИЖНЕЙ границы игрового поля (`Game.bounds.bottom`).
-        // Это означает, что весь объект полностью скрылся за пределами экрана.
-        if (enemy.y > Game.bounds.bottom) {
+        // НИЖНЕЙ границы ОКНА БРАУЗЕРА (`window.innerHeight`).
+        if (enemy.y > window.innerHeight) { // БЫЛО: Game.bounds.bottom
             enemy.toRemove = true;
         }
     });
 
+    // Этот блок остается без изменений
     // Удаляем врагов, которые были помечены
-    // Сначала удаляем их DOM-элементы, чтобы не засорять страницу
     Game.enemies.filter(enemy => enemy.toRemove).forEach(enemy => enemy.el.remove());
-    // Затем удаляем их из игрового массива
     Game.enemies = Game.enemies.filter(enemy => !enemy.toRemove);
 }
 
