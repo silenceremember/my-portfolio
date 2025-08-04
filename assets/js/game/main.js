@@ -240,12 +240,22 @@ function gameLoop(currentTime) {
                 checkCollisions();
             }
         }
+
+        if (Game.player.isInvincible) {
+            Game.player.invincibilityTimer -= deltaTime;
+            if (Game.player.invincibilityTimer <= 0) {
+                Game.player.isInvincible = false;
+                Game.player.invincibilityTimer = 0;
+                Game.player.el?.classList.remove('is-invincible');
+                console.log("Player is no longer invincible.");
+            }
+        }
         
         // Логика геймплея (потеря HP, и т.д.)
         if (hasStartedMoving) {
             const oldHp = Game.hp;
             if (Game.phase === 'level') {
-                const hpLossPerSecond = 0.5; // Пример
+                const hpLossPerSecond = 2; // Пример
                 Game.hp -= hpLossPerSecond * deltaTime;
             }
             if (Game.hp <= 0) {
@@ -369,6 +379,12 @@ function exitGame() {
     
     console.log("Exiting game sequentially...");
     Game.isShuttingDown = true; // Сигнал для gameLoop "успокоиться"
+
+    const playerShip = document.getElementById('player-ship');
+    if (playerShip) {
+        // Немедленно добавляем класс, который отключает все анимации.
+        playerShip.classList.add('is-exiting');
+    }
 
     document.body.classList.remove('no-line-transitions');
     

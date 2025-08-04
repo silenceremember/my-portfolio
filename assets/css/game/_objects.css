@@ -27,3 +27,41 @@
 #player-ship.visible {
     opacity: 1;
 }
+
+#player-ship.is-invincible {
+  /* Анимация мигания */
+  animation: player-blink 0.65s infinite;
+}
+
+@keyframes player-blink {
+  0% {
+      opacity: 1;
+  }
+  50% {
+      opacity: 0.2;
+  }
+  100% {
+      opacity: 1;
+  }
+}
+
+#player-ship.is-shaking {
+  animation: player-shake 0.4s ease-in-out;
+}
+
+/* Сама анимация тряски */
+@keyframes player-shake {
+  0%, 100% {
+      transform: translate(-50%, -50%) translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+      transform: translate(-50%, -50%) translateX(-6px);
+  }
+  20%, 40%, 60%, 80% {
+      transform: translate(-50%, -50%) translateX(6px);
+  }
+}
+
+#player-ship.is-exiting {
+  animation: none !important;
+}

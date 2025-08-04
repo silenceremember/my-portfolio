@@ -111,13 +111,17 @@ function renderEnemies() {
  * Проверяет столкновение игрока с врагами.
  */
 function checkCollisions() {
-    // Если игра неактивна или нет врагов, выходим
     if (!Game.isActive || Game.enemies.length === 0) return;
 
     const player = Game.player;
     if (!player.el) return;
 
-    // "Хитбокс" игрока. Учитываем, что x/y - это центр.
+    // --- ГЛАВНОЕ ИЗМЕНЕНИЕ: ПРОВЕРКА НЕУЯЗВИМОСТИ ---
+    // Если игрок неуязвим, мы вообще не проверяем столкновения.
+    if (player.isInvincible) {
+        return;
+    }
+
     const playerHalfWidth = Game.settings.PLAYER_WIDTH / 2;
     const playerHalfHeight = Game.settings.PLAYER_HEIGHT / 2;
     const playerLeft = player.x - playerHalfWidth;
@@ -126,26 +130,42 @@ function checkCollisions() {
     const playerBottom = player.y + playerHalfHeight;
 
     Game.enemies.forEach(enemy => {
-        // Пропускаем врагов, которые уже помечены на удаление
         if (enemy.toRemove) return;
         
-        // AABB (Axis-Aligned Bounding Box) проверка столкновения
-        // Враг - это прямоугольник от (x, y) до (x+width, y+height)
         if (
             playerLeft < enemy.x + enemy.width &&
             playerRight > enemy.x &&
             playerTop < enemy.y + enemy.height &&
             playerBottom > enemy.y
         ) {
-            console.log("Collision detected!");
-            enemy.toRemove = true; // Помечаем врага на удаление
+
+            player.el.classList.add('is-shaking');
+
+            // --- Активация неуязвимости (остается без изменений) ---
+            player.isInvincible = true;
+            player.invincibilityTimer = player.invincibilityDuration;
+            player.el.classList.add('is-invincible');
+
+            
+            // Убираем класс после завершения анимации, чтобы ее можно было запустить снова
+            // Длительность анимации в CSS - 0.4с, что равно 400мс.
+            setTimeout(() => {
+                player.el?.classList.remove('is-shaking');
+            }, 400);
+
+            // В будущем здесь будет switch(enemy.type) для разных врагов
+            // Пока считаем, что все враги - "Поток" (наносят урон)
+
+            console.log("Collision detected! Player takes damage.");
+            
+            // --- ИЗМЕНЕНИЕ: ВРАГ НЕ УДАЛЯЕТСЯ ---
+            // enemy.toRemove = true; // <-- ЭТА СТРОКА ЗАКОММЕНТИРОВАНА/УДАЛЕНА
             
             // Наносим урон игроку
             const oldHp = Game.hp;
-            Game.hp -= 10; // Например, 10 урона за столкновение
+            Game.hp -= 20;
             if (Game.hp < 0) Game.hp = 0;
             
-            // Вызываем анимации для UI
             if (typeof shakeHpBar === 'function') {
                 shakeHpBar();
             }
