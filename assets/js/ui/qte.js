@@ -48,6 +48,8 @@ function initQTE(successCallback) {
         }
     }
 
+    window.resetQTE = resetQTE; 
+
     // --- ФУНКЦИЯ №1: ОШИБКА ВВОДА (без текста) ---
     function triggerInputError(keyIndex) {
         if (isQteLocked) return;

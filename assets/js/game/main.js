@@ -340,6 +340,10 @@ function exitGame() {
         document.getElementById('game-cursor-blocker')?.remove();
         showCursor();
         destroyGameUI();
+
+        if (typeof window.resetQTE === 'function') {
+            window.resetQTE();
+        }
         
         // Очищаем CSS-переменные
         const root = document.documentElement;
