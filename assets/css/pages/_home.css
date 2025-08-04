@@ -66,3 +66,26 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
 /* Секция 5: Финальный CTA */
 .final-cta-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 #final-section-title { font-size: 42px; }
+
+/* --- ОБНОВЛЕННЫЕ ПРАВИЛА ДЛЯ СКРЫТИЯ UI В РЕЖИМЕ ИГРЫ --- */
+
+/* 1. ПРАВИЛО ДЛЯ СКРЫТИЯ (при входе в игру) */
+/* Это правило агрессивно скрывает всё, что нужно, когда активен режим игры. */
+body.site-ui-hidden .site-header,
+body.site-ui-hidden .site-footer,
+body.site-ui-hidden .full-page-section {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: opacity 0.5s ease-in-out, visibility 0s 0.5s !important;
+}
+
+/* 2. ПРАВИЛО ДЛЯ ПОЯВЛЕНИЯ (при выходе из игры) */
+/* Это правило срабатывает ТОЛЬКО когда на body есть временный класс is-revealing.
+   Оно заставляет все элементы появиться синхронно с нужной задержкой. */
+body.is-revealing .site-header,
+body.is-revealing .site-footer,
+body.is-revealing .full-page-section {
+    /* `!important` здесь нужен, чтобы переопределить стандартные transition у секций */
+    transition: opacity 0.5s ease-in-out 0.3s !important;
+}

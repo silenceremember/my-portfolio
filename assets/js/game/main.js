@@ -236,12 +236,7 @@ function initGame() {
     // --- НАЧАЛО ПОСЛЕДОВАТЕЛЬНОСТИ АНИМАЦИЙ ---
 
     // ЭТАП 1: Исчезает UI сайта (Длительность: 500ms)
-    const siteUIElements = document.querySelectorAll('.site-header, .site-footer, .full-page-section');
-    siteUIElements.forEach(el => {
-        el.style.opacity = '0';
-    });
-    // Также отключаем клики на контейнере секций, чтобы не мешать
-    document.querySelector('.sections-container').style.pointerEvents = 'none';
+    document.body.classList.add('site-ui-hidden');
 
     const siteFadeOutDuration = 500
     const lineMoveDuration = 500; // Длительность анимации линий из CSS
@@ -327,24 +322,9 @@ function exitGame() {
     const lineAnimationDuration = 500;
     const siteAppearDelay = lineReturnDelay + lineAnimationDuration;
     setTimeout(() => {
-        // *** ИЗМЕНЕНИЕ ЗДЕСЬ: Восстанавливаем видимость, убирая inline-стили ***
-        
-        // Возвращаем header и footer
-        const headerFooter = document.querySelectorAll('.site-header, .site-footer');
-        headerFooter.forEach(el => {
-            el.style.opacity = '1';
-        });
-
-        // Возвращаем управление видимостью секций обратно к CSS-классам
-        const sections = document.querySelectorAll('.full-page-section');
-        sections.forEach(el => {
-            // Убираем inline-стиль opacity, чтобы .active снова работал как надо
-            el.style.removeProperty('opacity');
-        });
-
-        // Возвращаем клики контейнеру
-        document.querySelector('.sections-container').style.pointerEvents = 'auto';
-
+        // *** НОВОЕ: Добавляем временный класс для синхронизации анимации появления ***
+        document.body.classList.add('is-revealing');
+        document.body.classList.remove('site-ui-hidden');
     }, siteAppearDelay);
 
     // 7. Финальная очистка и ОСТАНОВКА ЦИКЛА
@@ -366,10 +346,9 @@ function exitGame() {
         const propertiesToRemove = ['--game-border-top', '--game-border-bottom', '--game-border-left', '--game-border-right'];
         propertiesToRemove.forEach(prop => root.style.removeProperty(prop));
         
-        // Сбрасываем состояние игры
-        resetGameState(); 
+        document.body.classList.remove('is-revealing');
         
-        // Выключаем флаг, что приведет к полной остановке gameLoop на следующем кадре.
+        resetGameState(); 
         isGameLoopActive = false;
 
     }, cleanupDelay);
