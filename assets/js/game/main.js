@@ -236,11 +236,13 @@ function initGame() {
     // --- НАЧАЛО ПОСЛЕДОВАТЕЛЬНОСТИ АНИМАЦИЙ ---
 
     // ЭТАП 1: Исчезает UI сайта (Длительность: 500ms)
-    const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
-    siteUI.forEach(el => {
+    const siteUIElements = document.querySelectorAll('.site-header, .site-footer, .full-page-section');
+    siteUIElements.forEach(el => {
         el.style.opacity = '0';
-        el.style.pointerEvents = 'none';
     });
+    // Также отключаем клики на контейнере секций, чтобы не мешать
+    document.querySelector('.sections-container').style.pointerEvents = 'none';
+
     const siteFadeOutDuration = 500
     const lineMoveDuration = 500; // Длительность анимации линий из CSS
 
@@ -325,11 +327,24 @@ function exitGame() {
     const lineAnimationDuration = 500;
     const siteAppearDelay = lineReturnDelay + lineAnimationDuration;
     setTimeout(() => {
-        const siteUI = document.querySelectorAll('.site-header, .site-footer, .sections-container');
-        siteUI.forEach(el => {
+        // *** ИЗМЕНЕНИЕ ЗДЕСЬ: Восстанавливаем видимость, убирая inline-стили ***
+        
+        // Возвращаем header и footer
+        const headerFooter = document.querySelectorAll('.site-header, .site-footer');
+        headerFooter.forEach(el => {
             el.style.opacity = '1';
-            el.style.pointerEvents = 'auto';
         });
+
+        // Возвращаем управление видимостью секций обратно к CSS-классам
+        const sections = document.querySelectorAll('.full-page-section');
+        sections.forEach(el => {
+            // Убираем inline-стиль opacity, чтобы .active снова работал как надо
+            el.style.removeProperty('opacity');
+        });
+
+        // Возвращаем клики контейнеру
+        document.querySelector('.sections-container').style.pointerEvents = 'auto';
+
     }, siteAppearDelay);
 
     // 7. Финальная очистка и ОСТАНОВКА ЦИКЛА
