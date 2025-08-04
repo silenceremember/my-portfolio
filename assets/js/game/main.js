@@ -217,18 +217,20 @@ function gameLoop(currentTime) {
     if (Game.canvas) {
         updateStars();
     }
+
+    if (hasStartedMoving) { // Враги существуют только после начала движения
+        if (typeof updateEnemies === 'function') {
+            updateEnemies(deltaTime);
+        }
+        if (typeof renderEnemies === 'function') {
+            renderEnemies();
+        }
+    }
     
     // 3. Основная игровая логика работает только если игра не в процессе выхода.
     if (!Game.isShuttingDown) {
         
         // Логика сценария и появления игрока
-        if (hasStartedMoving) {
-            updateScenario(deltaTime);
-            // --- ДОБАВЛЕНО: Обновление врагов ---
-            if (typeof updateEnemies === 'function') {
-                updateEnemies(deltaTime);
-            }
-        }
         if (Game.player.isFlyingIn) {
             updatePlayerFlyIn(currentTime);
         }
@@ -269,10 +271,6 @@ function gameLoop(currentTime) {
         
         // Отрисовка игрока на новой позиции
         renderPlayer();
-
-        if (typeof renderEnemies === 'function') {
-            renderEnemies();
-        }
     }
     
     // 4. Продолжаем цикл, запрашивая следующий кадр.
