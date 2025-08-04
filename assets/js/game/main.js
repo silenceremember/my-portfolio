@@ -148,24 +148,44 @@ function updateLayout() {
 
     // --- ПЕРЕСЧЕТ ПОЗИЦИИ ИГРОКА ---
     if (Game.player.el && oldBounds.left !== undefined) {
-        // 1. Вычисляем размеры старого игрового поля
-        const oldGameWidth = oldBounds.right - oldBounds.left;
-        const oldGameHeight = oldBounds.bottom - oldBounds.top;
 
-        // Предотвращаем деление на ноль, если игра только что инициализировалась
-        if (oldGameWidth > 0 && oldGameHeight > 0) {
-            // 2. Находим относительное положение игрока в старых границах (0.0 до 1.0)
-            const relativeX = (Game.player.x - oldBounds.left) / oldGameWidth;
-            const relativeY = (Game.player.y - oldBounds.top) / oldGameHeight;
+        if (Game.player.isFlyingIn) {
+            // ===========================================
+            // === СОСТОЯНИЕ: АНИМАЦИЯ ВЫЛЕТА           ===
+            // ===========================================
 
-            // 3. Применяем это относительное положение к новым границам
-            const newGameWidth = Game.bounds.right - Game.bounds.left;
-            const newGameHeight = Game.bounds.bottom - Game.bounds.top;
+            // 1. Корректируем ГОРИЗОНТАЛЬНОЕ положение. Корабль всегда должен
+            // лететь к центру НОВОЙ игровой зоны. Это исправляет "дрейф" в сторону.
+            Game.player.x = Game.bounds.left + (Game.settings.GAME_WIDTH / 2);
 
-            Game.player.x = Game.bounds.left + (relativeX * newGameWidth);
-            Game.player.y = Game.bounds.top + (relativeY * newGameHeight);
+            // 2. Корректируем ВЕРТИКАЛЬНУЮ ЦЕЛЬ анимации.
+            // Мы меняем ТОЛЬКО 'targetY'. Функция updatePlayerFlyIn использует
+            // оригинальные 'startY' и 'startTime', но теперь будет стремиться к новой
+            // цели. Это создает плавную, естественную коррекцию курса без скачков.
+            Game.player.flyIn.targetY = Game.bounds.bottom - Game.settings.PLAYER_HEIGHT - 20;
 
-            // Отрисовка произойдет в следующем кадре gameLoop, вызывать renderPlayer() здесь не нужно.
+        } else {
+            // ===========================================
+            // === СОСТОЯНИЕ: ИГРОК ПОД УПРАВЛЕНИЕМ     ===
+            // ===========================================
+            // (Эта логика из самого первого решения, она верна для этого состояния)
+
+            const oldGameWidth = oldBounds.right - oldBounds.left;
+            const oldGameHeight = oldBounds.bottom - oldBounds.top;
+
+            // Предотвращаем деление на ноль
+            if (oldGameWidth > 0 && oldGameHeight > 0) {
+                // Находим относительное положение в старых границах (0.0 до 1.0)
+                const relativeX = (Game.player.x - oldBounds.left) / oldGameWidth;
+                const relativeY = (Game.player.y - oldBounds.top) / oldGameHeight;
+
+                // Применяем это положение к новым границам
+                const newGameWidth = Game.bounds.right - Game.bounds.left;
+                const newGameHeight = Game.bounds.bottom - Game.bounds.top;
+
+                Game.player.x = Game.bounds.left + (relativeX * newGameWidth);
+                Game.player.y = Game.bounds.top + (relativeY * newGameHeight);
+            }
         }
     }
 }
