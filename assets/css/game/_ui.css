@@ -24,6 +24,7 @@
     gap: 64px;
     opacity: 0;
     pointer-events: none;
+    /* --- ИСПРАВЛЕНИЕ: ВОЗВРАЩАЕМ TRANSITION НАЗАД --- */
     transition: opacity 0.5s ease;
     font-family: var(--font-main);
     font-weight: 700;
@@ -261,4 +262,13 @@ body.game-mode .game-ui-bottom.visible {
 .level-dot.completed {
     background-color: var(--red-accent);
     border-color: var(--red-accent);
+}
+
+.prompt-key.is-enemy,
+.prompt-title.is-enemy {
+    position: fixed; /* ОБЯЗАТЕЛЬНО! Позволяет управлять через top/left */
+    margin: 0;
+    z-index: 500; /* Ниже игрока (502) и UI (501), но выше фона (10) */
+    /* Важно! Отменяем grid-раскладку, т.к. теперь управляем позицией вручную */
+    grid-area: auto !important;
 }

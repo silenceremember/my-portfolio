@@ -35,9 +35,13 @@ function handleGameInput(e) {
             console.log("First player movement detected. Starting UI and Scenario.");
             hasStartedMoving = true;
             hideCursor();
+
+            // Эта функция теперь сама позаботится о контейнере
+            convertPromptToEnemies();
             
             // Запускаем UI и сценарий
-            document.querySelector('.game-start-prompt')?.classList.remove('visible');
+            // --- СТРОКА УДАЛЕНА ---
+            // document.querySelector('.game-start-prompt')?.classList.remove('visible'); 
             showGameUI();
             startScenario();
         }
@@ -187,6 +191,10 @@ function updateLayout() {
                 Game.player.y = Game.bounds.top + (relativeY * newGameHeight);
             }
         }
+
+        if (typeof handleEnemyResize === 'function') {
+            handleEnemyResize();
+        }
     }
 }
 
@@ -216,6 +224,10 @@ function gameLoop(currentTime) {
         // Логика сценария и появления игрока
         if (hasStartedMoving) {
             updateScenario(deltaTime);
+            // --- ДОБАВЛЕНО: Обновление врагов ---
+            if (typeof updateEnemies === 'function') {
+                updateEnemies(deltaTime);
+            }
         }
         if (Game.player.isFlyingIn) {
             updatePlayerFlyIn(currentTime);
@@ -224,6 +236,9 @@ function gameLoop(currentTime) {
         // Логика управления и состояния игрока
         if (Game.isActive) {
             updatePlayerPosition();
+            if (typeof checkCollisions === 'function') {
+                checkCollisions();
+            }
         }
         
         // Логика геймплея (потеря HP, и т.д.)
@@ -244,6 +259,10 @@ function gameLoop(currentTime) {
         
         // Отрисовка игрока на новой позиции
         renderPlayer();
+
+        if (typeof renderEnemies === 'function') {
+            renderEnemies();
+        }
     }
     
     // 4. Продолжаем цикл, запрашивая следующий кадр.

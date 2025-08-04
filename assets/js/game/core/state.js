@@ -17,6 +17,7 @@ const Game = {
         isFlyingIn: false,
         flyIn: { startY: 0, targetY: 0, duration: 800, startTime: 0 }
     },
+    enemies: [],
     controls: {
         up: false,
         down: false,
@@ -47,6 +48,8 @@ function resetGameState() {
     Game.currentLevel = 1;
     Game.phase = 'none';
     Game.phaseTimer = 0;
+    
+    Game.enemies = [];
 
     Object.keys(Game.controls).forEach(action => Game.controls[action] = false);
 
