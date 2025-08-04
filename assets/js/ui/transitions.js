@@ -16,7 +16,7 @@ function initSectionManager() {
     }
 
     function changeSection(newIndex) {
-        if (isScrolling || document.body.classList.contains('game-active') || newIndex === currentSectionIndex) {
+        if (isScrolling || document.body.classList.contains('game-mode') || newIndex === currentSectionIndex) {
             return;
         }
         if (newIndex >= 0 && newIndex < sections.length) {
@@ -38,7 +38,7 @@ function initSectionManager() {
     });
 
     window.addEventListener('wheel', (event) => {
-        if (isScrolling || document.body.classList.contains('game-active')) return;
+        if (isScrolling || document.body.classList.contains('game-mode')) return;
         const direction = event.deltaY > 0 ? 1 : -1;
         const nextIndex = currentSectionIndex + direction;
         changeSection(nextIndex);
