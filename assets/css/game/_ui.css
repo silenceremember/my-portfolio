@@ -264,6 +264,7 @@ body.game-mode .game-ui-bottom.visible {
     border-color: var(--red-accent);
 }
 
+/* Найдите этот блок в вашем файле */
 .prompt-key.is-enemy,
 .prompt-title.is-enemy {
     position: fixed; /* ОБЯЗАТЕЛЬНО! Позволяет управлять через top/left */
@@ -271,4 +272,13 @@ body.game-mode .game-ui-bottom.visible {
     z-index: 500; /* Ниже игрока (502) и UI (501), но выше фона (10) */
     /* Важно! Отменяем grid-раскладку, т.к. теперь управляем позицией вручную */
     grid-area: auto !important;
+    
+    /* <<< ИЗМЕНЕНИЕ 1: Добавляем плавный переход для прозрачности >>> */
+    /* Длительность 0.5с для красивого эффекта исчезновения */
+    transition: opacity 0.5s ease-out;
+}
+
+/* <<< ИЗМЕНЕНИЕ 2: Новый класс, который мы будем добавлять через JS >>> */
+.is-enemy.is-fading-out {
+    opacity: 0;
 }
