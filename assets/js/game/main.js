@@ -34,6 +34,7 @@ function handleGameInput(e) {
         if (!hasStartedMoving) {
             console.log("First player movement detected. Starting UI and Scenario.");
             hasStartedMoving = true;
+            hideCursor();
             
             // Запускаем UI и сценарий
             document.querySelector('.game-start-prompt')?.classList.remove('visible');
@@ -230,6 +231,7 @@ function initGame() {
     document.body.appendChild(cursorBlocker);
     window.addEventListener('mousemove', showCursor);
     window.addEventListener('resize', updateLayout);
+    hideCursor();
 
     // --- НАЧАЛО ПОСЛЕДОВАТЕЛЬНОСТИ АНИМАЦИЙ ---
 
@@ -341,6 +343,7 @@ function exitGame() {
         document.getElementById('stars-canvas')?.remove();
         document.querySelector('.game-start-prompt')?.remove();
         document.getElementById('game-cursor-blocker')?.remove();
+        showCursor();
         destroyGameUI();
         
         // Очищаем CSS-переменные
