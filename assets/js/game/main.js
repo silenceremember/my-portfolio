@@ -98,6 +98,8 @@ function showCursor() {
  * Рассчитывает и применяет положение игрового поля и его границ.
  */
 function updateLayout() {
+    const oldBounds = { ...Game.bounds };
+
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
@@ -105,21 +107,20 @@ function updateLayout() {
         console.log("updateLayout called. GAME_WIDTH from settings is:", Game.settings.GAME_WIDTH);
         // -------------------------
 
-        if (Game.canvas) {
-            Game.canvas.width = windowWidth;
-            Game.canvas.height = windowHeight;
-            if (typeof handleStarfieldResize === 'function') {
-                handleStarfieldResize();
-            }
-            // ------------------------------------------------
-        }
 
-    // Проверка на минимальный размер
     if (windowWidth < Game.settings.MIN_WINDOW_WIDTH || windowHeight < Game.settings.MIN_WINDOW_HEIGHT) {
         if (document.body.classList.contains('game-mode')) {
             exitGame();
         }
         return;
+    }
+
+    if (Game.canvas) {
+        Game.canvas.width = windowWidth;
+        Game.canvas.height = windowHeight;
+        if (typeof handleStarfieldResize === 'function') {
+            handleStarfieldResize();
+        }
     }
 
     // Рассчитываем отступы от краев ОКНА до краев РАМКИ
@@ -143,7 +144,30 @@ function updateLayout() {
     root.style.setProperty('--game-border-top', `${offsetY}px`);
     root.style.setProperty('--game-border-bottom', `${offsetY}px`);
     root.style.setProperty('--game-border-left', `${offsetX}px`);
-    root.style.setProperty('--game-border-right', `${offsetX}px`); 
+    root.style.setProperty('--game-border-right', `${offsetX}px`);
+
+    // --- ПЕРЕСЧЕТ ПОЗИЦИИ ИГРОКА ---
+    if (Game.player.el && oldBounds.left !== undefined) {
+        // 1. Вычисляем размеры старого игрового поля
+        const oldGameWidth = oldBounds.right - oldBounds.left;
+        const oldGameHeight = oldBounds.bottom - oldBounds.top;
+
+        // Предотвращаем деление на ноль, если игра только что инициализировалась
+        if (oldGameWidth > 0 && oldGameHeight > 0) {
+            // 2. Находим относительное положение игрока в старых границах (0.0 до 1.0)
+            const relativeX = (Game.player.x - oldBounds.left) / oldGameWidth;
+            const relativeY = (Game.player.y - oldBounds.top) / oldGameHeight;
+
+            // 3. Применяем это относительное положение к новым границам
+            const newGameWidth = Game.bounds.right - Game.bounds.left;
+            const newGameHeight = Game.bounds.bottom - Game.bounds.top;
+
+            Game.player.x = Game.bounds.left + (relativeX * newGameWidth);
+            Game.player.y = Game.bounds.top + (relativeY * newGameHeight);
+
+            // Отрисовка произойдет в следующем кадре gameLoop, вызывать renderPlayer() здесь не нужно.
+        }
+    }
 }
 
 // ======================================================
