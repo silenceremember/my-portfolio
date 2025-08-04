@@ -22,13 +22,25 @@ function initStarsCanvas() {
 function updateStars() {
     if (!Game.ctx) return;
     Game.ctx.clearRect(0, 0, Game.canvas.width, Game.canvas.height);
-    Game.ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-color');
+    
+    const starColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+    Game.ctx.fillStyle = starColor;
+
     for (const star of Game.stars) {
         star.y += star.speed;
+
         if (star.y > Game.canvas.height) {
             star.y = 0;
             star.x = Math.random() * Game.canvas.width;
         }
         Game.ctx.fillRect(star.x, star.y, star.size, star.size);
+    }
+}
+
+function handleStarfieldResize() {
+    if (!Game.stars || !Game.canvas) return;
+    for (const star of Game.stars) {
+        star.x = Math.random() * Game.canvas.width;
+        star.y = Math.random() * Game.canvas.height;
     }
 }

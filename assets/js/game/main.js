@@ -105,6 +105,15 @@ function updateLayout() {
         console.log("updateLayout called. GAME_WIDTH from settings is:", Game.settings.GAME_WIDTH);
         // -------------------------
 
+        if (Game.canvas) {
+            Game.canvas.width = windowWidth;
+            Game.canvas.height = windowHeight;
+            if (typeof handleStarfieldResize === 'function') {
+                handleStarfieldResize();
+            }
+            // ------------------------------------------------
+        }
+
     // Проверка на минимальный размер
     if (windowWidth < Game.settings.MIN_WINDOW_WIDTH || windowHeight < Game.settings.MIN_WINDOW_HEIGHT) {
         if (document.body.classList.contains('game-mode')) {
@@ -148,17 +157,17 @@ function gameLoop(currentTime) {
         return;
     }
 
-    // 2. Анимация звезд работает всегда, пока активен цикл (даже при выходе).
+    if (lastTime === 0) lastTime = currentTime;
+    const deltaTime = (currentTime - lastTime) / 1000; // в секундах
+    lastTime = currentTime;
+
+    // 2. Анимация звезд работает.
     if (Game.canvas) {
         updateStars();
     }
     
     // 3. Основная игровая логика работает только если игра не в процессе выхода.
     if (!Game.isShuttingDown) {
-        // Расчет deltaTime
-        if (lastTime === 0) lastTime = currentTime;
-        const deltaTime = (currentTime - lastTime) / 1000;
-        lastTime = currentTime;
         
         // Логика сценария и появления игрока
         if (hasStartedMoving) {
