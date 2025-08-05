@@ -1,10 +1,4 @@
-/**
- * enemies.js
- * 
- * Управляет логикой всех врагов в игре.
- */
-
-// ... (функции convertPromptToEnemies, renderEnemies, checkCollisions, handleEnemyResize остаются без изменений, поэтому я их скрою для краткости)
+// assets/js/game/gameplay/enemies.js
 
 function convertPromptToEnemies() {
     const promptContainer = document.querySelector('.game-start-prompt');
