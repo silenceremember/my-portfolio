@@ -167,6 +167,13 @@ function checkCollisions() {
             
             if (typeof shakeHpBar === 'function') shakeHpBar();
             if (typeof updateHpBar === 'function') updateHpBar(oldHp);
+
+            const overlay = document.getElementById('damage-overlay');
+            if (overlay) {
+                overlay.classList.remove('is-flashing');
+                void overlay.offsetWidth;
+                overlay.classList.add('is-flashing');
+            }
         }
     });
 }

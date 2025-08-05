@@ -324,6 +324,11 @@ function initGame() {
     createPlayer(); 
     createStartPrompt(); 
     createGameUI(); 
+
+    const damageOverlay = document.createElement('div');
+    damageOverlay.id = 'damage-overlay';
+    document.body.appendChild(damageOverlay);
+
     const cursorBlocker = document.createElement('div');
     cursorBlocker.id = 'game-cursor-blocker';
     document.body.appendChild(cursorBlocker);
@@ -442,8 +447,11 @@ function exitGame() {
         document.getElementById('stars-canvas')?.remove();
         document.querySelector('.game-start-prompt')?.remove();
         document.getElementById('game-cursor-blocker')?.remove();
-        showCursor();
         destroyGameUI();
+
+        document.getElementById('damage-overlay')?.remove();
+
+        showCursor(); // <-- Переместил вызов сюда для логичности
 
         if (typeof window.resetQTE === 'function') {
             window.resetQTE();

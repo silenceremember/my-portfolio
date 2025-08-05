@@ -282,3 +282,46 @@ body.game-mode .game-ui-bottom.visible {
 .is-enemy.is-fading-out {
     opacity: 0;
 }
+
+#damage-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    
+    /* 
+      Находится поверх фона и врагов, но под основным UI (HP, уровни).
+      z-index: 550 (Враги: 500, UI: 600) 
+    */
+    z-index: 550; 
+    
+    /* Не должен перехватывать клики мыши */
+    pointer-events: none;
+    
+    /* Используем inset box-shadow для создания виньетки */
+    box-shadow: inset 0 0 120px 40px var(--red-accent);
+    
+    /* По умолчанию полностью прозрачен */
+    opacity: 0;
+}
+
+/* 
+  Класс, который мы будем добавлять через JS для запуска анимации.
+  Он заставляет оверлей вспыхнуть и плавно исчезнуть.
+*/
+#damage-overlay.is-flashing {
+    animation: damage-flash-effect 3s ease-out;
+}
+
+/* Сама анимация вспышки */
+@keyframes damage-flash-effect {
+    /* Начинается с высокой непрозрачности */
+    0% {
+        opacity: 0.5;
+    }
+    /* Завершается полной прозрачностью */
+    100% {
+        opacity: 0;
+    }
+}
