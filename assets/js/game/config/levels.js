@@ -1,3 +1,5 @@
+// assets/js/game/config/levels.js
+
 const LevelData = {
     1: {
         type: 'survival', // 'survival' - обычный уровень на время
