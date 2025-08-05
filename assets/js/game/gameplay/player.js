@@ -4,29 +4,34 @@
  * Создает DOM-элемент для корабля игрока и добавляет его в Game.state.
  */
 function createPlayer() {
+    // 1. Создаем внешний контейнер для ПОЗИЦИИ и ВЫХОДА
     const playerShipEl = document.createElement('div');
     playerShipEl.id = 'player-ship';
 
-    // Создаем левую и правую половинки
+    // 2. Создаем вложенный контейнер для всех ВИЗУАЛЬНЫХ АНИМАЦИЙ
+    const shipBody = document.createElement('div');
+    shipBody.className = 'ship-body';
+
+    // 3. Создаем половинки корабля
     const leftHalf = document.createElement('div');
     leftHalf.className = 'ship-half left';
-
     const rightHalf = document.createElement('div');
     rightHalf.className = 'ship-half right';
 
-    // Добавляем половинки внутрь основного контейнера
-    playerShipEl.appendChild(leftHalf);
-    playerShipEl.appendChild(rightHalf);
+    // 4. Собираем структуру: половинки -> в тело, тело -> в контейнер
+    shipBody.appendChild(leftHalf);
+    shipBody.appendChild(rightHalf);
+    playerShipEl.appendChild(shipBody);
     
+    // 5. Добавляем всю конструкцию на страницу
     document.body.appendChild(playerShipEl);
 
-    // Сохраняем ссылку на основной контейнер
+    // Сохраняем ссылку на основной контейнер, как и раньше
     Game.player.el = playerShipEl;
     
-    // Остальная логика позиционирования остается прежней
+    // Остальная логика без изменений
     Game.player.x = Game.bounds.left + (Game.settings.GAME_WIDTH / 2);
     Game.player.y = window.innerHeight + 50; 
-    
     renderPlayer();
 }
 
