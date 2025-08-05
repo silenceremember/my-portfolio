@@ -74,7 +74,7 @@
 
 /* Класс-триггер для начала последовательности смерти */
 #player-ship.is-dying .ship-body {
-  animation: player-death-shake 1.5s ease-in-out; /* Ваше значение было 1500ms */
+  animation: player-death-shake 1s ease-in-out;
 }
 
 #player-ship.is-splitting .ship-body .ship-half {

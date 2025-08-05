@@ -21,16 +21,6 @@ window.lastTime = 0;
 function handleGameInput(e) {
     // 1. Выход по ESC работает всегда
     if (e.code === 'Escape') {
-        // <<< ИЗМЕНЕНИЕ ЗДЕСЬ >>>
-        // Если идет анимация смерти, мы игнорируем нажатие ESC.
-        // Это предотвращает конфликт двух вызовов exitGame() и позволяет
-        // анимации разрушения корабля завершиться корректно.
-        if (Game.isPlayerDying) {
-            console.log("Exit call by user ignored: Player death sequence is active.");
-            return; 
-        }
-        
-        // Если анимации смерти нет, выходим из игры как обычно.
         exitGame();
         return;
     }
@@ -210,63 +200,68 @@ function updateLayout() {
     }
 }
 
+// assets/js/game/main.js
+
 /**
- * Запускает последовательность анимации смерти игрока.
+ * Запускает новую, срежиссированную последовательность анимации смерти игрока.
  */
 function startPlayerDeathSequence() {
     if (Game.isPlayerDying || Game.isShuttingDown) return;
 
     console.log("%cGAME OVER - Starting new death sequence...", "color: red; font-weight: bold;");
     
+    // Устанавливаем флаги, отключаем управление
     Game.isPlayerDying = true;
     Game.isActive = false;
 
     const playerShip = Game.player.el;
     if (!playerShip) return;
 
-    const FADE_DURATION = 100;
-    const SHAKE_DURATION = 1500; // <-- В прошлый раз вы меняли это значение. Если хотите 1.5с, верните 1500
+    // --- НАСТРОЙКА ТАЙМИНГОВ АНИМАЦИИ ---
+    const FADE_WORLD_DURATION = 100;
+    const SHAKE_DURATION = 1000;
+    const PAUSE_DURATION = 1000;
     const SPLIT_DURATION = 500;
 
-    // --- ЭТАП 1: Исчезновение мира (0.5 сек) ---
-    console.log("Death Sequence: Step 1 - Fading out world...");
+    // --- ПОСЛЕДОВАТЕЛЬНОСТЬ ДЕЙСТВИЙ (Timeline) ---
+
+    // T=0ms: ЭТАП 1 - Мгновенное исчезновение всего, кроме корабля.
+    console.log("Death Sequence (T=0ms): Fading out world...");
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
     document.getElementById('stars-canvas')?.classList.remove('visible');
     const damageOverlay = document.getElementById('damage-overlay');
     if (damageOverlay) damageOverlay.style.opacity = '0';
-
     if (typeof startEnemyFadeOut === 'function') {
-        startEnemyFadeOut();
+        startEnemyFadeOut(); // Эта функция должна быть быстрой
     }
 
-    // --- ЭТАП 2: Тряска корабля ---
+    // T=100ms: ЭТАП 2 - Тряска корабля (начинается после исчезновения мира)
+    const shakeStartTime = FADE_WORLD_DURATION;
     setTimeout(() => {
-        console.log("Death Sequence: Step 2 - Shaking ship...");
+        console.log(`Death Sequence (T=${shakeStartTime}ms): Shaking ship...`);
         playerShip.classList.add('is-dying');
-    }, FADE_DURATION);
+    }, shakeStartTime);
 
-    // --- ЭТАП 3: Разлёт корабля ---
+    // T=1100ms: ЭТАП 3 - Разлёт корабля (начинается после тряски и паузы)
+    const splitStartTime = shakeStartTime + SHAKE_DURATION + PAUSE_DURATION;
     setTimeout(() => {
-        console.log("Death Sequence: Step 3 - Splitting ship...");
+        console.log(`Death Sequence (T=${splitStartTime}ms): Splitting ship...`);
+        // Убираем тряску и добавляем разлёт, чтобы анимации не конфликтовали
         playerShip.classList.remove('is-dying');
         playerShip.classList.add('is-splitting');
-    }, FADE_DURATION + SHAKE_DURATION);
+    }, splitStartTime);
 
-    // --- ЭТАП 4: Финальная очистка и выход ---
+    // T=1900ms: ЭТАП 4 - Финальная очистка и выход (после завершения ВСЕХ этапов)
+    const exitTime = splitStartTime + SPLIT_DURATION;
     setTimeout(() => {
-        console.log("Death Sequence: Complete. Exiting game.");
-        
-        // <<< ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ >>>
-        // Перед вызовом exitGame() мы принудительно и навсегда скрываем корабль.
-        // Это гарантирует, что он не "мигнет" снова, какие бы классы
-        // ни добавила функция exitGame(). display: none - это абсолютный приоритет.
+        console.log(`Death Sequence (T=${exitTime}ms): Complete. Exiting game.`);
+        // Скрываем корабль перед вызовом exitGame, чтобы избежать "мерцания"
         if (playerShip) {
             playerShip.style.display = 'none';
         }
-        
         exitGame();
-    }, FADE_DURATION + SHAKE_DURATION + SPLIT_DURATION);
+    }, exitTime);
 }
 
 // ======================================================
