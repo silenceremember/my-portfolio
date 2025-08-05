@@ -19,7 +19,7 @@ function initStarsCanvas() {
     }
 }
 
-function updateStars() {
+function updateStars(deltaTime) {
     if (!Game.ctx) return;
     Game.ctx.clearRect(0, 0, Game.canvas.width, Game.canvas.height);
     
@@ -27,7 +27,7 @@ function updateStars() {
     Game.ctx.fillStyle = starColor;
 
     for (const star of Game.stars) {
-        star.y += star.speed;
+        star.y += star.speed * 60 * deltaTime;
 
         if (star.y > Game.canvas.height) {
             star.y = 0;

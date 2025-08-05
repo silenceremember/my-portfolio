@@ -215,14 +215,17 @@ function gameLoop(currentTime) {
     const deltaTime = (currentTime - lastTime) / 1000; // в секундах
     lastTime = currentTime;
 
+    const CAPPED_DELTA_TIME_MAX = 0.1; 
+    const cappedDeltaTime = Math.min(deltaTime, CAPPED_DELTA_TIME_MAX);
+
     // 2. Анимация звезд работает.
     if (Game.canvas) {
-        updateStars();
+        updateStars(cappedDeltaTime);
     }
 
-    if (hasStartedMoving) { // Враги существуют только после начала движения
+    if (hasStartedMoving) { 
         if (typeof updateEnemies === 'function') {
-            updateEnemies(deltaTime);
+            updateEnemies(cappedDeltaTime);
         }
         if (typeof renderEnemies === 'function') {
             renderEnemies();
@@ -243,6 +246,10 @@ function gameLoop(currentTime) {
             if (typeof checkCollisions === 'function') {
                 checkCollisions();
             }
+        }
+
+        if (typeof updateScenario === 'function') {
+            updateScenario(cappedDeltaTime); 
         }
 
         if (Game.player.isInvincible) {
