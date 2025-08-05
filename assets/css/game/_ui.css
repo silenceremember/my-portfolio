@@ -318,7 +318,7 @@ body.game-mode .game-ui-bottom.visible {
 @keyframes damage-flash-effect {
     /* Начинается с высокой непрозрачности */
     0% {
-        opacity: 0.5;
+        opacity: 1;
     }
     /* Завершается полной прозрачностью */
     100% {
