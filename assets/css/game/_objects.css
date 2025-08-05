@@ -29,7 +29,7 @@
     opacity: 1;
 }
 
-#player-ship.is-invincible {
+#player-ship.visible.is-invincible {
   /* Анимация мигания */
   animation: player-blink 0.65s infinite;
 }
@@ -46,7 +46,7 @@
   }
 }
 
-#player-ship.is-shaking {
+#player-ship.visible.is-shaking {
   animation: player-shake 0.4s ease-in-out;
 }
 
@@ -61,10 +61,6 @@
   20%, 40%, 60%, 80% {
       transform: translate(-50%, -50%) translateX(6px);
   }
-}
-
-#player-ship.is-exiting {
-  animation: none !important;
 }
 
 /* --- Стили для половинок корабля --- */
@@ -88,7 +84,7 @@
 /* --- АНИМАЦИИ СМЕРТИ --- */
 
 /* Класс-триггер для начала последовательности смерти */
-#player-ship.is-dying {
+#player-ship.visible.is-dying {
   /* 
     Эта единственная строка сама по себе отключает любые другие анимации
     (вроде is-invincible) и запускает нужную нам анимацию тряски.

@@ -464,19 +464,6 @@ function exitGame() {
     // 2. Устанавливаем флаг, чтобы остановить любые активные действия в цикле
     Game.isShuttingDown = true; 
 
-    if (!Game.isPlayerDying) {
-        const playerShip = document.getElementById('player-ship');
-        if (playerShip) {
-            // Это универсальная команда, чтобы начать плавное растворение корабля.
-            // Она работает в любом состоянии благодаря 'transition' в CSS.
-            playerShip.classList.remove('visible');
-
-            if (!Game.player.isFlyingIn) {
-                playerShip.classList.add('is-exiting');
-            }
-        }
-    }
-
     document.body.classList.remove('no-line-transitions');
     
     // 3. Удаляем все активные слушатели
@@ -497,6 +484,7 @@ function exitGame() {
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
     document.getElementById('damage-overlay')?.classList.remove('visible');
+    document.getElementById('player-ship')?.classList.remove('visible');
 
     // 6. Запускаем анимацию возврата линий
     const lineReturnDelay = 100;
