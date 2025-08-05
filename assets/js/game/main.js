@@ -21,6 +21,16 @@ window.lastTime = 0;
 function handleGameInput(e) {
     // 1. Выход по ESC работает всегда
     if (e.code === 'Escape') {
+        // <<< ИЗМЕНЕНИЕ ЗДЕСЬ >>>
+        // Если идет анимация смерти, мы игнорируем нажатие ESC.
+        // Это предотвращает конфликт двух вызовов exitGame() и позволяет
+        // анимации разрушения корабля завершиться корректно.
+        if (Game.isPlayerDying) {
+            console.log("Exit call by user ignored: Player death sequence is active.");
+            return; 
+        }
+        
+        // Если анимации смерти нет, выходим из игры как обычно.
         exitGame();
         return;
     }
@@ -454,13 +464,16 @@ function exitGame() {
     // 2. Устанавливаем флаг, чтобы остановить любые активные действия в цикле
     Game.isShuttingDown = true; 
 
-    // --- Дальнейший код отвечает только за АНИМАЦИЮ выхода ---
-
     if (!Game.isPlayerDying) {
         const playerShip = document.getElementById('player-ship');
         if (playerShip) {
-            playerShip.classList.add('is-exiting');
+            // Это универсальная команда, чтобы начать плавное растворение корабля.
+            // Она работает в любом состоянии благодаря 'transition' в CSS.
             playerShip.classList.remove('visible');
+
+            if (!Game.player.isFlyingIn) {
+                playerShip.classList.add('is-exiting');
+            }
         }
     }
 
@@ -483,6 +496,7 @@ function exitGame() {
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
+    document.getElementById('damage-overlay')?.classList.remove('visible');
 
     // 6. Запускаем анимацию возврата линий
     const lineReturnDelay = 100;

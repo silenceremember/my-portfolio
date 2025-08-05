@@ -170,9 +170,14 @@ function checkCollisions() {
 
             const overlay = document.getElementById('damage-overlay');
             if (overlay) {
-                overlay.classList.remove('is-flashing');
-                void overlay.offsetWidth;
-                overlay.classList.add('is-flashing');
+                // 1. Немедленно делаем видимым
+                overlay.classList.add('visible');
+                
+                // 2. Через короткое время убираем класс, чтобы он плавно исчез
+                //    Длительность 150ms дает эффект резкой вспышки.
+                setTimeout(() => {
+                    overlay.classList.remove('visible');
+                }, 3000);
             }
         }
     });
