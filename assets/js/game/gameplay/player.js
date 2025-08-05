@@ -6,13 +6,25 @@
 function createPlayer() {
     const playerShipEl = document.createElement('div');
     playerShipEl.id = 'player-ship';
+
+    // Создаем левую и правую половинки
+    const leftHalf = document.createElement('div');
+    leftHalf.className = 'ship-half left';
+
+    const rightHalf = document.createElement('div');
+    rightHalf.className = 'ship-half right';
+
+    // Добавляем половинки внутрь основного контейнера
+    playerShipEl.appendChild(leftHalf);
+    playerShipEl.appendChild(rightHalf);
+    
     document.body.appendChild(playerShipEl);
 
+    // Сохраняем ссылку на основной контейнер
     Game.player.el = playerShipEl;
     
+    // Остальная логика позиционирования остается прежней
     Game.player.x = Game.bounds.left + (Game.settings.GAME_WIDTH / 2);
-
-    // Начальная позиция Y за пределами экрана для анимации вылета остается прежней.
     Game.player.y = window.innerHeight + 50; 
     
     renderPlayer();

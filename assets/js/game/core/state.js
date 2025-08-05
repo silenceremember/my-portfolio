@@ -4,6 +4,7 @@ const Game = {
     // --- Флаги состояния ---
     isActive: false,
     isShuttingDown: false, // <-- ВОЗВРАЩАЕМ ЭТОТ ФЛАГ
+    isPlayerDying: false,
 
     // --- Игровые переменные ---
     hp: 100,
@@ -46,7 +47,8 @@ const Game = {
  */
 function resetGameState() {
     Game.isActive = false;
-    Game.isShuttingDown = false; // <-- ВОЗВРАЩАЕМ СБРОС ФЛАГА
+    Game.isShuttingDown = false;
+    Game.isPlayerDying = false;
     
     Game.hp = 100;
     Game.currentLevel = 1;
@@ -55,6 +57,9 @@ function resetGameState() {
 
     Game.player.isInvincible = false;
     Game.player.invincibilityTimer = 0;
+    
+    // Сбрасываем состояние полета игрока
+    Game.player.isFlyingIn = false; 
 
     Game.enemies = [];
 
@@ -63,12 +68,9 @@ function resetGameState() {
     Game.ui.hpBarSegments = [];
     Game.ui.levelDots = [];
 
+    // Глобальные переменные, которые нужно сбросить
     window.hasStartedMoving = false;
     window.lastTime = 0;
-
-    if (typeof isGameLoopActive !== 'undefined') {
-        isGameLoopActive = false;
-    }
     
     console.log("Game state has been reset.");
 }

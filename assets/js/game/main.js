@@ -200,6 +200,65 @@ function updateLayout() {
     }
 }
 
+/**
+ * Запускает последовательность анимации смерти игрока.
+ */
+function startPlayerDeathSequence() {
+    if (Game.isPlayerDying || Game.isShuttingDown) return;
+
+    console.log("%cGAME OVER - Starting new death sequence...", "color: red; font-weight: bold;");
+    
+    Game.isPlayerDying = true;
+    Game.isActive = false;
+
+    const playerShip = Game.player.el;
+    if (!playerShip) return;
+
+    const FADE_DURATION = 100;
+    const SHAKE_DURATION = 1500; // <-- В прошлый раз вы меняли это значение. Если хотите 1.5с, верните 1500
+    const SPLIT_DURATION = 500;
+
+    // --- ЭТАП 1: Исчезновение мира (0.5 сек) ---
+    console.log("Death Sequence: Step 1 - Fading out world...");
+    document.querySelector('.game-ui-top')?.classList.remove('visible');
+    document.querySelector('.game-ui-bottom')?.classList.remove('visible');
+    document.getElementById('stars-canvas')?.classList.remove('visible');
+    const damageOverlay = document.getElementById('damage-overlay');
+    if (damageOverlay) damageOverlay.style.opacity = '0';
+
+    if (typeof startEnemyFadeOut === 'function') {
+        startEnemyFadeOut();
+    }
+
+    // --- ЭТАП 2: Тряска корабля ---
+    setTimeout(() => {
+        console.log("Death Sequence: Step 2 - Shaking ship...");
+        playerShip.classList.add('is-dying');
+    }, FADE_DURATION);
+
+    // --- ЭТАП 3: Разлёт корабля ---
+    setTimeout(() => {
+        console.log("Death Sequence: Step 3 - Splitting ship...");
+        playerShip.classList.remove('is-dying');
+        playerShip.classList.add('is-splitting');
+    }, FADE_DURATION + SHAKE_DURATION);
+
+    // --- ЭТАП 4: Финальная очистка и выход ---
+    setTimeout(() => {
+        console.log("Death Sequence: Complete. Exiting game.");
+        
+        // <<< ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ >>>
+        // Перед вызовом exitGame() мы принудительно и навсегда скрываем корабль.
+        // Это гарантирует, что он не "мигнет" снова, какие бы классы
+        // ни добавила функция exitGame(). display: none - это абсолютный приоритет.
+        if (playerShip) {
+            playerShip.style.display = 'none';
+        }
+        
+        exitGame();
+    }, FADE_DURATION + SHAKE_DURATION + SPLIT_DURATION);
+}
+
 // ======================================================
 /**
  * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ
@@ -218,12 +277,11 @@ function gameLoop(currentTime) {
     const CAPPED_DELTA_TIME_MAX = 0.1; 
     const cappedDeltaTime = Math.min(deltaTime, CAPPED_DELTA_TIME_MAX);
 
-    // 2. Анимация звезд работает.
     if (Game.canvas) {
         updateStars(cappedDeltaTime);
     }
-
-    if (hasStartedMoving) { 
+    
+    if (!Game.isPlayerDying && hasStartedMoving) {
         if (typeof updateEnemies === 'function') {
             updateEnemies(cappedDeltaTime);
         }
@@ -233,7 +291,7 @@ function gameLoop(currentTime) {
     }
     
     // 3. Основная игровая логика работает только если игра не в процессе выхода.
-    if (!Game.isShuttingDown) {
+    if (!Game.isShuttingDown && !Game.isPlayerDying) {
         
         // Логика сценария и появления игрока
         if (Game.player.isFlyingIn) {
@@ -272,13 +330,15 @@ function gameLoop(currentTime) {
             if (Game.hp <= 0) {
                 Game.hp = 0;
                 console.log("GAME OVER - HP is 0");
-                Game.isActive = false;
+                startPlayerDeathSequence();
             }
             updateHpBar(oldHp); 
             updateLevelIndicators();
         }
+    }
         
-        // Отрисовка игрока на новой позиции
+    // Отрисовка игрока на новой позиции
+    if (!Game.isShuttingDown) {
         renderPlayer();
     }
     
@@ -384,23 +444,29 @@ function initGame() {
  */
 
 function exitGame() {
-    // 1. Проверка и установка флага "выхода"
+    // 1. Проверка на повторный вызов
     if (Game.isShuttingDown || !document.body.classList.contains('game-mode')) {
         return;
     }
     
     console.log("Exiting game sequentially...");
-    Game.isShuttingDown = true; // Сигнал для gameLoop "успокоиться"
+    
+    // 2. Устанавливаем флаг, чтобы остановить любые активные действия в цикле
+    Game.isShuttingDown = true; 
 
-    const playerShip = document.getElementById('player-ship');
-    if (playerShip) {
-        // Немедленно добавляем класс, который отключает все анимации.
-        playerShip.classList.add('is-exiting');
+    // --- Дальнейший код отвечает только за АНИМАЦИЮ выхода ---
+
+    if (!Game.isPlayerDying) {
+        const playerShip = document.getElementById('player-ship');
+        if (playerShip) {
+            playerShip.classList.add('is-exiting');
+            playerShip.classList.remove('visible');
+        }
     }
 
     document.body.classList.remove('no-line-transitions');
     
-    // 2. Удаляем все активные слушатели
+    // 3. Удаляем все активные слушатели
     window.removeEventListener('resize', updateLayout);
     window.removeEventListener('keydown', handleGameInput);
     window.removeEventListener('keyup', handleKeyUp);
@@ -409,34 +475,30 @@ function exitGame() {
         clearTimeout(cursorIdleTimer);
     }
     
-    // 3. Возвращаем курсор
+    // 4. Возвращаем курсор
     document.getElementById('game-cursor-blocker')?.classList.remove('is-hidden');
 
     // 4. Запускаем анимации исчезновения игровых элементов
-    document.getElementById('player-ship')?.classList.remove('visible');
     document.getElementById('stars-canvas')?.classList.remove('visible');
     document.querySelector('.game-start-prompt')?.classList.remove('visible');
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
 
-    // 5. Запускаем анимацию возврата линий, убирая CSS-классы.
-    // gameLoop продолжит работать и анимировать фон, т.к. isGameLoopActive еще true.
+    // 6. Запускаем анимацию возврата линий
     const lineReturnDelay = 100;
     setTimeout(() => { 
         document.body.classList.remove('game-mode'); 
-        // document.body.classList.remove('game-active'); // <-- УДАЛИТЕ И ЭТУ
     }, lineReturnDelay);
 
-    // 6. Показываем UI сайта после завершения анимации линий
+    // 7. Показываем UI сайта после завершения анимации линий
     const lineAnimationDuration = 500;
     const siteAppearDelay = lineReturnDelay + lineAnimationDuration;
     setTimeout(() => {
-        // *** НОВОЕ: Добавляем временный класс для синхронизации анимации появления ***
         document.body.classList.add('is-revealing');
         document.body.classList.remove('site-ui-hidden');
     }, siteAppearDelay);
 
-    // 7. Финальная очистка и ОСТАНОВКА ЦИКЛА
+    // 8. Финальная очистка (удаление DOM-элементов и сброс состояния)
     const siteAnimationDuration = 500;
     const cleanupDelay = siteAppearDelay + siteAnimationDuration;
     setTimeout(() => {
@@ -448,10 +510,9 @@ function exitGame() {
         document.querySelector('.game-start-prompt')?.remove();
         document.getElementById('game-cursor-blocker')?.remove();
         destroyGameUI();
-
         document.getElementById('damage-overlay')?.remove();
-
-        showCursor(); // <-- Переместил вызов сюда для логичности
+        
+        showCursor();
 
         if (typeof window.resetQTE === 'function') {
             window.resetQTE();
@@ -464,9 +525,11 @@ function exitGame() {
         
         document.body.classList.remove('is-revealing');
         
+        // Сбрасываем все игровые переменные в начальное состояние
         resetGameState(); 
-        isGameLoopActive = false;
 
+        // Старый флаг isGameLoopActive = false; здесь больше не нужен,
+        // так как мы установили его в самом начале.
     }, cleanupDelay);
 }
 

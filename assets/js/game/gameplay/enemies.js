@@ -130,7 +130,7 @@ function renderEnemies() {
 
 
 function checkCollisions() {
-    if (!Game.isActive || Game.enemies.length === 0 || !Game.player.el || Game.player.isInvincible) {
+    if (!Game.isActive || Game.enemies.length === 0 || !Game.player.el || Game.player.isInvincible || Game.isPlayerDying) {
         return;
     }
 
@@ -200,5 +200,16 @@ function handleEnemyResize(oldBounds) {
 
         enemy.x = Game.bounds.left + (relativeX * newGameWidth);
         enemy.y = Game.bounds.top + (relativeY * newGameHeight);
+    });
+}
+
+function startEnemyFadeOut() {
+    console.log("Fading out all enemies...");
+    Game.enemies.forEach(enemy => {
+        // Мы используем тот же класс, что и для деспавна за экраном.
+        // CSS уже настроен для этого.
+        if (enemy.el) {
+            enemy.el.classList.add('is-fading-out');
+        }
     });
 }
