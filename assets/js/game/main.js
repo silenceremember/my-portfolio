@@ -220,7 +220,7 @@ function startPlayerDeathSequence() {
     // --- НАСТРОЙКА ТАЙМИНГОВ АНИМАЦИИ ---
     const FADE_WORLD_DURATION = 100;
     const SHAKE_DURATION = 1000;
-    const PAUSE_DURATION = 1000;
+    const PAUSE_DURATION = 400;
     const SPLIT_DURATION = 500;
 
     // --- ПОСЛЕДОВАТЕЛЬНОСТЬ ДЕЙСТВИЙ (Timeline) ---
@@ -256,10 +256,11 @@ function startPlayerDeathSequence() {
     const exitTime = splitStartTime + SPLIT_DURATION;
     setTimeout(() => {
         console.log(`Death Sequence (T=${exitTime}ms): Complete. Exiting game.`);
-        // Скрываем корабль перед вызовом exitGame, чтобы избежать "мерцания"
+
         if (playerShip) {
             playerShip.style.display = 'none';
         }
+    
         exitGame();
     }, exitTime);
 }
