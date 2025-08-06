@@ -2,9 +2,10 @@
 
 const LevelData = {
     1: {
-        type: 'survival', // 'survival' - обычный уровень на время
+        type: 'survival',
         transitionDuration: 8,
-        levelDuration: 52
+        levelDuration: 500,
+        scenario: LEVEL_1_SCENARIO // <-- Ссылка на сценарий из level_1.js
     },
     2: {
         type: 'boss', // 'boss' - уровень с боссом

@@ -32,18 +32,10 @@ function handleGameInput(e) {
         
         // Если это первое нажатие клавиши движения...
         if (!hasStartedMoving) {
-            console.log("First player movement detected. Starting UI and Scenario.");
+            console.log("First player movement detected. Starting game clock and logic.");
             hasStartedMoving = true;
             hideCursor();
-
-            // Эта функция теперь сама позаботится о контейнере
-            convertPromptToEnemies();
-            
-            // Запускаем UI и сценарий
-            // --- СТРОКА УДАЛЕНА ---
-            // document.querySelector('.game-start-prompt')?.classList.remove('visible'); 
             showGameUI();
-            startScenario();
         }
         
         Game.controls[action] = true;
@@ -271,85 +263,87 @@ function startPlayerDeathSequence() {
  * ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ
  */
 function gameLoop(currentTime) {
-    // 1. Главный "рубильник". Если флаг выключен - цикл полностью останавливается.
     if (!isGameLoopActive) {
         console.log("Game loop has been terminated.");
         return;
     }
 
     if (lastTime === 0) lastTime = currentTime;
-    const deltaTime = (currentTime - lastTime) / 1000; // в секундах
+    const deltaTime = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
+    const cappedDeltaTime = Math.min(deltaTime, 0.1);
 
-    const CAPPED_DELTA_TIME_MAX = 0.1; 
-    const cappedDeltaTime = Math.min(deltaTime, CAPPED_DELTA_TIME_MAX);
+    // ======================================================
+    // === БЛОК 1: ОБНОВЛЕНИЕ СОСТОЯНИЯ (UPDATE LOGIC)    ===
+    // ======================================================
 
-    if (Game.canvas) {
-        updateStars(cappedDeltaTime);
+    // --- Обновления, которые работают почти всегда ---
+    updateStars(cappedDeltaTime);
+
+    // Анимация вылета игрока работает до начала движения
+    if (Game.player.isFlyingIn) {
+        updatePlayerFlyIn(currentTime);
     }
     
-    if (!Game.isPlayerDying && hasStartedMoving) {
-        if (typeof updateEnemies === 'function') {
-            updateEnemies(cappedDeltaTime);
-        }
-        if (typeof renderEnemies === 'function') {
-            renderEnemies();
-        }
-    }
-    
-    // 3. Основная игровая логика работает только если игра не в процессе выхода.
-    if (!Game.isShuttingDown && !Game.isPlayerDying) {
+    // --- Обновления, которые работают только после начала движения ---
+    if (hasStartedMoving) {
+        // Движение врагов
+        updateEnemies(cappedDeltaTime);
         
-        // Логика сценария и появления игрока
-        if (Game.player.isFlyingIn) {
-            updatePlayerFlyIn(currentTime);
-        }
-        
-        // Логика управления и состояния игрока
-        if (Game.isActive) {
-            updatePlayerPosition();
-            if (typeof checkCollisions === 'function') {
+        // Основная интерактивная логика (только если игра не в процессе выхода/смерти)
+        if (!Game.isShuttingDown && !Game.isPlayerDying) {
+            
+            if (Game.isActive) {
+                updatePlayerPosition();
                 checkCollisions();
             }
-        }
+            
+            updateScenario(cappedDeltaTime);
 
-        if (typeof updateScenario === 'function') {
-            updateScenario(cappedDeltaTime); 
-        }
-
-        if (Game.player.isInvincible) {
-            Game.player.invincibilityTimer -= deltaTime;
-            if (Game.player.invincibilityTimer <= 0) {
-                Game.player.isInvincible = false;
-                Game.player.invincibilityTimer = 0;
-                Game.player.el?.classList.remove('is-invincible');
-                console.log("Player is no longer invincible.");
-            }
-        }
-        
-        // Логика геймплея (потеря HP, и т.д.)
-        if (hasStartedMoving) {
-            const oldHp = Game.hp;
             if (Game.phase === 'level') {
-                const hpLossPerSecond = 2; // Пример
-                Game.hp -= hpLossPerSecond * deltaTime;
+                Game.hp -= 2 * deltaTime;
             }
+
+            if (Game.player.isInvincible) {
+                Game.player.invincibilityTimer -= deltaTime;
+                if (Game.player.invincibilityTimer <= 0) {
+                    Game.player.isInvincible = false;
+                    Game.player.invincibilityTimer = 0;
+                    Game.player.el?.classList.remove('is-invincible');
+                }
+            }
+
             if (Game.hp <= 0) {
                 Game.hp = 0;
-                console.log("GAME OVER - HP is 0");
                 startPlayerDeathSequence();
             }
-            updateHpBar(oldHp); 
-            updateLevelIndicators();
         }
     }
-        
-    // Отрисовка игрока на новой позиции
-    if (!Game.isShuttingDown) {
-        renderPlayer();
+    
+    // --- Логика движения врагов при выходе из игры (если движение еще не было начато) ---
+    // Это редкий случай, но важный: если нажать ESC до начала движения
+    if ((Game.isShuttingDown || Game.isPlayerDying) && !hasStartedMoving) {
+         // Мы не вызываем updateEnemies, чтобы они стояли на месте
+    }
+
+
+    // ======================================================
+    // === БЛОК 2: ОТРИСОВКА (RENDER)                     ===
+    // ======================================================
+
+    renderEnemies(); // Промпт виден всегда
+    
+    // Игрока отрисовываем всегда, пока он не в финальной стадии смерти (is-splitting)
+    // Флаг isPlayerDying используется для логики, а для рендера лучше проверять классы
+    if (Game.player.el && !Game.player.el.classList.contains('is-splitting')) {
+         renderPlayer();
     }
     
-    // 4. Продолжаем цикл, запрашивая следующий кадр.
+    if (hasStartedMoving && !Game.isShuttingDown && !Game.isPlayerDying) {
+        updateHpBar(Game.hp);
+        updateLevelIndicators();
+    }
+
     requestAnimationFrame(gameLoop);
 }
 
@@ -389,7 +383,6 @@ function initGame() {
     }
     initStarsCanvas(); 
     createPlayer(); 
-    createStartPrompt(); 
     createGameUI(); 
 
     const damageOverlay = document.createElement('div');
@@ -427,10 +420,12 @@ function initGame() {
     // ЭТАП 3: Появляются игровые элементы (Начинается после Этапа 2)
     const gameElementsAppearDelay = siteFadeOutDuration + lineMoveDuration;
     setTimeout(() => {
-        console.log("Step 3: Spawning game elements.");
+        console.log("Step 3: Revealing game elements.");
         document.getElementById('stars-canvas')?.classList.add('visible');
-        startPlayerFlyIn(); // Анимация вылета корабля
-        document.querySelector('.game-start-prompt')?.classList.add('visible');
+        startPlayerFlyIn();
+        if (typeof startScenario === 'function') {
+            startScenario();
+        }
     }, gameElementsAppearDelay);
     const playerFlyInDuration = 800; // Длительность анимации вылета корабля
 
@@ -464,9 +459,9 @@ function exitGame() {
     document.body.classList.remove('no-line-transitions');
     
     // 3. Удаляем все активные слушатели
-    window.removeEventListener('resize', updateLayout);
     window.removeEventListener('keydown', handleGameInput);
     window.removeEventListener('keyup', handleKeyUp);
+    window.removeEventListener('resize', updateLayout);
     window.removeEventListener('mousemove', showCursor);
     if (cursorIdleTimer) {
         clearTimeout(cursorIdleTimer);
@@ -475,13 +470,17 @@ function exitGame() {
     // 4. Возвращаем курсор
     document.getElementById('game-cursor-blocker')?.classList.remove('is-hidden');
 
-    // 4. Запускаем анимации исчезновения игровых элементов
+    // 5. Запускаем анимации исчезновения игровых элементов
     document.getElementById('stars-canvas')?.classList.remove('visible');
-    document.querySelector('.game-start-prompt')?.classList.remove('visible');
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
     document.getElementById('damage-overlay')?.classList.remove('visible');
     document.getElementById('player-ship')?.classList.remove('visible');
+
+    // Вместо мгновенного удаления, запускаем их плавное исчезновение
+    if (typeof startEnemyFadeOut === 'function') {
+        startEnemyFadeOut();
+    }
 
     // 6. Запускаем анимацию возврата линий
     const lineReturnDelay = 100;
@@ -503,10 +502,10 @@ function exitGame() {
     setTimeout(() => {
         console.log("Cleanup complete.");
         
-        // Удаляем игровые DOM-элементы
+        // Удаляем игровые DOM-элементы. Теперь, когда враги исчезли, их можно безопасно удалить.
         document.getElementById('player-ship')?.remove();
         document.getElementById('stars-canvas')?.remove();
-        document.querySelector('.game-start-prompt')?.remove();
+        document.querySelectorAll('.game-entity').forEach(el => el.remove());
         document.getElementById('game-cursor-blocker')?.remove();
         destroyGameUI();
         document.getElementById('damage-overlay')?.remove();
@@ -527,8 +526,6 @@ function exitGame() {
         // Сбрасываем все игровые переменные в начальное состояние
         resetGameState(); 
 
-        // Старый флаг isGameLoopActive = false; здесь больше не нужен,
-        // так как мы установили его в самом начале.
     }, cleanupDelay);
 }
 

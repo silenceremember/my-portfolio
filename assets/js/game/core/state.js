@@ -11,6 +11,9 @@ const Game = {
     currentLevel: 1,
     phase: 'none',
     phaseTimer: 0,
+    scenario: { // <-- НОВЫЙ ОБЪЕКТ
+        nextEventIndex: 0
+    },
 
     // --- Объекты игры ---
     player: {
@@ -54,6 +57,7 @@ function resetGameState() {
     Game.currentLevel = 1;
     Game.phase = 'none';
     Game.phaseTimer = 0;
+    Game.scenario.nextEventIndex = 0;
 
     Game.player.isInvincible = false;
     Game.player.invincibilityTimer = 0;
