@@ -97,26 +97,23 @@
 }
 /* <<< ЗАМЕНИТЕ СТАРЫЕ @keyframes player-fly-apart НА ЭТИ ДВА >>> */
 
+/* --- НОВЫЙ КОД (ПРАВИЛЬНЫЙ) --- */
 @keyframes player-split-horizontal-left {
   0% {
     transform: translateX(0);
-    opacity: 1;
   }
   100% {
-    /* Летит горизонтально влево и исчезает */
+    /* Летит горизонтально влево */
     transform: translateX(-40px);
-    opacity: 0;
   }
 }
 
 @keyframes player-split-horizontal-right {
   0% {
     transform: translateX(0);
-    opacity: 1;
   }
   100% {
-    /* Летит горизонтально вправо и исчезает */
+    /* Летит горизонтально вправо */
     transform: translateX(40px);
-    opacity: 0;
   }
 }

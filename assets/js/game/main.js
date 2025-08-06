@@ -200,16 +200,14 @@ function updateLayout() {
     }
 }
 
-// assets/js/game/main.js
-
 /**
  * Запускает новую, срежиссированную последовательность анимации смерти игрока.
  */
 function startPlayerDeathSequence() {
     if (Game.isPlayerDying || Game.isShuttingDown) return;
 
-    console.log("%cGAME OVER - Starting new death sequence...", "color: red; font-weight: bold;");
-    
+    console.log("%cGAME OVER - Starting final death sequence with pause...", "color: red; font-weight: bold;");
+
     // Устанавливаем флаги, отключаем управление
     Game.isPlayerDying = true;
     Game.isActive = false;
@@ -218,14 +216,14 @@ function startPlayerDeathSequence() {
     if (!playerShip) return;
 
     // --- НАСТРОЙКА ТАЙМИНГОВ АНИМАЦИИ ---
-    const FADE_WORLD_DURATION = 100;
-    const SHAKE_DURATION = 1000;
-    const PAUSE_DURATION = 400;
-    const SPLIT_DURATION = 500;
+    const FADE_WORLD_DURATION = 100;     // Быстрое затухание фона и UI
+    const SHAKE_DURATION = 1000;         // Длительность тряски из CSS
+    const PAUSE_BEFORE_SPLIT = 400;      // <<-- ВОТ ВАША ПАУЗА
+    const DEATH_ANIM_DURATION = 500;     // Длительность разлёта и исчезновения
 
     // --- ПОСЛЕДОВАТЕЛЬНОСТЬ ДЕЙСТВИЙ (Timeline) ---
 
-    // T=0ms: ЭТАП 1 - Мгновенное исчезновение всего, кроме корабля.
+    // T=0ms: ЭТАП 1 - Фокусируем внимание на корабле
     console.log("Death Sequence (T=0ms): Fading out world...");
     document.querySelector('.game-ui-top')?.classList.remove('visible');
     document.querySelector('.game-ui-bottom')?.classList.remove('visible');
@@ -233,34 +231,37 @@ function startPlayerDeathSequence() {
     const damageOverlay = document.getElementById('damage-overlay');
     if (damageOverlay) damageOverlay.style.opacity = '0';
     if (typeof startEnemyFadeOut === 'function') {
-        startEnemyFadeOut(); // Эта функция должна быть быстрой
+        startEnemyFadeOut();
     }
 
-    // T=100ms: ЭТАП 2 - Тряска корабля (начинается после исчезновения мира)
+    // T=100ms: ЭТАП 2 - Тряска корабля
     const shakeStartTime = FADE_WORLD_DURATION;
     setTimeout(() => {
         console.log(`Death Sequence (T=${shakeStartTime}ms): Shaking ship...`);
         playerShip.classList.add('is-dying');
     }, shakeStartTime);
 
-    // T=1100ms: ЭТАП 3 - Разлёт корабля (начинается после тряски и паузы)
-    const splitStartTime = shakeStartTime + SHAKE_DURATION + PAUSE_DURATION;
+    // T=1500ms (100 + 1000 + 400): ЭТАП 3 - Одновременный разлёт и исчезновение (ПОСЛЕ ПАУЗЫ)
+    const splitStartTime = shakeStartTime + SHAKE_DURATION + PAUSE_BEFORE_SPLIT;
     setTimeout(() => {
-        console.log(`Death Sequence (T=${splitStartTime}ms): Splitting ship...`);
-        // Убираем тряску и добавляем разлёт, чтобы анимации не конфликтовали
+        console.log(`Death Sequence (T=${splitStartTime}ms): Splitting and fading ship...`);
         playerShip.classList.remove('is-dying');
+
+        // Запускаем анимацию разлёта осколков
         playerShip.classList.add('is-splitting');
+        
+        // ОДНОВРЕМЕННО запускаем анимацию исчезновения всего корабля
+        playerShip.classList.remove('visible'); 
+
     }, splitStartTime);
 
-    // T=1900ms: ЭТАП 4 - Финальная очистка и выход (после завершения ВСЕХ этапов)
-    const exitTime = splitStartTime + SPLIT_DURATION;
+    // T=2000ms (1500 + 500): ЭТАП 4 - Финальная очистка и выход
+    const exitTime = splitStartTime + DEATH_ANIM_DURATION + 100; // +100ms для надежности
     setTimeout(() => {
-        console.log(`Death Sequence (T=${exitTime}ms): Complete. Exiting game.`);
-
-        if (playerShip) {
-            playerShip.style.display = 'none';
-        }
-    
+        console.log(`Death Sequence (T=${exitTime}ms): Visuals complete. Exiting game.`);
+        
+        // Визуальная часть смерти завершена.
+        // Теперь запускаем стандартную процедуру выхода из игры.
         exitGame();
     }, exitTime);
 }
