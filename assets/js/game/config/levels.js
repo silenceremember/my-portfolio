@@ -27,5 +27,5 @@ const LevelData = {
         type: 'boss',
         transitionDuration: 8,
         levelDuration: Infinity
-    }
+    },
 };

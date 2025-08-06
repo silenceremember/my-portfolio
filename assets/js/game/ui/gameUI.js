@@ -4,36 +4,42 @@
  * Создает все DOM-элементы для игрового интерфейса (HUD).
  */
 function createGameUI() {
-    // --- Создание верхнего UI (HP) ---
+    // --- Создание верхнего UI (HP) - без изменений ---
     const topUI = document.createElement('div');
     topUI.className = 'game-ui-top';
-    
     const hpBarContainer = document.createElement('div');
     hpBarContainer.id = 'hp-bar-container';
-
+    
     if (!Game.ui.hpBarSegments) Game.ui.hpBarSegments = [];
+    // Очищаем на случай повторного вызова (хотя не должно быть)
+    Game.ui.hpBarSegments = []; 
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) { // HP всегда из 5 сегментов (100 / 20)
         const segmentFill = document.createElement('div');
         segmentFill.className = 'hp-segment-fill';
-        
         hpBarContainer.appendChild(segmentFill);
-        
         Game.ui.hpBarSegments.push(segmentFill);
     }
     
     topUI.appendChild(hpBarContainer);
     document.body.appendChild(topUI);
 
-    // --- Создание нижнего UI (Уровни) ---
+    // --- ИЗМЕНЕНИЕ: Создание нижнего UI (Уровни) ---
     const bottomUI = document.createElement('div');
     bottomUI.className = 'game-ui-bottom';
     const levelIndicators = document.createElement('div');
     levelIndicators.id = 'level-indicators';
     
     if (!Game.ui.levelDots) Game.ui.levelDots = [];
+    // Очищаем массив перед заполнением
+    Game.ui.levelDots = []; 
 
-    for (let i = 0; i < 5; i++) {
+    // Получаем реальное количество уровней из LevelData
+    const totalLevels = Object.keys(LevelData).length;
+    console.log(`Creating level indicators for ${totalLevels} levels.`);
+
+    // Создаем столько точек, сколько у нас уровней
+    for (let i = 0; i < totalLevels; i++) {
         const dot = document.createElement('div');
         dot.className = 'level-dot';
         levelIndicators.appendChild(dot);
