@@ -13,6 +13,7 @@ const TITLE_HEIGHT = 42;
 const ESC_WIDTH = 72;
 const ESC_HEIGHT = 34;
 const CONTROL_SECTION_WIDTH = 273;
+const LEVEL_TITLE_WIDTH = 220;
 
 const LEVEL_1_SCENARIO = [
     // === СОБЫТИЯ НА 0 СЕКУНДЕ: Создание "промпта" ===
@@ -132,6 +133,24 @@ const LEVEL_1_SCENARIO = [
             position: { x: 0.5, y: 0.69 },
             size: { width: ESC_WIDTH, height: ESC_HEIGHT },
             visual: { content: 'ESC', classList: ['prompt-key', 'key-esc'] }
+        }
+    },
+
+    // ==========================================================
+    // === НОВЫЙ ВРАГ: Появляется на 8-й секунде фазы 'level' ===
+    // ==========================================================
+    {
+        time: 3,
+        type: 'spawn',
+        config: {
+            blueprint: 'BASE_THREAT', // Используем тот же базовый чертеж
+            position: { x: 0.5, y: 0 }, // Начинает чуть выше экрана для плавного вылета
+            size: { width: LEVEL_TITLE_WIDTH, height: TITLE_HEIGHT },
+            visual: {
+                content: 'ЗАЛУПА',
+                // Можно использовать тот же класс, что и у других заголовков
+                classList: ['prompt-title'] 
+            }
         }
     },
 ];

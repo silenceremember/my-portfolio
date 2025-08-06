@@ -7,10 +7,14 @@
 function startScenario() {
     console.log(`%c--- Starting scenario for Level ${Game.currentLevel} ---`, "color: yellow; font-weight: bold;");
 
-    // Сразу исполняем все события с time: 0 (создаем "промпт")
+    // Сбрасываем таймер и указатель события для НОВОГО уровня
+    Game.phaseTimer = 0;
+    Game.scenario.nextEventIndex = 0;
+
+    // Исполняем события с time: 0
     executeInitialScenarioEvents();
 
-    // Переводим игру в начальную фазу. Таймер пока стоит на нуле.
+    // Переводим игру в начальную фазу
     startTransitionPhase();
 }
 
@@ -39,43 +43,42 @@ function executeInitialScenarioEvents() {
 
 
 /**
- * Движок сценария. Вызывается из gameLoop только ПОСЛЕ начала движения.
- * Управляет сменой фаз и исполнением событий.
+ * Движок сценария. Теперь он работает в обеих фазах (transition и level)
+ * и использует единый сквозной таймер для всего уровня.
  * @param {number} deltaTime - Время, прошедшее с прошлого кадра.
  */
 function updateScenario(deltaTime) {
-    // Эта функция теперь отвечает за ВСЮ логику времени и фаз
+    // Движок работает, только если игрок начал движение
+    if (!hasStartedMoving) return;
+
+    // ЕДИНЫЙ таймер для всего уровня.
     Game.phaseTimer += deltaTime;
 
     const currentLevelData = LevelData[Game.currentLevel];
     if (!currentLevelData) return;
 
-    // Логика для каждой фазы
-    switch (Game.phase) {
-        case 'transition':
-            // Здесь можно добавить анимации для перехода
-            if (Game.phaseTimer >= currentLevelData.transitionDuration) {
-                startLevelPhase();
-            }
-            break;
-        
-        case 'level':
-            const scenario = currentLevelData.scenario;
-            // Исполняем события из сценария
-            while (
-                Game.scenario.nextEventIndex < scenario.length &&
-                scenario[Game.scenario.nextEventIndex].time <= Game.phaseTimer
-            ) {
-                const event = scenario[Game.scenario.nextEventIndex];
-                executeScenarioEvent(event);
-                Game.scenario.nextEventIndex++;
-            }
+    // --- 1. Логика смены фаз (основана на едином таймере) ---
+    if (Game.phase === 'transition' && Game.phaseTimer >= currentLevelData.transitionDuration) {
+        startLevelPhase(); // Эта функция просто меняет флаг, не сбрасывая таймер
+    }
 
-            // Проверяем условие завершения уровня
-            if (currentLevelData.type === 'survival' && Game.phaseTimer >= currentLevelData.levelDuration) {
-                endCurrentLevel();
-            }
-            break;
+    // --- 2. Логика исполнения событий сценария (работает всегда) ---
+    const scenario = currentLevelData.scenario;
+    if (!scenario) return;
+
+    // Проверяем события по единому таймеру
+    while (
+        Game.scenario.nextEventIndex < scenario.length &&
+        scenario[Game.scenario.nextEventIndex].time <= Game.phaseTimer
+    ) {
+        const event = scenario[Game.scenario.nextEventIndex];
+        executeScenarioEvent(event);
+        Game.scenario.nextEventIndex++;
+    }
+
+    // --- 3. Проверка на завершение уровня ---
+    if (currentLevelData.type === 'survival' && Game.phaseTimer >= (currentLevelData.transitionDuration + currentLevelData.levelDuration)) {
+        endCurrentLevel();
     }
 }
 
@@ -138,16 +141,11 @@ function endCurrentLevel() {
 function startTransitionPhase() {
     console.log("Phase changed to: TRANSITION");
     Game.phase = 'transition';
-    Game.phaseTimer = 0; // Сбрасываем таймер для новой фазы
-    // Любые визуальные эффекты для transition начинаются здесь
+    // Таймер больше не сбрасывается здесь. Он сбрасывается только в самом начале уровня.
 }
 
 function startLevelPhase() {
     console.log("Phase changed to: LEVEL (HP drain is ON)");
     Game.phase = 'level';
-    Game.phaseTimer = 0; // Сбрасываем таймер для новой фазы (очень важно!)
-    
-    // ВАЖНО: События с time: 0 уже были исполнены.
-    // Таймер фазы level начинается с 0, и updateScenario продолжит с того места,
-    // где остановился executeInitialScenarioEvents.
+    // Таймер НЕ сбрасывается. Он продолжает тикать.
 }
