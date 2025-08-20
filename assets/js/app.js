@@ -1,5 +1,7 @@
 // assets/js/app.js
 
+window.systemState = 'SITE';
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Application starting...");
 

@@ -13,7 +13,6 @@ const keyMap = {
 let isGameLoopActive = false;
 window.hasStartedMoving = false;
 window.lastTime = 0;
-let systemState = 'SITE';
 
 /**
  * ОСНОВНОЙ обработчик нажатия клавиш.
@@ -354,12 +353,12 @@ function gameLoop(currentTime) {
 
 function initGame() {
     // 1. ПРОВЕРКА СОСТОЯНИЯ: Можно войти в игру ТОЛЬКО с сайта.
-    if (systemState !== 'SITE') {
-        console.warn(`Cannot init game from state: ${systemState}. Aborting.`);
+    if (window.systemState !== 'SITE') {
+        console.warn(`Cannot init game from state: ${window.systemState}. Aborting.`);
         return false;
     }
-    systemState = 'ENTERING_GAME'; // <-- Переключаем состояние
-    console.log(`System state changed to: ${systemState}`);
+    window.systemState = 'ENTERING_GAME'; // <-- Переключаем состояние
+    console.log(`System state changed to: ${window.systemState}`);
 
     // 1. Все проверки (на запуск, на размер)
     if (document.body.classList.contains('game-mode') || Game.isShuttingDown) {
@@ -445,8 +444,8 @@ function initGame() {
         Game.isActive = true;
         window.addEventListener('keydown', handleGameInput);
         window.addEventListener('keyup', handleKeyUp);
-        systemState = 'GAME_ACTIVE'; // <-- Переключаем состояние
-        console.log(`System state changed to: ${systemState}`);
+        window.systemState = 'GAME_ACTIVE'; // <-- Переключаем состояние
+        console.log(`System state changed to: ${window.systemState}`);
     }, timeUntilReady);
 
     return true;
@@ -458,12 +457,12 @@ function initGame() {
 
 function exitGame() {
 
-    if (systemState !== 'GAME_ACTIVE') {
-        console.warn(`Cannot exit game from state: ${systemState}. Aborting.`);
+    if (window.systemState !== 'GAME_ACTIVE') {
+        console.warn(`Cannot exit game from state: ${window.systemState}. Aborting.`);
         return;
     }
-    systemState = 'EXITING_GAME'; // <-- Переключаем состояние
-    console.log(`System state changed to: ${systemState}`);
+    window.systemState = 'EXITING_GAME'; // <-- Переключаем состояние
+    console.log(`System state changed to: ${window.systemState}`);
 
     // 1. Проверка на повторный вызов
     if (Game.isShuttingDown || !document.body.classList.contains('game-mode')) {
@@ -544,8 +543,8 @@ function exitGame() {
         
         // Сбрасываем все игровые переменные в начальное состояние
         resetGameState(); 
-        systemState = 'SITE'; // <-- Переключаем состояние
-        console.log(`System state changed to: ${systemState}`);
+        window.systemState = 'SITE'; // <-- Переключаем состояние
+        console.log(`System state changed to: ${window.systemState}`);
 
     }, cleanupDelay);
 }

@@ -2,13 +2,12 @@
 
 function initSecretTerminal() {
     const container = document.getElementById('secret-terminal-container');
-    if (!container) return;
+    if (!container) {
+        console.error("Secret terminal container not found!");
+        return () => {}; // Возвращаем пустую функцию, чтобы избежать ошибок
+    }
 
-    // --- Машина состояний для терминала ---
-    let terminalState = 'OFF'; // Состояния: OFF, ENTERING, ACTIVE, EXITING
     let isTyping = false;
-
-    // --- Константы и данные для симуляции ---
     const username = `User-${Math.random().toString(16).substr(2, 4).toUpperCase()}`;
     const simulatedMessages = [
         { delay: 500, name: 'SysOp', text: 'Booting virtual shell... OK' },
@@ -19,11 +18,13 @@ function initSecretTerminal() {
     ];
 
     // --- Вспомогательные функции ---
+
     const delay = ms => new Promise(res => setTimeout(res, ms));
     
-    async function typeLine(lineElement, text, speed = 50) {
+    async function typeLine(lineElement, text, speed = 40) {
         isTyping = true;
         for (const char of text) {
+            if (window.systemState !== 'TERMINAL_ACTIVE') break; // Прерываем печать, если пользователь вышел
             lineElement.textContent += char;
             await delay(speed);
         }
@@ -31,7 +32,7 @@ function initSecretTerminal() {
     }
 
     async function addLine(msg) {
-        if (terminalState !== 'ACTIVE') return;
+        if (window.systemState !== 'TERMINAL_ACTIVE') return;
         const output = container.querySelector('.terminal-output');
         if (!output) return;
 
@@ -47,15 +48,15 @@ function initSecretTerminal() {
 
     async function startSimulation() {
         for (const msg of simulatedMessages) {
-            if (terminalState !== 'ACTIVE') return;
+            if (window.systemState !== 'TERMINAL_ACTIVE') return;
             await delay(msg.delay);
-            if (terminalState !== 'ACTIVE') return;
+            if (window.systemState !== 'TERMINAL_ACTIVE') return;
             await addLine(msg);
         }
     }
 
     function handleUserInput(inputElement) {
-        if (isTyping || terminalState !== 'ACTIVE') return;
+        if (isTyping || window.systemState !== 'TERMINAL_ACTIVE') return;
         const text = inputElement.value.trim();
         if (text) {
             addLine({ name: username, text: text });
@@ -65,10 +66,10 @@ function initSecretTerminal() {
 
     // --- Функция для расчета и установки границ ---
     function updateTerminalLayout() {
-        if (terminalState === 'OFF' || terminalState === 'EXITING') return;
-
-        // Используем те же размеры, что и в игре, для консистентности
-        const TERMINAL_WIDTH = 1280;
+        // Выполняем расчет, только если мы в одном из состояний терминала
+        if (String(window.systemState).indexOf('TERMINAL') === -1) return;
+        
+        const TERMINAL_WIDTH = 1280; 
         const TERMINAL_HEIGHT = 720;
         
         const offsetX = (window.innerWidth - TERMINAL_WIDTH) / 2;
@@ -82,25 +83,20 @@ function initSecretTerminal() {
     }
 
     // --- Функции управления Входом/Выходом ---
-
     function enterTerminal() {
-        if (terminalState !== 'OFF') return;
-        terminalState = 'ENTERING';
-        console.log(`Terminal state changed to: ${terminalState}`);
-
-        const body = document.body;
-        body.classList.add('no-line-transitions');
-
-        updateTerminalLayout(); // Рассчитываем положение рамок ДО анимации
+        if (window.systemState !== 'SITE') return;
+        window.systemState = 'ENTERING_TERMINAL';
+        console.log(`System state changed to: ${window.systemState}`);
         
-        // Добавляем слушатель ресайза ТОЛЬКО когда терминал активен
+        const body = document.body;
+        
+        updateTerminalLayout(); // Рассчитываем положение ДО анимации
         window.addEventListener('resize', updateTerminalLayout);
 
-        // --- Запускаем последовательность анимаций, как в initGame() ---
+        // Запускаем последовательность анимаций, как в initGame()
         body.classList.add('site-ui-hidden');
         
         setTimeout(() => {
-            body.classList.remove('no-line-transitions');
             body.classList.add('terminal-active'); // Этот класс сдвинет рамки
         }, 500);
 
@@ -116,28 +112,25 @@ function initSecretTerminal() {
             container.classList.add('visible');
             
             const input = container.querySelector('.terminal-input');
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') handleUserInput(input);
-            });
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') handleUserInput(input); });
             setTimeout(() => input.focus(), 50);
 
             document.addEventListener('keydown', handleEscKey);
-            terminalState = 'ACTIVE';
-            console.log(`Terminal state changed to: ${terminalState}`);
+            window.systemState = 'TERMINAL_ACTIVE';
+            console.log(`System state changed to: ${window.systemState}`);
             startSimulation();
         }, 1000); // 500ms на скрытие UI + 500ms на сдвиг рамок
     }
     
     function exitTerminal() {
-        if (terminalState !== 'ACTIVE') return;
-        terminalState = 'EXITING';
-        console.log(`Terminal state changed to: ${terminalState}`);
+        if (window.systemState !== 'TERMINAL_ACTIVE') return;
+        window.systemState = 'EXITING_TERMINAL';
+        console.log(`System state changed to: ${window.systemState}`);
 
-        // --- Запускаем последовательность выхода, как в exitGame() ---
         const body = document.body;
-        
+
         document.removeEventListener('keydown', handleEscKey);
-        window.removeEventListener('resize', updateTerminalLayout); // Убираем слушатель
+        window.removeEventListener('resize', updateTerminalLayout);
         
         container.classList.remove('visible');
         
@@ -152,26 +145,26 @@ function initSecretTerminal() {
 
         setTimeout(() => {
             body.classList.remove('is-revealing');
-            container.innerHTML = '';
-            terminalState = 'OFF';
-            console.log(`Terminal state changed to: ${terminalState}`);
+            container.innerHTML = ''; // Очищаем содержимое
+            window.systemState = 'SITE';
+            console.log(`System state changed to: ${window.systemState}`);
         }, 1100); // 600ms + 500ms на появление UI
     }
 
-    const handleEscKey = (e) => {
+    const handleEscKey = e => { 
         if (e.key === 'Escape') {
             exitTerminal();
-        }
+        } 
     };
     
-    // --- Главная функция-переключатель ---
+    // --- Главная функция-переключатель, которую вернет инициализатор ---
     function toggleTerminal() {
-        if (terminalState === 'OFF') {
+        if (window.systemState === 'SITE') {
             enterTerminal();
-        } else if (terminalState === 'ACTIVE') {
+        } else if (window.systemState === 'TERMINAL_ACTIVE') {
             exitTerminal();
         }
-        // В состояниях ENTERING и EXITING ничего не делаем, чтобы не сломать анимации
+        // В состояниях ENTERING... и EXITING... вызовы игнорируются, предотвращая баги
     }
 
     return toggleTerminal;
