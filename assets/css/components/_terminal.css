@@ -1,16 +1,17 @@
 /* assets/css/components/_terminal.css */
 
-/* Главный контейнер терминала */
+/* Главный контейнер терминала - ПРОЗРАЧНЫЙ */
 #secret-terminal-container {
     position: fixed;
-    /* Теперь он находится ВНУТРИ рамок */
+    /* Позиционируется внутри рамок */
     top: var(--terminal-border-top);
     left: var(--terminal-border-left);
     right: var(--terminal-border-right);
     bottom: var(--terminal-border-bottom);
     
     background-color: transparent; 
-    color: #00FF00;
+    /* Используем АКЦЕНТНЫЙ цвет из ваших переменных */
+    color: var(--red-accent);
     font-family: 'Courier New', Courier, monospace;
     z-index: 500; /* Ниже рамок */
     
@@ -19,8 +20,7 @@
     
     opacity: 0;
     visibility: hidden;
-    /* Плавность появления самого терминала */
-    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; 
+    transition: opacity 0.5s ease-in-out;
     
     overflow-y: auto;
     overflow-x: hidden;
@@ -31,22 +31,6 @@
     visibility: visible;
 }
 
-/* Эффект scanlines, чтобы заполнить фон */
-#secret-terminal-container::after {
-    content: ' ';
-    display: block;
-    position: absolute;
-    top: -20px; /* Компенсируем padding */
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-    background-size: 100% 4px;
-    z-index: -1; /* Позади текста */
-    pointer-events: none;
-}
-
-
 /* --- Стили для контента терминала --- */
 
 .terminal-output { 
@@ -56,11 +40,13 @@
 .terminal-line { 
     margin-bottom: 5px; 
     word-break: break-all; 
-    min-height: 1.2em; /* Предотвращает "прыжки" при печати */
+    min-height: 1.2em;
 }
 
+/* Имя пользователя делаем менее ярким, используя цвет текста темы */
 .terminal-line .username { 
-    color: #888; 
+    color: var(--text-color);
+    opacity: 0.6;
 }
 
 .terminal-input-line { 
@@ -76,7 +62,8 @@
     flex-grow: 1; 
     background: none; 
     border: none; 
-    color: #00FF00; 
+    /* Цвет ввода - тоже акцентный */
+    color: var(--red-accent); 
     font-family: inherit; 
     font-size: 1em; 
 }
@@ -84,17 +71,17 @@
     outline: none; 
 }
 
-/* Мигающий курсор */
+/* Курсор - тоже акцентный */
 .terminal-cursor { 
     display: inline-block; 
     width: 10px; 
     height: 1.2em; 
-    background: #00FF00; 
+    background: var(--red-accent); 
     margin-left: 5px; 
     animation: blink 1s step-end infinite; 
 }
 
 @keyframes blink { 
     from, to { background: transparent; } 
-    50% { background: #00FF00; } 
+    50% { background: var(--red-accent); } 
 }
