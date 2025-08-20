@@ -30,3 +30,6 @@
 @import url('game/_scene.css');
 @import url('game/_ui.css');
 @import url('game/_objects.css');
+
+/* assets/css/style.css */
+@import url('components/_terminal.css');

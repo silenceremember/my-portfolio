@@ -5,7 +5,7 @@ body::before, body::after {
     content: '';
     position: fixed;
     background-color: var(--border-color);
-    z-index: 101;
+    z-index: 501;
     height: 1px;
     /* ВСЕГДА растянуты на всю ширину */
     left: 0;
@@ -25,16 +25,6 @@ body::after {
     left: 0;
     right: 0;
 }
-/* В режиме игры: */
-body.game-mode::before {
-    /* --- ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЕ ИМЕНА --- */
-    top: var(--game-border-top);
-}
-body.game-mode::after {
-    /* --- ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЕ ИМЕНА --- */
-    bottom: var(--game-border-bottom);
-    top: auto;
-}
 
 
 /* --- ВЕРТИКАЛЬНЫЕ ЛИНИИ --- */
@@ -42,7 +32,7 @@ body.game-mode::after {
     position: fixed;
     width: 1px;
     background-color: var(--border-color);
-    z-index: 150;
+    z-index: 501;
     pointer-events: none;
     transition: top 0.5s ease, bottom 0.5s ease, left 0.5s ease, right 0.5s ease;
 }
@@ -66,16 +56,37 @@ body.no-line-transitions .vertical-guide-line {
     transition: none;
 }
 
-/* В режиме игры: */
-body.game-mode .vertical-guide-line {
-    height: auto; /* Сбрасываем height */
+/* ====================================================== */
+/* ===         РАЗДЕЛЬНЫЕ ПРАВИЛА ДЛЯ РЕЖИМОВ         === */
+/* ====================================================== */
+
+/* --- ПРАВИЛА ТОЛЬКО ДЛЯ РЕЖИМА ИГРЫ --- */
+body.game-mode::before {
+    top: var(--game-border-top);
+}
+body.game-mode::after {
+    bottom: var(--game-border-bottom);
+    top: auto; /* Важное правило для корректного расчета */
 }
 body.game-mode .vertical-guide-line.left {
     left: var(--game-border-left);
-    right: auto;
 }
 body.game-mode .vertical-guide-line.right {
-    /* --- ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЕ ИМЕНА --- */
-    right: var(--game-border-right); /* Используем right, а не left */
-    left: auto;
+    right: var(--game-border-right);
+}
+
+
+/* --- ПРАВИЛА ТОЛЬКО ДЛЯ РЕЖИМА ТЕРМИНАЛА --- */
+body.terminal-active::before {
+    top: var(--terminal-border-top);
+}
+body.terminal-active::after {
+    bottom: var(--terminal-border-bottom);
+    top: auto; /* Важное правило для корректного расчета */
+}
+body.terminal-active .vertical-guide-line.left {
+    left: var(--terminal-border-left);
+}
+body.terminal-active .vertical-guide-line.right {
+    right: var(--terminal-border-right);
 }

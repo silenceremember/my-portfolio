@@ -95,18 +95,25 @@ function initQTE(successCallback) {
 
 
     function onKonamiSuccess() {
-        console.log("Konami Code Activated! Launching game mechanics...");
+        console.log("Konami Code Activated! Triggering global handler...");
         
-        // --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
-        // Просто вызываем колбэк. Никаких проверок или сбросов.
-        if (typeof successCallback === 'function') {
-            successCallback();
+        // Вызываем наш глобальный диспетчер. Он сам знает, что делать.
+        if (window.konamiHandler && typeof window.konamiHandler.trigger === 'function') {
+            window.konamiHandler.trigger();
+        } else {
+            console.error("Konami handler is not defined on the window object!");
         }
     }
 
     window.addEventListener('keydown', (event) => {
         const section1 = document.getElementById('section-1');
+        // Проверяем, активна ли секция и не заблокирован ли ввод
         if (!qteWrapper || !section1 || !section1.classList.contains('active') || isQteLocked) {
+            return;
+        }
+
+        // Проверяем, не происходит ли ввод в чате
+        if (document.activeElement.tagName === 'INPUT') {
             return;
         }
 
@@ -117,8 +124,12 @@ function initQTE(successCallback) {
             userInputPosition++;
             if (userInputPosition === konamiCodeSequence.length) {
                 onKonamiSuccess();
+                // Сбрасываем QTE после успешного ввода, чтобы можно было ввести снова
+                // (например, чтобы закрыть чат и снова открыть)
+                setTimeout(() => resetQTE(), 500); 
             }
         } else {
+            // Сбрасываем прогресс при любой другой клавише, если ввод уже начат
             if (userInputPosition > 0) {
                  triggerInputError(userInputPosition - 1);
             }

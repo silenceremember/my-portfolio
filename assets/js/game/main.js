@@ -551,3 +551,4 @@ function exitGame() {
 }
 
 window.initGame = initGame;
+window.updateLayout = updateLayout;

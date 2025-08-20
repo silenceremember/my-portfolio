@@ -20,6 +20,10 @@ body.game-mode {
     /* Технический класс для JS */
 }
 
+body.terminal-active {
+    background-color: var(--black);
+}
+
 body.game-active {
     -webkit-user-select: none;
     user-select: none;
