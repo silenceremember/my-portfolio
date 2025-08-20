@@ -147,7 +147,7 @@ const LEVEL_1_SCENARIO = [
             position: { x: 0.5, y: 0 }, // Начинает чуть выше экрана для плавного вылета
             size: { width: LEVEL_TITLE_WIDTH, height: TITLE_HEIGHT },
             visual: {
-                content: 'ЗАЛУПА',
+                content: 'УРОВЕНЬ 1',
                 // Можно использовать тот же класс, что и у других заголовков
                 classList: ['prompt-title'] 
             }
