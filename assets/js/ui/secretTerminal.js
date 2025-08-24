@@ -362,6 +362,7 @@ function getSecretTerminalHandlers() {
         minWindowWidth: 800,
         minWindowHeight: 600,
         bodyClass: 'terminal-active',
-        borderVarPrefix: 'terminal'
+        borderVarPrefix: 'terminal',
+        keepCursorVisible: true
     };
 }

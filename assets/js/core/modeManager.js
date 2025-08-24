@@ -122,9 +122,16 @@ function initModeManager(config) {
         if (typeof currentModeConfig.onPrepare === 'function') {
             currentModeConfig.onPrepare();
         }
-        createCursorBlocker();
-        window.hideModeCursor(); // Требование №1: Сразу скрываем курсор
-        window.addEventListener('mousemove', showModeCursorTemporarily);
+        
+        if (currentModeConfig.keepCursorVisible) {
+            // Если курсор должен быть виден, мы ничего не делаем с ним.
+            // Стандартный курсор системы будет работать.
+        } else {
+            // Иначе, включаем логику скрытия (для Signal Tale)
+            createCursorBlocker();
+            window.hideModeCursor();
+            window.addEventListener('mousemove', showModeCursorTemporarily);
+        }
         window.addEventListener('resize', updateLayout);
         document.addEventListener('keydown', handleEscKey);
         document.body.classList.add('site-ui-hidden');
@@ -159,8 +166,6 @@ function initModeManager(config) {
 
         document.removeEventListener('keydown', handleEscKey);
         window.removeEventListener('resize', updateLayout);
-        window.removeEventListener('mousemove', showModeCursorTemporarily);
-        if (cursorIdleTimer) clearTimeout(cursorIdleTimer); // Дополнительная очистка таймера
         
         if (typeof currentModeConfig.onExit === 'function') {
             await currentModeConfig.onExit();
@@ -181,6 +186,8 @@ function initModeManager(config) {
         transitionTimers.cleanup = setTimeout(async () => {
             document.body.classList.remove('is-revealing');
             removeCursorBlocker();
+            window.removeEventListener('mousemove', showModeCursorTemporarily);
+            if (cursorIdleTimer) clearTimeout(cursorIdleTimer);
             
             // 1. ЖДЕМ ЗАВЕРШЕНИЯ ОЧИСТКИ (для будущей совместимости)
             if (typeof currentModeConfig.onCleanup === 'function') {
