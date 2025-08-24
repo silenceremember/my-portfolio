@@ -135,15 +135,15 @@ function initModeManager(config) {
         transitionTimers.activation = setTimeout(async () => {
             document.body.classList.add('no-line-transitions');
             
-            // 1. ЖДЕМ ПОЛНОГО ЗАВЕРШЕНИЯ АКТИВАЦИИ
-            if (typeof currentModeConfig.onActivate === 'function') {
-                await currentModeConfig.onActivate();
-            }
-
-            // 2. ТОЛЬКО ПОСЛЕ ЭТОГО меняем состояние и снимаем блокировку
+            // 1. Считаем режим "АКТИВНЫМ" и снимаем блокировку ДО начала интро.
             window.systemState = `${modeName.toUpperCase()}_ACTIVE`;
             console.log(`System state changed to: ${window.systemState}`);
             isTransitioning = false;
+
+            // 2. Теперь запускаем долгое интро. Пользователь уже может нажать ESC.
+            if (typeof currentModeConfig.onActivate === 'function') {
+                await currentModeConfig.onActivate();
+            }
         }, 1000); 
     }
 

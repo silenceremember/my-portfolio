@@ -13,13 +13,22 @@ function getSecretTerminalHandlers() {
     const STORAGE_KEY = 'secretTerminalMessageSent';
     const storage = TEST_MODE ? sessionStorage : localStorage; 
     
-    let isAnimationActive = false;
-    let isPrintingLine = false;  // НОВЫЙ ФЛАГ: true, пока печатается ЛЮБАЯ часть строки
-    let isSkipRequested = false;   // Флаг для скипа ПЕЧАТИ
-    let skipDelayResolver = null;  // Функция для скипа ПАУЗЫ
+    let isAnimationActive, isPrintingLine, isSkipRequested, skipDelayResolver, username, hasSentMessage;
 
-    let username = '';
-    let hasSentMessage = storage.getItem(STORAGE_KEY) === 'true';
+    function resetStateAndListeners() {
+        console.log("--- Resetting ALL state and listeners for Secret Terminal. ---");
+        isAnimationActive = false;
+        isPrintingLine = false;
+        isSkipRequested = false;
+        skipDelayResolver = null;
+        hasSentMessage = storage.getItem(STORAGE_KEY) === 'true';
+        username = `User-${Math.random().toString(16).substr(2, 4).toUpperCase()}`;
+
+        // Гарантированно удаляем все слушатели, чтобы избежать дублирования
+        document.removeEventListener('mousedown', handleSkipRequest);
+        document.removeEventListener('keydown', handleSkipRequest);
+        document.removeEventListener('keydown', handleImmediateExit);
+    }
 
     const simulatedMessages = [
         { name: 'User-BEEF', text: 'Anyone listening?' },
@@ -122,19 +131,20 @@ function getSecretTerminalHandlers() {
     const handleSkipRequest = (e) => {
         if (e.type === 'mousedown' || e.key === 'Enter') {
             e.preventDefault();
-            // Если сейчас печатается ЛЮБАЯ часть строки - скипаем ПЕЧАТЬ
-            if (isPrintingLine) {
-                isSkipRequested = true;
-            // Иначе, если сейчас идет пауза между строками - скипаем ПАУЗУ
-            } else if (skipDelayResolver) {
-                skipDelayResolver();
-            }
+            if (isPrintingLine) { isSkipRequested = true; } 
+            else if (skipDelayResolver) { skipDelayResolver(); }
+        }
+    };
+
+    const handleImmediateExit = (e) => {
+        if (e.key === 'Escape') {
+            e.preventDefault(); e.stopPropagation();
+            if (window.actionHandler) { window.actionHandler.trigger(); }
         }
     };
 
     function prepareSecretTerminal() {
-        hasSentMessage = storage.getItem(STORAGE_KEY) === 'true';
-        username = `User-${Math.random().toString(16).substr(2, 4).toUpperCase()}`;
+        resetStateAndListeners(); // Используем новую, более мощную функцию сброса
         
         container.innerHTML = `
             <div class="terminal-output"></div>
@@ -147,9 +157,11 @@ function getSecretTerminalHandlers() {
                 </div>
             </div>
         `;
-        
+        const input = container.querySelector('.terminal-input');
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') handleUserInput(input); });
+        input.addEventListener('input', () => updateCharCounter(input));
+
         if (hasSentMessage) {
-            const input = container.querySelector('.terminal-input');
             lockInput(input);
         }
     }
@@ -157,7 +169,6 @@ function getSecretTerminalHandlers() {
     function activateSecretTerminal() {
         return new Promise(async (resolve) => {
             isAnimationActive = true;
-            isSkipRequested = false;
             container.classList.add('visible');
             const inputLine = container.querySelector('.terminal-input-line');
             const input = container.querySelector('.terminal-input');
@@ -165,29 +176,42 @@ function getSecretTerminalHandlers() {
 
             document.addEventListener('mousedown', handleSkipRequest);
             document.addEventListener('keydown', handleSkipRequest);
+            document.addEventListener('keydown', handleImmediateExit);
 
-            // --- Питч с использованием skippableDelay ---
+            // Питч с "проверками на жизнь" после каждого await
             await addLine({ text: '// ESC TO SEVER //' }, { isHint: true });
+            if (!isAnimationActive) return resolve();
             await skippableDelay(1000);
+            if (!isAnimationActive) return resolve();
 
             await addLine({ text: 'LMB/ENTER > NEXT' }, { isHint: true });
+            if (!isAnimationActive) return resolve();
             await skippableDelay(1500);
+            if (!isAnimationActive) return resolve();
 
             await addLine({ text: 'YOU GET ONE SHOT.' }, { isHint: true });
+            if (!isAnimationActive) return resolve();
             await skippableDelay(1000);
-            
+            if (!isAnimationActive) return resolve();
+
             await addLine({ text: 'YOUR VOICE IS 16.' }, { isHint: true });
+            if (!isAnimationActive) return resolve();
             await skippableDelay(1000);
+            if (!isAnimationActive) return resolve();
             
             await addLine({ text: 'MAKE IT ECHO DEEP.' }, { isHint: true });
+            if (!isAnimationActive) return resolve();
             await skippableDelay(2000);
+            if (!isAnimationActive) return resolve();
 
             for (const msg of simulatedMessages) {
-                if (!isAnimationActive) break;
+                if (!isAnimationActive) break; // Здесь break достаточно, т.к. это последняя асинхронная операция
                 await skippableDelay(Math.random() * 700 + 200);
+                if (!isAnimationActive) break;
                 await addLine(msg);
             }
             
+            // Если интро завершилось успешно
             if (isAnimationActive) {
                 if (inputLine) inputLine.classList.add('visible');
                 if (!hasSentMessage) {
@@ -196,24 +220,21 @@ function getSecretTerminalHandlers() {
                 }
             }
             
-            isAnimationActive = false;
-            document.removeEventListener('mousedown', handleSkipRequest);
-            document.removeEventListener('keydown', handleSkipRequest);
+            // Очистка только для УСПЕШНО завершенного интро
+            resetStateAndListeners();
             resolve();
         });
     }
 
     function teardown() {
-        console.log("Tearing down Secret Terminal visuals...");
-        isAnimationActive = false;
-        isPrintingLine = false; // Дополнительная очистка
+        console.log("--- Tearing down Secret Terminal: Halting animations and cleaning up listeners. ---");
+        isAnimationActive = false; // "Красная кнопка"
+        resetStateAndListeners(); // Принудительная очистка на выходе
         container.classList.remove('visible');
-        document.removeEventListener('mousedown', handleSkipRequest);
-        document.removeEventListener('keydown', handleSkipRequest);
     }
 
     function cleanup() {
-        console.log("Cleaning up Secret Terminal state...");
+        console.log("Cleaning up Secret Terminal DOM.");
         container.innerHTML = '';
     }
 
