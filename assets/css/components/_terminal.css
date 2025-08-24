@@ -44,19 +44,23 @@
     min-height: 1.2em; 
     display: flex;
     align-items: baseline;
-    /* По умолчанию выравнивание по левому краю для чата */
+
+    /* --- НОВОЕ: Анимация появления для ВСЕХ строк --- */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.terminal-line.visible {
+    opacity: 1;
 }
 
 /* --- Специальный стиль для системных подсказок --- */
 .is-hint-line {
-    justify-content: center; /* Центрируем содержимое */
-    color: var(--text-color); /* Используем основной цвет текста (серый) */
-    opacity: 0.6;
+    justify-content: center;
+    color: var(--text-color);
 }
-
-/* Убеждаемся, что текст подсказки не станет красным */
-.is-hint-line .text {
-    color: inherit;
+.is-hint-line.visible {
+    opacity: 0.6; /* Opacity устанавливается ТОЛЬКО для видимой подсказки */
 }
 
 /* --- Компоненты строки сообщения --- */
@@ -92,8 +96,6 @@
     display: flex; 
     align-items: center;
     flex-shrink: 0;
-
-    /* --- НОВОЕ: Скрываем по умолчанию и добавляем анимацию --- */
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;

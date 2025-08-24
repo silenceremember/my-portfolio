@@ -163,7 +163,7 @@ function initModeManager(config) {
         if (cursorIdleTimer) clearTimeout(cursorIdleTimer); // Дополнительная очистка таймера
         
         if (typeof currentModeConfig.onExit === 'function') {
-            currentModeConfig.onExit();
+            await currentModeConfig.onExit();
         }
 
         const lineReturnDelay = 100;
