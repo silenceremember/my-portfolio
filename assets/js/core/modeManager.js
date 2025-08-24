@@ -56,20 +56,20 @@ function initModeManager(config) {
     function updateLayout() {
         if (!activeMode) return;
 
-        const modeWidth = currentModeConfig.width || 1280;
-        const modeHeight = currentModeConfig.height || 720;
-        const minWidth = currentModeConfig.minWidth || 800;
-        const minHeight = currentModeConfig.minHeight || 600;
+        const minWidth = currentModeConfig.minWindowWidth;
+        const minHeight = currentModeConfig.minWindowHeight;
 
         // Проверка на минимальный размер окна
         if (window.innerWidth < minWidth || window.innerHeight < minHeight) {
-            // Если мы уже в режиме, выходим из него
-            if (window.systemState.includes('_ACTIVE')) {
-                 console.warn("Window too small, exiting mode.");
-                 exitMode();
+            if (window.systemState.includes('_ACTIVE') && !isTransitioning) {
+                 console.warn("Window is now too small for the active mode. Forcing exit.");
+                 toggleMode();
             }
-            return false; // Сигнал о том, что вход невозможен
+            return;
         }
+
+        const modeWidth = currentModeConfig.width;
+        const modeHeight = currentModeConfig.height;
 
         const offsetX = (window.innerWidth - modeWidth) / 2;
         const offsetY = (window.innerHeight - modeHeight) / 2;
@@ -95,6 +95,21 @@ function initModeManager(config) {
         isTransitioning = true;
         activeMode = modeName;
         currentModeConfig = config.modes[modeName];
+
+        const minWidth = currentModeConfig.minWindowWidth;
+        const minHeight = currentModeConfig.minWindowHeight;
+
+        if (window.innerWidth < minWidth || window.innerHeight < minHeight) {
+            console.error(`Cannot enter mode '${modeName}'. Window is too small.`);
+            if (typeof window.triggerQteSystemError === 'function') {
+                const msg = `ТРЕБУЕТСЯ ОКНО ${minWidth}x${minHeight}`; // Показываем правильные значения
+                window.triggerQteSystemError(msg);
+            }
+            activeMode = null;
+            isTransitioning = false;
+            return;
+        }
+
         window.systemState = `ENTERING_${modeName.toUpperCase()}`;
         console.log(`System state changed to: ${window.systemState}`);
 

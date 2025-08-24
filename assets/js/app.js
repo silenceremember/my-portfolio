@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
         onResize: window.signalTaleResizeHandler, // Ссылка на специфичную функцию ресайза
         width: Game.settings.GAME_WIDTH,
         height: Game.settings.GAME_HEIGHT,
-        minWidth: Game.settings.MIN_WINDOW_WIDTH,
-        minHeight: Game.settings.MIN_WINDOW_HEIGHT,
+        minWindowWidth: Game.settings.MIN_WINDOW_WIDTH, // e.g. 600
+        minWindowHeight: Game.settings.MIN_WINDOW_HEIGHT, // e.g. 600
         bodyClass: 'game-mode',
         borderVarPrefix: 'game'
     };
