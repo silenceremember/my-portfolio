@@ -1,29 +1,33 @@
 /* assets/css/components/_terminal.css */
 
-/* Главный контейнер терминала - ПРОЗРАЧНЫЙ */
+/* ====================================================== */
+/* 1. ГЛАВНЫЙ КОНТЕЙНЕР                                   */
+/* ====================================================== */
+
+/* Главный контейнер - acts as the viewport for the terminal */
 #secret-terminal-container {
     position: fixed;
-    /* Позиционируется внутри рамок */
     top: var(--terminal-border-top);
     left: var(--terminal-border-left);
     right: var(--terminal-border-right);
     bottom: var(--terminal-border-bottom);
     
     background-color: transparent; 
-    /* Используем АКЦЕНТНЫЙ цвет из ваших переменных */
     color: var(--red-accent);
     font-family: 'Courier New', Courier, monospace;
-    z-index: 500; /* Ниже рамок */
+    z-index: 500;
     
     padding: 20px;
     box-sizing: border-box;
     
+    /* Анимация появления/исчезновения */
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.5s ease-in-out;
     
-    overflow-y: auto;
-    overflow-x: hidden;
+    /* Flexbox-разметка для правильной прокрутки и позиционирования строки ввода */
+    display: flex;
+    flex-direction: column;
 }
 
 #secret-terminal-container.visible {
@@ -31,38 +35,88 @@
     visibility: visible;
 }
 
-/* --- Стили для контента терминала --- */
+/* ====================================================== */
+/* 2. ОБЛАСТЬ ВЫВОДА СООБЩЕНИЙ                            */
+/* ====================================================== */
 
-.terminal-output { 
+/* Область, где появляются все сообщения */
+.terminal-output {
+    flex-grow: 1; /* Позволяет этой области растягиваться, прижимая строку ввода к низу */
+    overflow-y: auto; /* Включает прокрутку ТОЛЬКО для этой области */
     padding-bottom: 30px; 
 }
 
+/* Одна строка текста в области вывода */
 .terminal-line { 
     margin-bottom: 5px; 
     word-break: break-all; 
-    min-height: 1.2em;
+    min-height: 1.2em; 
+    
+    /* Flexbox для выравнивания [счетчика], ника и текста */
+    display: flex;
+    align-items: baseline; 
 }
 
-/* Имя пользователя делаем менее ярким, используя цвет текста темы */
+/* --- ПРАВИЛО ВЫРАВНИВАНИЯ: SysOp сообщения прижаты вправо --- */
+.terminal-line.is-sysop-message {
+    justify-content: flex-end;
+}
+
+/* ====================================================== */
+/* 3. КОМПОНЕНТЫ СООБЩЕНИЙ                                */
+/* ====================================================== */
+
+/* Счетчик символов [XX] для каждого сообщения */
+.message-char-counter {
+    margin-right: 15px; /* Отступ от ника */
+    color: var(--text-color);
+    opacity: 0.5;
+    white-space: nowrap;
+    font-size: 0.9em;
+    font-weight: 700;
+}
+
+/* Стандартный стиль имени пользователя */
 .terminal-line .username { 
     color: var(--text-color);
     opacity: 0.6;
+    margin-right: 10px;
+    white-space: nowrap; /* Имя не должно переноситься на другую строку */
 }
 
+/* --- ПРАВИЛО ВЫДЕЛЕНИЯ: Ник нашего игрока --- */
+.terminal-line.is-user-message .username {
+    color: var(--text-color);
+    opacity: 1;
+    font-weight: 700;
+}
+
+/* Сам текст сообщения */
+.terminal-line .text {
+    /* Flexbox сам управляет его позицией, доп. стили не нужны */
+}
+
+/* ====================================================== */
+/* 4. ОБЛАСТЬ ВВОДА                                       */
+/* ====================================================== */
+
+/* Нижняя строка с приглашением и полем ввода */
 .terminal-input-line { 
     display: flex; 
     align-items: center; 
+    flex-shrink: 0; /* Предотвращает сжатие строки ввода, если много текста */
 }
 
+/* Приглашение, например, "User-1234>" */
 .terminal-prompt { 
     margin-right: 10px; 
 }
 
+/* Поле для ввода текста */
 .terminal-input { 
-    flex-grow: 1; 
+    flex-grow: 1; /* Заставляет поле растягиваться на все доступное место */
     background: none; 
     border: none; 
-    /* Цвет ввода - тоже акцентный */
     color: var(--red-accent); 
     font-family: inherit; 
     font-size: 1em; 
@@ -70,16 +124,36 @@
 .terminal-input:focus { 
     outline: none; 
 }
+.terminal-input:disabled {
+    opacity: 0.4;
+}
 
-/* Курсор - тоже акцентный */
+/* Обертка для счетчика и курсора, чтобы они всегда были вместе справа */
+.input-suffix {
+    display: flex;
+    align-items: center;
+}
+
+/* Счетчик оставшихся символов в строке ввода */
+.char-counter {
+    margin: 0 10px;
+    color: var(--text-color);
+    opacity: 0.6;
+    white-space: nowrap;
+}
+
+/* Мигающий курсор */
 .terminal-cursor { 
     display: inline-block; 
     width: 10px; 
     height: 1.2em; 
     background: var(--red-accent); 
-    margin-left: 5px; 
     animation: blink 1s step-end infinite; 
 }
+
+/* ====================================================== */
+/* 5. АНИМАЦИЯ                                            */
+/* ====================================================== */
 
 @keyframes blink { 
     from, to { background: transparent; } 

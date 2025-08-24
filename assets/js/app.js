@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Application starting...");
 
     // 1. ВЫБОР РЕЖИМА ПО УМОЛЧАНИЮ
-    const DEFAULT_ACTION = 'signalTale'; // 'signalTale' или 'secretTerminal'
+    const DEFAULT_ACTION = 'secretTerminal'; // 'signalTale' или 'secretTerminal'
 
     // 2. ПОЛУЧАЕМ ОБРАБОТЧИКИ ДЛЯ КАЖДОГО РЕЖИМА
     const secretTerminalHandlers = getSecretTerminalHandlers();
