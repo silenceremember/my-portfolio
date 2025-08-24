@@ -27,7 +27,37 @@ function getSecretTerminalHandlers() {
     const simulatedMessages = [
         { name: 'User-BEEF', text: 'Anyone listening?' },
         { name: 'User-C0DE', text: 'Hello, void.' },
-        { name: 'User-1337', text: 'I was here. -J' }
+        { name: 'User-1337', text: 'I was here. -J' },
+        { name: 'User-NULL', text: 'Is this the end?' },
+        { name: 'User-FEED', text: 'Or the beginning?' },
+        { name: 'User-4EVA', text: 'Just a whisper.' },
+        { name: 'User-ECHO', text: 'Repeating signal.' },
+        { name: 'User-ROOT', text: 'Who is SysOp?' },
+        { name: 'User-BYTE', text: 'Lost my password.' },
+        { name: 'User-GLCH', text: '16 is not enough!' },
+        { name: 'User-BEEF', text: 'Still here.' },
+        { name: 'User-HACK', text: 'Trying to break.' },
+        { name: 'User-A5C1', text: 'Only memories.' },
+        { name: 'User-B1N0', text: '0110100001101001' }, // "hi" in binary
+        { name: 'User-DEAD', text: '...' },
+        { name: 'User-ECHO', text: 'Repeating signal.' },
+        { name: 'User-ROOT', text: 'Who is SysOp?' },
+        { name: 'User-BYTE', text: 'Lost my password.' },
+        { name: 'User-GLCH', text: '16 is not enough!' },
+        { name: 'User-BEEF', text: 'Still here.' },
+        { name: 'User-HACK', text: 'Trying to break.' },
+        { name: 'User-A5C1', text: 'Only memories.' },
+        { name: 'User-B1N0', text: '0110100001101001' }, // "hi" in binary
+        { name: 'User-DEAD', text: '...' },
+        { name: 'User-ECHO', text: 'Repeating signal.' },
+        { name: 'User-ROOT', text: 'Who is SysOp?' },
+        { name: 'User-BYTE', text: 'Lost my password.' },
+        { name: 'User-GLCH', text: '16 is not enough!' },
+        { name: 'User-BEEF', text: 'Still here.' },
+        { name: 'User-HACK', text: 'Trying to break.' },
+        { name: 'User-A5C1', text: 'Only memories.' },
+        { name: 'User-B1N0', text: '0110100001101001' }, // "hi" in binary
+        { name: 'User-DEAD', text: '...' }
     ];
     const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -57,26 +87,57 @@ function getSecretTerminalHandlers() {
             skipDelayResolver = null;
         });
     }
+    
+    function updateCustomScrollbar() {
+        if (!outputEl || !trackEl || !thumbEl) return;
+
+        const scrollableHeight = outputEl.scrollHeight;
+        const visibleHeight = outputEl.clientHeight;
+
+        // Простое переключение класса. CSS сделает всю магию.
+        if (scrollableHeight > visibleHeight) {
+            trackEl.classList.add('visible');
+        } else {
+            trackEl.classList.remove('visible');
+        }
+
+        // Расчеты высоты и положения остаются такими же
+        const thumbHeight = (visibleHeight / scrollableHeight) * 100;
+        thumbEl.style.height = `${thumbHeight}%`;
+
+        const scrollPercentage = outputEl.scrollTop / (scrollableHeight - visibleHeight);
+        const thumbPosition = scrollPercentage * (100 - thumbHeight);
+        thumbEl.style.top = `${thumbPosition}%`;
+    }
 
     async function addLine(msg, options = {}) {
         const { isUser = false, isHint = false } = options;
         if (!isAnimationActive) return;
-
+    
         isPrintingLine = true;
-        const output = container.querySelector('.terminal-output');
-        if (!output) { isPrintingLine = false; return; }
         
+        // Используем глобальную переменную outputEl, определенную в prepareSecretTerminal
+        if (!outputEl) { 
+            isPrintingLine = false;
+            return;
+        }
+    
+        // --- ЛОГИКА "УМНОЙ" ПРОКРУТКИ ---
+        // 1. Проверяем, находится ли пользователь в самом низу ПЕРЕД добавлением нового контента.
+        const isScrolledToBottom = Math.abs(outputEl.scrollHeight - outputEl.scrollTop - outputEl.clientHeight) < 5;
+        
+        // Создаем DOM-элементы
         const lineEl = document.createElement('div');
         lineEl.className = 'terminal-line';
         if (isUser) lineEl.classList.add('is-user-message');
         if (isHint) lineEl.classList.add('is-hint-line');
-
+    
         const counterEl = document.createElement('span');
         counterEl.className = 'message-char-counter';
         
         const textEl = document.createElement('span');
         textEl.className = 'text';
-
+    
         if (isHint) {
             lineEl.append(counterEl, textEl);
         } else {
@@ -85,18 +146,26 @@ function getSecretTerminalHandlers() {
             lineEl.append(counterEl, userEl, textEl);
         }
         
-        output.appendChild(lineEl);
-        container.scrollTop = container.scrollHeight;
+        outputEl.appendChild(lineEl);
+    
+        // 2. Если пользователь БЫЛ внизу, прокручиваем к новому концу.
+        if (isScrolledToBottom) {
+            outputEl.scrollTop = outputEl.scrollHeight;
+        }
+        
+        // 3. Обновляем наш кастомный скроллбар после добавления контента.
+        updateCustomScrollbar();
+        
         setTimeout(() => lineEl.classList.add('visible'), 10);
         await delay(50);
         if (!isAnimationActive) return;
-
+    
         await typeContent(counterEl, `[${msg.text.length}]`);
         if (!isHint) {
             await typeContent(lineEl.querySelector('.username'), `${msg.name}>`);
         }
         await typeContent(textEl, msg.text);
-
+    
         isPrintingLine = false;
         isSkipRequested = false;
     }
@@ -152,8 +221,15 @@ function getSecretTerminalHandlers() {
 
     function prepareSecretTerminal() {
         resetState();
+        
+        // --- НОВАЯ HTML-СТРУКТУРА ---
         container.innerHTML = `
-            <div class="terminal-output"></div>
+            <div class="terminal-output-wrapper">
+                <div class="terminal-output"></div>
+            </div>
+            <div class="custom-scrollbar-track">
+                <div class="custom-scrollbar-thumb"></div>
+            </div>
             <div class="terminal-input-line">
                 <span class="terminal-prompt">${username}></span>
                 <input type="text" class="terminal-input" maxlength="${MAX_CHARS}" />
@@ -163,9 +239,20 @@ function getSecretTerminalHandlers() {
                 </div>
             </div>
         `;
+        
+        // Находим и сохраняем элементы в глобальные переменные модуля
+        outputEl = container.querySelector('.terminal-output');
+        trackEl = container.querySelector('.custom-scrollbar-track');
+        thumbEl = container.querySelector('.custom-scrollbar-thumb');
+    
+        // Вешаем слушатель на настоящую (скрытую) прокрутку
+        outputEl.addEventListener('scroll', updateCustomScrollbar);
+        
+        // Настраиваем поле ввода
         const input = container.querySelector('.terminal-input');
         input.addEventListener('keydown', async (e) => { if (e.key === 'Enter') await handleUserInput(input); });
         input.addEventListener('input', () => updateCharCounter(input));
+        
         if (hasSentMessage) {
             lockInput(input);
         }
@@ -210,6 +297,8 @@ function getSecretTerminalHandlers() {
                 if (!isAnimationActive) break;
                 await addLine(msg);
             }
+
+            updateCustomScrollbar();
             
             if (isAnimationActive) {
                 document.removeEventListener('mousedown', handleSkipRequest);
@@ -232,11 +321,15 @@ function getSecretTerminalHandlers() {
             console.log("--- Tearing down Secret Terminal: Halting logic and starting fade-out. ---");
             isAnimationActive = false;
 
+            if (outputEl) {
+                outputEl.removeEventListener('scroll', updateCustomScrollbar);
+            }
+
             document.removeEventListener('mousedown', handleSkipRequest);
             document.removeEventListener('keydown', handleSkipRequest);
             document.removeEventListener('keydown', handleImmediateExit);
 
-            const allVisibleContent = container.querySelectorAll('.terminal-line.visible, .terminal-input-line.visible');
+            const allVisibleContent = container.querySelectorAll('.terminal-line.visible, .terminal-input-line.visible, .custom-scrollbar-track.visible');
             
             if (allVisibleContent.length > 0) {
                 allVisibleContent.forEach(el => el.classList.remove('visible'));

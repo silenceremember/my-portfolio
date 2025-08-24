@@ -3,27 +3,25 @@
 /* --- Главный контейнер --- */
 #secret-terminal-container {
     position: fixed;
-    /* Позиционируется внутри рамок */
     top: var(--terminal-border-top);
     left: var(--terminal-border-left);
     right: var(--terminal-border-right);
     bottom: var(--terminal-border-bottom);
-    
     background-color: transparent; 
     color: var(--red-accent);
     font-family: 'Courier New', Courier, monospace;
     z-index: 500;
-    
-    padding: 20px;
+    padding: 20px; /* Симметричный отступ со всех сторон */
     box-sizing: border-box;
-    
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.5s ease-in-out;
-
-    /* Делаем контейнер гибким для разделения вывода и ввода */
     display: flex;
     flex-direction: column;
+
+    --cursor-width: 10px;
+    --cursor-margin: 20px; /* Отступ слева от курсора и справа от скроллбара */
+    --input-spacing: 20px;
 }
 
 #secret-terminal-container.visible {
@@ -31,12 +29,63 @@
     visibility: visible;
 }
 
+/* --- Обертка для вывода, которая нужна для позиционирования кастомного скролла --- */
+.terminal-output-wrapper {
+    flex-grow: 1;
+    position: relative; /* Контекст для позиционирования дорожки скроллбара */
+    overflow: hidden; /* Обрезает все, что выходит за его пределы */
+}
+
 /* --- Блок вывода сообщений --- */
 .terminal-output { 
-    padding-bottom: 30px; 
-    flex-grow: 1; /* Занимает все доступное место */
-    overflow-y: auto; /* Добавляет прокрутку, если сообщений много */
+    height: 100%;
+    overflow-y: auto; /* Включаем прокрутку, но скроллбар будет скрыт */
+    padding: 0; /* Убираем лишние отступы */
 }
+
+/* --- НОВЫЙ БЛОК: Гарантированное скрытие нативного скроллбара --- */
+
+/* Для Webkit-браузеров (Chrome, Safari, Edge) */
+.terminal-output::-webkit-scrollbar {
+  display: none; /* Просто не отображать скроллбар */
+}
+
+/* Для Firefox и будущих стандартов */
+.terminal-output {
+  scrollbar-width: none; /* Стандартный способ скрыть скроллбар */
+  -ms-overflow-style: none;  /* Для Internet Explorer 10+ */
+}
+/* ------------------------------------------------------------------ */
+
+
+/* --- Наш кастомный скроллбар: Дорожка --- */
+.custom-scrollbar-track {
+    position: absolute;
+    top: 20px; /* Прижимаем к верху области вывода */
+    bottom: 70px; /* <-- ОГРАНИЧИВАЕМ СНИЗУ */
+    right: var(--cursor-margin);
+    width: var(--cursor-width);
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.custom-scrollbar-track.visible {
+    opacity: 1;
+    pointer-events: auto; /* Возвращаем интерактивность, если нужна */
+}
+
+/* --- Наш кастомный скроллбар: Ползунок --- */
+.custom-scrollbar-thumb {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: var(--red-accent);
+    border-radius: 0;
+    pointer-events: none;
+}
+
 
 /* --- Общий стиль для всех строк --- */
 .terminal-line { 
@@ -44,8 +93,6 @@
     min-height: 1.2em; 
     display: flex;
     align-items: baseline;
-
-    /* --- НОВОЕ: Анимация появления для ВСЕХ строк --- */
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
 }
@@ -99,6 +146,7 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    padding-top: var(--input-spacing); /* <-- ИСПОЛЬЗУЕМ ПЕРЕМЕННУЮ */
 }
 .terminal-input-line.visible {
     opacity: 1;
@@ -121,18 +169,15 @@
 .terminal-input:focus { 
     outline: none; 
 }
-
 .terminal-input:disabled {
     opacity: 0.4;
 }
 
-/* Обертка для счетчика и курсора, чтобы они были вместе */
 .input-suffix {
     display: flex;
     align-items: center;
 }
 
-/* Счетчик символов в строке ввода */
 .char-counter {
     margin: 0 10px;
     color: var(--text-color);
@@ -140,12 +185,13 @@
     white-space: nowrap;
 }
 
-/* Курсор */
+/* --- Курсор --- */
 .terminal-cursor { 
     display: inline-block; 
-    width: 10px; 
+    width: var(--cursor-width); /* <-- Используем переменную для ширины */
     height: 1.2em; 
-    background: var(--red-accent); 
+    background: var(--red-accent);
+    /* Отступ теперь не нужен, т.к. он есть у .char-counter */
     animation: blink 1s step-end infinite; 
 }
 
