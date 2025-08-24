@@ -94,14 +94,16 @@ function initQTE(successCallback) {
     
 
 
+    // assets/js/ui/qte.js - НОВЫЙ КОД
+
     function onKonamiSuccess() {
-        console.log("Konami Code Activated! Triggering global handler...");
+        console.log("Konami Code Activated! Triggering success callback...");
         
-        // Вызываем наш глобальный диспетчер. Он сам знает, что делать.
-        if (window.konamiHandler && typeof window.konamiHandler.trigger === 'function') {
-            window.konamiHandler.trigger();
+        // Проверяем, был ли передан successCallback в initQTE и является ли он функцией
+        if (successCallback && typeof successCallback === 'function') {
+            successCallback(); // Вызываем переданную функцию
         } else {
-            console.error("Konami handler is not defined on the window object!");
+            console.error("QTE success, but no valid callback was provided to initQTE!");
         }
     }
 

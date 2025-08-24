@@ -248,39 +248,36 @@
     <!-- ПОДКЛЮЧЕНИЕ СКРИПТОВ                                  -->
     <!-- ====================================================== -->
 
-    <!-- Модули UI Сайта -->
+    <!-- Модули UI Сайта (без зависимостей) -->
     <script src="assets/js/ui/theme.js"></script>
     <script src="assets/js/ui/qte.js"></script>
     <script src="assets/js/ui/transitions.js"></script>
 
-    <!-- 1. Глобальные объекты и настройки, которые нужны всем -->
-    <script src="assets/js/game/core/state.js"></script>
+    <!-- 1. Ядро и Менеджер Режимов -->
+    <script src="assets/js/core/state.js"></script>
+    <script src="assets/js/core/modeManager.js"></script> <!-- Загружаем менеджер -->
+
+    <!-- 2. Конфигурация для Игры (нужна для app.js) -->
     <script src="assets/js/game/config/settings.js"></script>
     <script src="assets/js/game/config/gameIcons.js"></script>
     <script src="assets/js/game/config/blueprints.js"></script>
-
-
-    <!-- 2. Сценарии уровней -->
     <script src="assets/js/game/scenarios/level_1.js"></script>
-
-    <!-- 3. Манифест уровней -->
     <script src="assets/js/game/config/levels.js"></script>
 
-
-    <!-- 2. "Помощники": функции для графики, UI, игрока -->
+    <!-- 3. Модули самой Игры -->
     <script src="assets/js/game/fx/background.js"></script>
     <script src="assets/js/game/ui/gameUI.js"></script>
     <script src="assets/js/game/gameplay/spawner.js"></script>
     <script src="assets/js/game/gameplay/player.js"></script>
     <script src="assets/js/game/gameplay/scenario.js"></script>
     <script src="assets/js/game/gameplay/enemies.js"></script>
+    <script src="assets/js/game/signalTale.js"></script> <!-- Главный файл Signal Tale -->
     
-    <!-- 3. Главный игровой скрипт, который использует все, что выше -->
-    <script src="assets/js/game/main.js"></script>
+    <!-- 4. Модули режимов (должны быть загружены ДО app.js) -->
+    <script src="assets/js/ui/secretTerminal.js"></script> <!-- <-- ВАЖНО: Объявляет getSecretTerminalHandlers -->
     
-    <!-- 4. Главный "загрузчик" приложения (в самом конце) -->
-    <script src="assets/js/ui/secretTerminal.js"></script>
-    <script src="assets/js/app.js"></script>
+    <!-- 5. Главный "загрузчик" приложения (в самом конце) -->
+    <script src="assets/js/app.js"></script> <!-- <-- ВАЖНО: Вызывает getSecretTerminalHandlers -->
     
 </body>
 </html>

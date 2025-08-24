@@ -1,6 +1,6 @@
 // assets/js/ui/secretTerminal.js
 
-function initSecretTerminal() {
+function getSecretTerminalHandlers() {
     const container = document.getElementById('secret-terminal-container');
     if (!container) {
         console.error("Secret terminal container not found!");
@@ -8,7 +8,7 @@ function initSecretTerminal() {
     }
 
     let isTyping = false;
-    const username = `User-${Math.random().toString(16).substr(2, 4).toUpperCase()}`;
+    let username = '';
     const simulatedMessages = [
         { delay: 500, name: 'SysOp', text: 'Booting virtual shell... OK' },
         { delay: 300, name: 'SysOp', text: 'Connecting to anonymous channel... OK' },
@@ -64,108 +64,50 @@ function initSecretTerminal() {
         }
     }
 
-    // --- Функция для расчета и установки границ ---
-    function updateTerminalLayout() {
-        // Выполняем расчет, только если мы в одном из состояний терминала
-        if (String(window.systemState).indexOf('TERMINAL') === -1) return;
-        
-        const TERMINAL_WIDTH = 1280; 
-        const TERMINAL_HEIGHT = 720;
-        
-        const offsetX = (window.innerWidth - TERMINAL_WIDTH) / 2;
-        const offsetY = (window.innerHeight - TERMINAL_HEIGHT) / 2;
-        
-        const root = document.documentElement;
-        root.style.setProperty('--terminal-border-top', `${offsetY}px`);
-        root.style.setProperty('--terminal-border-bottom', `${offsetY}px`);
-        root.style.setProperty('--terminal-border-left', `${offsetX}px`);
-        root.style.setProperty('--terminal-border-right', `${offsetX}px`);
+    function prepareSecretTerminal() {
+        username = `User-${Math.random().toString(16).substr(2, 4).toUpperCase()}`;
+        container.innerHTML = `
+            <div class="terminal-output"></div>
+            <div class="terminal-input-line">
+                <span class="terminal-prompt">${username}></span>
+                <input type="text" class="terminal-input" maxlength="40" />
+                <div class="terminal-cursor"></div>
+            </div>
+        `;
+        const input = container.querySelector('.terminal-input');
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') handleUserInput(input); });
     }
 
-    // --- Функции управления Входом/Выходом ---
-    function enterTerminal() {
-        if (window.systemState !== 'SITE') return;
-        window.systemState = 'ENTERING_TERMINAL';
-        console.log(`System state changed to: ${window.systemState}`);
-        
-        const body = document.body;
-        
-        updateTerminalLayout(); // Рассчитываем положение ДО анимации
-        window.addEventListener('resize', updateTerminalLayout);
-
-        // Запускаем последовательность анимаций, как в initGame()
-        body.classList.add('site-ui-hidden');
-        
-        setTimeout(() => {
-            body.classList.add('terminal-active'); // Этот класс сдвинет рамки
-        }, 500);
-
-        setTimeout(() => {
-            container.innerHTML = `
-                <div class="terminal-output"></div>
-                <div class="terminal-input-line">
-                    <span class="terminal-prompt">${username}></span>
-                    <input type="text" class="terminal-input" maxlength="40" />
-                    <div class="terminal-cursor"></div>
-                </div>
-            `;
+    function activateSecretTerminal() {
+        return new Promise(resolve => {
             container.classList.add('visible');
-            
             const input = container.querySelector('.terminal-input');
-            input.addEventListener('keydown', e => { if (e.key === 'Enter') handleUserInput(input); });
             setTimeout(() => input.focus(), 50);
-
-            document.addEventListener('keydown', handleEscKey);
-            window.systemState = 'TERMINAL_ACTIVE';
-            console.log(`System state changed to: ${window.systemState}`);
             startSimulation();
-        }, 1000); // 500ms на скрытие UI + 500ms на сдвиг рамок
+            resolve(); // <--- СИГНАЛ О МГНОВЕННОМ ЗАВЕРШЕНИИ
+        });
     }
     
-    function exitTerminal() {
-        if (window.systemState !== 'TERMINAL_ACTIVE') return;
-        window.systemState = 'EXITING_TERMINAL';
-        console.log(`System state changed to: ${window.systemState}`);
-
-        const body = document.body;
-
-        document.removeEventListener('keydown', handleEscKey);
-        window.removeEventListener('resize', updateTerminalLayout);
-        
+    function teardown() {
+        console.log("Tearing down Secret Terminal visuals...");
         container.classList.remove('visible');
-        
-        setTimeout(() => {
-            body.classList.remove('terminal-active'); // Возвращаем рамки
-        }, 100);
-
-        setTimeout(() => {
-            body.classList.add('is-revealing');
-            body.classList.remove('site-ui-hidden'); // Показываем UI сайта
-        }, 600); // 100ms + 500ms на возврат рамок
-
-        setTimeout(() => {
-            body.classList.remove('is-revealing');
-            container.innerHTML = ''; // Очищаем содержимое
-            window.systemState = 'SITE';
-            console.log(`System state changed to: ${window.systemState}`);
-        }, 1100); // 600ms + 500ms на появление UI
     }
 
-    const handleEscKey = e => { 
-        if (e.key === 'Escape') {
-            exitTerminal();
-        } 
+    function cleanup() {
+        console.log("Cleaning up Secret Terminal state...");
+        container.innerHTML = ''; // Очищаем содержимое
+    }
+
+    // Возвращаем объект, который app.js передаст в modeManager
+    return {
+        onPrepare: prepareSecretTerminal,
+        onActivate: activateSecretTerminal,
+        onCleanup: cleanup,
+        width: 1280,
+        height: 720,
+        minWidth: 800,
+        minHeight: 600,
+        bodyClass: 'terminal-active',
+        borderVarPrefix: 'terminal' // Использует --terminal-border-*
     };
-    
-    // --- Главная функция-переключатель, которую вернет инициализатор ---
-    function toggleTerminal() {
-        if (window.systemState === 'SITE') {
-            enterTerminal();
-        } else if (window.systemState === 'TERMINAL_ACTIVE') {
-            exitTerminal();
-        }
-        // В состояниях ENTERING... и EXITING... вызовы игнорируются, предотвращая баги
-    }
-
-    return toggleTerminal;
 }
