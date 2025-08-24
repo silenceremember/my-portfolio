@@ -11,10 +11,13 @@ function getSecretTerminalHandlers() {
     const TEST_MODE = true; // true = сброс при перезагрузке; false = сохранение на "IP"
     const MAX_CHARS = 16;
     const STORAGE_KEY = 'secretTerminalMessageSent';
+    const storage = TEST_MODE ? sessionStorage : localStorage; 
+    
     let isTyping = false;
-    let isSkipRequested = false; // Флаг для пропуска анимации
+    let skipResolver = null;
     let username = '';
-    let hasSentMessage = TEST_MODE ? false : localStorage.getItem(STORAGE_KEY) === 'true';
+    let hasSentMessage = storage.getItem(STORAGE_KEY) === 'true';
+
     const simulatedMessages = [
         { name: 'User-BEEF', text: 'Anyone listening?' },
         { name: 'User-C0DE', text: 'Hello, void.' },
@@ -28,49 +31,51 @@ function getSecretTerminalHandlers() {
     async function typeLine(lineElement, text, speed = 45) {
         isTyping = true;
         for (const char of text) {
-            // Прерываем цикл, если пользователь вышел ИЛИ запросил скип
-            if (!String(window.systemState).includes('SECRETTERMINAL') || isSkipRequested) break;
+            if (!String(window.systemState).includes('SECRETTERMINAL')) break;
+            if (skipResolver) { // Если пришел запрос на скип, прерываем
+                lineElement.textContent = text;
+                isTyping = false;
+                return; // Выходим из функции
+            }
             lineElement.textContent += char;
             await delay(speed);
         }
-        // В любом случае (скип или конец) допечатываем строку до конца
-        lineElement.textContent = text;
-        isSkipRequested = false; // Сбрасываем флаг
         isTyping = false;
     }
 
-    async function addLine(msg, isUser = false) {
+    function skippableDelay(ms) {
+        return new Promise(resolve => {
+            const timeoutId = setTimeout(resolve, ms);
+            skipResolver = () => {
+                clearTimeout(timeoutId);
+                resolve();
+            };
+        }).finally(() => {
+            skipResolver = null;
+        });
+    }
+
+    async function addLine(msg, options = {}) {
+        const { isUser = false, isHint = false } = options;
         if (!String(window.systemState).includes('SECRETTERMINAL')) return;
         const output = container.querySelector('.terminal-output');
         if (!output) return;
-    
+
         const lineEl = document.createElement('div');
         lineEl.className = 'terminal-line';
-    
-        if (isUser) {
-            lineEl.classList.add('is-user-message');
-        }
-        // --- НОВОЕ ПРАВИЛО ---
-        // Добавляем класс для системных сообщений
-        if (msg.name === 'SysOp') {
-            lineEl.classList.add('is-sysop-message');
-        }
-    
+        if (isUser) { lineEl.classList.add('is-user-message'); }
+        if (isHint) { lineEl.classList.add('is-hint-line'); } // Новый класс для подсказок
+
         const charCountHtml = `<span class="message-char-counter">[${msg.text.length}]</span>`;
         
-        // --- НОВОЕ ПРАВИЛО ---
-        // Меняем формат имени для SysOp для лучшего вида справа
-        const usernameHtml = msg.name === 'SysOp'
-            ? `<span class="username"><${msg.name}</span>`
-            : `<span class="username">${msg.name}></span>`;
-    
-        lineEl.innerHTML = `
-            ${charCountHtml}
-            ${usernameHtml}
-            <span class="text"></span>
-        `;
+        // Генерируем разметку в зависимости от типа сообщения
+        if (isHint) {
+            lineEl.innerHTML = `${charCountHtml}<span class="text"></span>`;
+        } else {
+            lineEl.innerHTML = `${charCountHtml}<span class="username">${msg.name}></span><span class="text"></span>`;
+        }
+
         output.appendChild(lineEl);
-        
         const textEl = lineEl.querySelector('.text');
         await typeLine(textEl, msg.text);
         container.scrollTop = container.scrollHeight;
@@ -96,25 +101,24 @@ function getSecretTerminalHandlers() {
         if (isTyping || hasSentMessage) return;
         const text = inputElement.value.trim();
         if (text) {
-            addLine({ name: username, text: text }, true);
+            addLine({ name: username, text: text }, { isUser: true });
             hasSentMessage = true;
-            if (!TEST_MODE) {
-                localStorage.setItem(STORAGE_KEY, 'true'); // Сохраняем, только если не в тестовом режиме
-            }
+            storage.setItem(STORAGE_KEY, 'true');
             lockInput(inputElement);
         }
     }
 
     const handleSkipRequest = (e) => {
-        // Скип работает по ЛКМ (mousedown) или по Enter, ТОЛЬКО когда идет анимация
-        if (isTyping && (e.type === 'mousedown' || e.key === 'Enter')) {
-            e.preventDefault(); // Предотвращаем другие действия
-            isSkipRequested = true;
+        if (e.type === 'mousedown' || e.key === 'Enter') {
+            e.preventDefault();
+            if (skipResolver) {
+                skipResolver();
+            }
         }
     };
 
     function prepareSecretTerminal() {
-        hasSentMessage = localStorage.getItem(STORAGE_KEY) === 'true';
+        hasSentMessage = storage.getItem(STORAGE_KEY) === 'true';
         username = `User-${Math.random().toString(16).substr(2, 4).toUpperCase()}`;
         
         container.innerHTML = `
@@ -128,49 +132,54 @@ function getSecretTerminalHandlers() {
                 </div>
             </div>
         `;
-        const input = container.querySelector('.terminal-input');
-        input.addEventListener('keydown', e => { if (e.key === 'Enter') handleUserInput(input); });
-        input.addEventListener('input', () => updateCharCounter(input));
+        
+        if (hasSentMessage) {
+            const input = container.querySelector('.terminal-input');
+            lockInput(input);
+        }
     }
 
     function activateSecretTerminal() {
         return new Promise(async (resolve) => {
             container.classList.add('visible');
+            const inputLine = container.querySelector('.terminal-input-line');
             const input = container.querySelector('.terminal-input');
             input.disabled = true;
 
-            // Включаем слушатели на скип ПЕРЕД началом анимаций
             document.addEventListener('mousedown', handleSkipRequest);
             document.addEventListener('keydown', handleSkipRequest);
 
-            await addLine({ name: 'SysOp', text: '/ ESC TO SEVER /' });
-            if (isSkipRequested) await delay(50); else await delay(1000);
+            // --- ВЫЗЫВАЕМ ADDLINE С ФЛАГОМ isHint = true ---
+            await addLine({ text: '/ ESC TO SEVER /' }, { isHint: true });
+            await skippableDelay(1000);
 
-            await addLine({ name: 'SysOp', text: 'LMB/ENTER > NEXT' });
-            if (isSkipRequested) await delay(50); else await delay(1500);
+            await addLine({ text: 'LMB/ENTER > NEXT' }, { isHint: true });
+            await skippableDelay(1500);
 
-            await addLine({ name: 'SysOp', text: 'YOU GET ONE SHOT' });
-            if (isSkipRequested) await delay(50); else await delay(1000);
+            await addLine({ text: 'YOU GET ONE SHOT' }, { isHint: true });
+            await skippableDelay(1000);
 
-            await addLine({ name: 'SysOp', text: 'YOUR VOICE IS 16' });
-            if (isSkipRequested) await delay(50); else await delay(1000);
+            await addLine({ text: 'YOUR VOICE IS 16' }, { isHint: true });
+            await skippableDelay(1000);
             
-            await addLine({ name: 'SysOp', text: 'LEAVE YOUR TRACE' });
-            if (isSkipRequested) await delay(50); else await delay(2000);
+            await addLine({ text: 'LEAVE YOUR TRACE' }, { isHint: true });
+            await skippableDelay(2000);
+            // -------------------------------------------------
 
+            // Для обычных сообщений флаг не передаем
             for (const msg of simulatedMessages) {
                 if (!String(window.systemState).includes('SECRETTERMINAL')) break;
-                if (isSkipRequested) await delay(50); else await delay(Math.random() * 700 + 200);
+                await skippableDelay(Math.random() * 700 + 200);
                 await addLine(msg);
             }
             
-            // Выключаем слушатели ПОСЛЕ всех анимаций
             document.removeEventListener('mousedown', handleSkipRequest);
             document.removeEventListener('keydown', handleSkipRequest);
             
-            if (hasSentMessage) {
-                lockInput(input);
-            } else {
+            if (inputLine) {
+                inputLine.classList.add('visible');
+            }
+            if (!hasSentMessage) {
                 input.disabled = false;
                 setTimeout(() => input.focus(), 50);
             }
