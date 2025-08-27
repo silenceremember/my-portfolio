@@ -4,13 +4,9 @@
 /* 1. ОБЩИЕ СТИЛИ СЕКЦИЙ                                 */
 /* ====================================================== */
 main.sections-container {
-    position: absolute;
-    top: var(--frame-padding-vertical);
-    bottom: var(--frame-padding-vertical);
-    left: var(--frame-padding-horizontal);
-    right: var(--frame-padding-horizontal);
+    position: absolute; top: var(--frame-padding-vertical); bottom: var(--frame-padding-vertical);
+    left: var(--frame-padding-horizontal); right: var(--frame-padding-horizontal);
     overflow: hidden;
-    /* Убираем transition отсюда, чтобы он не конфликтовал с правилами для игры */
 }
 .full-page-section {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -23,73 +19,45 @@ main.sections-container {
 .full-page-section.active .hero-content,
 .full-page-section.active .content-wrapper {
     animation: fadeIn var(--animation-duration) ease forwards;
-    animation-delay: 0.3s;
-    opacity: 0;
+    animation-delay: 0.3s; opacity: 0;
 }
 @keyframes fadeIn { to { opacity: 1; } }
 
 /* ====================================================== */
-/* 2. СТИЛИ ДЛЯ ШИРОКИХ ЭКРАНОВ (> 1200px)               */
-/* Здесь все контентные блоки имеют ФИКСИРОВАННУЮ ширину. */
+/* 2. СТИЛИ КОНТЕНТА                                      */
 /* ====================================================== */
 
 /* --- Секция 1: Манифест --- */
 .hero-background-banner {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    z-index: -1;
-    opacity: 0.05;
-    background: url('../images/banner-art.jpg') no-repeat center center;
-    background-size: cover;
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
+    opacity: 0.05; background: url('../images/banner-art.jpg') no-repeat center center; background-size: cover;
 }
 body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(1); }
-
 .hero-content-v2 {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
+    position: relative; display: flex; justify-content: space-between; align-items: stretch;
     width: var(--width-hero);
 }
 .hero-photo-placeholder {
-    width: 30.17%;
-    aspect-ratio: 280 / 420;
-    border: 1px solid var(--border-color);
-    flex-shrink: 0;
-    position: relative;
+    width: 30.17%; aspect-ratio: 280 / 420; border: 1px solid var(--border-color);
+    flex-shrink: 0; position: relative;
 }
-.hero-text-wrapper {
-    width: 64.65%;
-    position: relative;
-}
-.hero-top-text {
-    position: absolute; top: 0; left: 0; width: 100%; text-align: left;
-}
+.hero-text-wrapper { width: 64.65%; position: relative; }
+.hero-top-text { position: absolute; top: 0; left: 0; width: 100%; text-align: left; }
 .hero-bottom-text {
     position: absolute; bottom: 0; left: 0; width: 100%; text-align: left;
     transform: translateY(0.25em);
 }
-.hero-top-text h1 {
-    font-size: var(--h1-size); font-weight: 900; margin: 0; line-height: 0.9; margin-top: -0.065em; 
-}
-.hero-top-text .nickname {
-    /* БЫЛО: font-size: clamp(16px, calc(20 / var(--design-width) * 100vw), 24px); */
-    font-size: var(--nickname-size); /* <-- СТАЛО */
-    font-weight: 700;
-    color: var(--red-accent);
-    margin: 0;
-}
-.profession-line {
-    display: flex; align-items: center; margin: 0; font-size: var(--h2-size); font-weight: 700;
-}
+.hero-top-text h1 { font-size: var(--h1-size); font-weight: 900; margin: 0; line-height: 0.9; margin-top: -0.065em; }
+.hero-top-text .nickname { font-size: var(--nickname-size); font-weight: 700; color: var(--red-accent); margin: 0; }
+.profession-line { display: flex; align-items: center; margin: 0; font-size: var(--h2-size); font-weight: 700; }
 .separator-icon-large {
-    width: clamp(20px, calc(28 / var(--design-width) * 100vw), 32px);
-    height: clamp(20px, calc(28 / var(--design-width) * 100vw), 32px);
+    width: var(--size-separator-large);
+    height: var(--size-separator-large);
     background-color: var(--text-color);
-    margin: 0 clamp(10px, calc(20 / var(--design-width) * 100vw), 24px);
+    margin: 0 20px;
 }
-.hero-bottom-text .philosophy {
-    font-size: var(--p-size); font-weight: 400; width: 100%; margin: 0; opacity: 1;
-}
+.hero-bottom-text .philosophy { font-size: var(--p-size); font-weight: 400; width: 100%; margin: 0; opacity: 1; }
+
 
 /* --- Секции 2-4: Проекты --- */
 .project-slide {
@@ -99,101 +67,71 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
 }
 .project-left-column {
     width: var(--width-project-left);
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-start;
 }
 .section-title { font-size: var(--h2-size); font-weight: 900; text-transform: uppercase; margin: 0; }
-.project-subtitle { display: flex; align-items: baseline; gap: 16px; margin-bottom: 12px; }
+.project-subtitle { 
+    display: flex; align-items: baseline; 
+    gap: var(--gap-subtitle);
+    margin-bottom: var(--margin-bottom-subtitle);
+}
 .project-title { font-size: var(--h3-size); font-weight: 900; color: var(--red-accent); margin: 0; text-transform: uppercase; }
 .project-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    /* БЫЛО: font-size: clamp(10px, calc(12 / var(--design-width) * 100vw), 14px); */
-    font-size: var(--meta-size); /* <-- СТАЛО */
-    font-weight: 700;
-    font-style: italic;
-    white-space: nowrap;
-    opacity: 0.7;
+    display: flex; align-items: center;
+    gap: var(--gap-project-meta);
+    font-size: var(--meta-size);
+    font-weight: 700; font-style: italic; white-space: nowrap; opacity: 0.7;
 }
-.meta-separator-icon { width: 8px; height: 8px; background-color: var(--text-color); }
+.meta-separator-icon { 
+    width: var(--size-meta-icon);
+    height: var(--size-meta-icon);
+    background-color: var(--text-color); 
+}
 .project-visual-placeholder {
     width: 100%; padding-bottom: 56.25%; height: 0; border: 1px solid var(--border-color); box-sizing: border-box;
 }
-.project-progress-indicator { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 16px; }
-.indicator-icon { width: clamp(20px, calc(27 / var(--design-width) * 100vw), 32px); height: clamp(20px, calc(27 / var(--design-width) * 100vw), 32px); background-color: var(--text-color); opacity: 0.3; transition: all 0.3s ease; }
+.project-progress-indicator { 
+    display: flex; justify-content: space-between; align-items: center; width: 100%; 
+    margin-top: var(--margin-top-indicator);
+}
+.indicator-icon { 
+    width: var(--size-indicator-icon);
+    height: var(--size-indicator-icon);
+    background-color: var(--text-color); 
+    opacity: 0.3; 
+    /* transition: all 0.3s ease; <-- УДАЛЕНО */
+}
 .indicator-icon.active { background-color: var(--red-accent); opacity: 1; }
 .project-details {
     width: var(--width-project-right);
     padding-top: var(--padding-project-details);
 }
-.details-block { margin-bottom: 24px; }
+.details-block { 
+    margin-bottom: var(--margin-bottom-details-block);
+}
 .details-heading { font-size: var(--p-size); font-weight: 700; color: var(--red-accent); margin: 0; text-transform: uppercase; }
 .details-text { font-size: var(--p-size); line-height: 1.6; margin: 0; }
 
+
 /* --- Секция 5: Финальный CTA --- */
 .final-cta-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-#final-section-title { font-size: clamp(30px, calc(42 / var(--design-width) * 100vw), 48px); }
+#final-section-title { font-size: var(--h2-size); }
+
 
 /* ====================================================== */
-/* 3. ДИАПАЗОН СЖАТИЯ КОНТЕНТА (1200px -> 800px)         */
-/* Здесь мы переопределяем ширину, делая ее плавной.      */
+/* 3. СЛУЖЕБНЫЕ СТИЛИ (Без изменений)                    */
 /* ====================================================== */
-@media (max-width: 1199.98px) {
-    /* 
-     * Используем формулу calc() для точного масштабирования в диапазоне 1200px -> 800px
-     * ФОРМУЛА: calc(МИН_ШИРИНА + ИЗМЕНЕНИЕ_ШИРИНЫ * (100vw - МИН_ЭКРАН) / ДИАПАЗОН_ЭКРАНА)
-    */
-
-    .hero-content-v2 {
-        /* От 928px (на 1200) до 650px (на 800) */
-        width: calc(650px + 278 * (100vw - 800px) / 400);
-    }
-
-    .project-left-column {
-        /* От 600px (на 1200) до 400px (на 800) */
-        width: calc(400px + 200 * (100vw - 800px) / 400);
-    }
-
-    .project-details {
-        /* От 500px (на 1200) до 320px (на 800) */
-        width: calc(320px + 180 * (100vw - 800px) / 400);
-    }
-
-    .project-slide {
-        /* Уменьшаем гэп, чтобы элементы не слипались слишком быстро */
-        gap: 24px;
-    }
-
-    .project-details {
-         /* Уменьшаем отступ, чтобы он не выглядел огромным на маленьком экране */
-        padding-top: 40px;
-    }
-}
-
-/* ====================================================== */
-/* 4. СЛУЖЕБНЫЕ СТИЛИ (Без изменений)                    */
-/* ====================================================== */
-
-/* --- Правила для скрытия UI в режиме игры --- */
 body.site-ui-hidden .site-header,
 body.site-ui-hidden .site-footer,
 body.site-ui-hidden .full-page-section {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
+    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
     transition: opacity 0.5s ease-in-out, visibility 0s 0.5s !important;
 }
-
 body.is-revealing .site-header,
 body.is-revealing .site-footer,
 body.is-revealing .full-page-section {
     transition: opacity 0.5s ease-in-out 0.3s !important;
 }
-
-/* --- Запрет переноса текста --- */
 .project-title,
 .project-meta,
 .details-heading,

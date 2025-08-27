@@ -2,31 +2,79 @@
 
 :root {
     /* ====================================================== */
-    /* 1. ЭТАЛОННЫЕ РАЗМЕРЫ (на 1200px и шире)               */
+    /* 1. БАЗОВЫЕ ЭТАЛОННЫЕ РАЗМЕРЫ (на 1200px и шире)       */
     /* ====================================================== */
-    --h1-size:    52px;
-    --h2-size:    36px;
-    --h3-size:    28px;
-    --p-size:     16px;
-    --nav-size:   16px;
-    --ui-size:    16px;
-    --lang-size:  28px;
+    --h1-size-base:    52px;
+    --h2-size-base:    36px;
+    --h3-size-base:    28px;
+    --p-size-base:     16px;
+    --nav-size-base:   16px;
+    --ui-size-base:    16px;
+    --lang-size-base:  28px;
+    --nickname-size-base: 16px;
+    --meta-size-base:     12px;
     
-    /* --- ИЗМЕНЕННЫЕ ПЕРЕМЕННЫЕ --- */
-    --nickname-size: 16px; /* <-- Обновлено */
-    --meta-size:     12px; /* <-- Обновлено */
+    /* --- ВОЗВРАЩАЕМ РАЗМЕРЫ ИКОНОК --- */
+    --icon-size-small-base:  14px;
+    --icon-size-normal-base: 24px;
+    --icon-size-large-base:  30px;
     
-    --width-hero:           928px;
-    --width-project-left:   600px;
-    --width-project-right:  500px;
-    
-    --gap-project-slide:    32px;
-    --padding-project-details: 76px;
+    --width-hero-base:           928px;
+    --width-project-left-base:   600px;
+    --width-project-right-base:  500px;
 
-    --size-qte-key:         16px;
-    --gap-qte-keys:         6px;
-    --offset-qte-wrapper:   16px;
-    --qte-hint-font-size:   14px;
+    --gap-project-slide-base:    32px;
+    --padding-project-details-base: 76px;
+    --gap-subtitle-base:         16px;
+    --margin-bottom-subtitle-base: 12px;
+    --margin-bottom-details-block-base: 24px;
+    --gap-project-meta-base:     8px;
+    --size-meta-icon-base:       8px;
+    --margin-top-indicator-base: 16px;
+    --size-indicator-icon-base:  27px;
+    --size-separator-large-base: 28px;
+
+    --size-qte-key-base:         16px;
+    --gap-qte-keys-base:         6px;
+    --offset-qte-wrapper-base:   16px;
+    --qte-hint-font-size-base:   14px;
+
+    /* ====================================================== */
+    /* 2. ФИНАЛЬНЫЕ РАБОЧИЕ ПЕРЕМЕННЫЕ                        */
+    /* ====================================================== */
+    --h1-size:    var(--h1-size-base);
+    --h2-size:    var(--h2-size-base);
+    --h3-size:    var(--h3-size-base);
+    --p-size:     var(--p-size-base);
+    --nav-size:   var(--nav-size-base);
+    --ui-size:    var(--ui-size-base);
+    --lang-size:  var(--lang-size-base);
+    --nickname-size: var(--nickname-size-base);
+    --meta-size:     var(--meta-size-base);
+    
+    --icon-size-small:  var(--icon-size-small-base);
+    --icon-size-normal: var(--icon-size-normal-base);
+    --icon-size-large:  var(--icon-size-large-base);
+    
+    --width-hero:           var(--width-hero-base);
+    --width-project-left:   var(--width-project-left-base);
+    --width-project-right:  var(--width-project-right-base);
+
+    --gap-project-slide:    var(--gap-project-slide-base);
+    --padding-project-details: var(--padding-project-details-base);
+    --gap-subtitle:         var(--gap-subtitle-base);
+    --margin-bottom-subtitle: var(--margin-bottom-subtitle-base);
+    --margin-bottom-details-block: var(--margin-bottom-details-block-base);
+    --gap-project-meta:     var(--gap-project-meta-base);
+    --size-meta-icon:       var(--size-meta-icon-base);
+    --margin-top-indicator: var(--margin-top-indicator-base);
+    --size-indicator-icon:  var(--size-indicator-icon-base);
+    --size-separator-large: var(--size-separator-large-base);
+
+    --size-qte-key:         var(--size-qte-key-base);
+    --gap-qte-keys:         var(--gap-qte-keys-base);
+    --offset-qte-wrapper:   var(--offset-qte-wrapper-base);
+    --qte-hint-font-size:   var(--qte-hint-font-size-base);
 
     /* --- Немасштабируемые переменные --- */
     --frame-padding-vertical: 50px;
@@ -56,11 +104,10 @@
 /* ========================================================================= */
 @media (max-width: 1199.98px) {
     :root {
-        /* --- Фиксируем рамку --- */
         --frame-padding-horizontal: 10px;
         --guide-line-offset:        0px;
 
-        /* --- Шрифты (сжатие до 70%) --- */
+        /* Здесь мы переопределяем рабочие переменные */
         --h1-size:    calc(36.4px + (52 - 36.4) * (100vw - 800px) / 400);
         --h2-size:    calc(25.2px + (36 - 25.2) * (100vw - 800px) / 400);
         --h3-size:    calc(19.6px + (28 - 19.6) * (100vw - 800px) / 400);
@@ -68,23 +115,28 @@
         --nav-size:   calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
         --ui-size:    calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
         --lang-size:  calc(19.6px + (28 - 19.6) * (100vw - 800px) / 400);
-
-        /* --- ИЗМЕНЕННЫЕ ФОРМУЛЫ --- */
-        /* от 16px до 11.2px (16 * 0.7) */
         --nickname-size: calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
-        /* от 12px до 8.4px (12 * 0.7) */
         --meta-size:     calc(8.4px + (12 - 8.4) * (100vw - 800px) / 400);
+        
+        --icon-size-small:  calc(9.8px + (14 - 9.8) * (100vw - 800px) / 400);
+        --icon-size-normal: calc(16.8px + (24 - 16.8) * (100vw - 800px) / 400);
+        --icon-size-large:  calc(21px + (30 - 21) * (100vw - 800px) / 400);
 
-        /* --- Блоки контента --- */
         --width-hero:           calc(650px + (928 - 650) * (100vw - 800px) / 400);
         --width-project-left:   calc(420px + (600 - 420) * (100vw - 800px) / 400);
         --width-project-right:  calc(350px + (500 - 350) * (100vw - 800px) / 400);
 
-        /* --- Отступы --- */
         --gap-project-slide:    calc(22.4px + (32 - 22.4) * (100vw - 800px) / 400);
         --padding-project-details: calc(53.2px + (76 - 53.2) * (100vw - 800px) / 400);
-
-        /* --- QTE --- */
+        --gap-subtitle:         calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
+        --margin-bottom-subtitle: calc(8.4px + (12 - 8.4) * (100vw - 800px) / 400);
+        --margin-bottom-details-block: calc(16.8px + (24 - 16.8) * (100vw - 800px) / 400);
+        --gap-project-meta:     calc(5.6px + (8 - 5.6) * (100vw - 800px) / 400);
+        --size-meta-icon:       calc(5.6px + (8 - 5.6) * (100vw - 800px) / 400);
+        --margin-top-indicator: calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
+        --size-indicator-icon:  calc(18.9px + (27 - 18.9) * (100vw - 800px) / 400);
+        --size-separator-large: calc(19.6px + (28 - 19.6) * (100vw - 800px) / 400);
+        
         --size-qte-key:         calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
         --gap-qte-keys:         calc(4.2px + (6 - 4.2) * (100vw - 800px) / 400);
         --offset-qte-wrapper:   calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
