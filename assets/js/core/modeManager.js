@@ -167,6 +167,11 @@ function initModeManager(config) {
         window.systemState = exitStateName;
         console.log(`System state changed to: ${exitStateName}`);
 
+        // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ №1:
+        // Добавляем класс .is-revealing В САМОМ НАЧАЛЕ.
+        // Теперь анимация будет включена ДО того, как мы уберем .game-mode.
+        document.body.classList.add('is-revealing');
+
         document.removeEventListener('keydown', handleEscKey);
         window.removeEventListener('resize', updateLayout);
         
@@ -177,27 +182,28 @@ function initModeManager(config) {
         const lineReturnDelay = 100;
         setTimeout(() => {
             document.body.classList.remove('no-line-transitions');
-            document.body.classList.remove(currentModeConfig.bodyClass);
+            document.body.classList.remove(currentModeConfig.bodyClass); // Теперь это безопасно
         }, lineReturnDelay);
         
         const siteAppearDelay = lineReturnDelay + 500;
         setTimeout(() => {
-            document.body.classList.add('is-revealing');
+            // document.body.classList.add('is-revealing'); // <-- Больше не нужно здесь
             document.body.classList.remove('site-ui-hidden');
         }, siteAppearDelay); 
 
         transitionTimers.cleanup = setTimeout(async () => {
+            // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ №2:
+            // Убираем класс .is-revealing после того, как все анимации завершились.
             document.body.classList.remove('is-revealing');
+            
             removeCursorBlocker();
             window.removeEventListener('mousemove', showModeCursorTemporarily);
             if (cursorIdleTimer) clearTimeout(cursorIdleTimer);
             
-            // 1. ЖДЕМ ЗАВЕРШЕНИЯ ОЧИСТКИ (для будущей совместимости)
             if (typeof currentModeConfig.onCleanup === 'function') {
-                await currentModeConfig.onCleanup(); // на случай если cleanup станет асинхронным
+                await currentModeConfig.onCleanup();
             }
 
-            // 2. ТОЛЬКО ПОСЛЕ ЭТОГО сбрасываем состояние и снимаем блокировку
             activeMode = null;
             currentModeConfig = {};
             window.systemState = 'SITE';

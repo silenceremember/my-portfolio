@@ -7,14 +7,13 @@ body::before, body::after {
     background-color: var(--border-color);
     z-index: 501;
     height: 1px;
-    /* ВСЕГДА растянуты на всю ширину */
     left: 0;
     right: 0;
-    /* Анимируем ТОЛЬКО ВЕРТИКАЛЬНОЕ смещение */
-    transition: top 0.5s ease, bottom 0.5s ease, left 0.5s ease, right 0.5s ease;
     pointer-events: none;
+    
+    /* СОСТОЯНИЕ ПО УМОЛЧАНИЮ (ДЛЯ РЕЖИМА SITE): НЕТ АНИМАЦИИ */
+    transition: none;
 }
-/* По умолчанию: Используем масштабируемые отступы */
 body::before {
     top: var(--frame-padding-vertical);
 }
@@ -30,61 +29,59 @@ body::after {
     background-color: var(--border-color);
     z-index: 501;
     pointer-events: none;
-    transition: top 0.5s ease, bottom 0.5s ease, left 0.5s ease, right 0.5s ease;
+    opacity: var(--guide-line-opacity);
+
+    /* СОСТОЯНИЕ ПО УМОЛЧАНИЮ (ДЛЯ РЕЖИМА SITE): НЕТ АНИМАЦИИ */
+    transition: none;
 }
-/* По умолчанию: */
 .vertical-guide-line {
     top: 0;
     bottom: 0;
 }
 .vertical-guide-line.left {
-    /* Используем новую масштабируемую переменную */
     left: var(--guide-line-offset);
     right: auto;
 }
 .vertical-guide-line.right {
-    /* Используем новую масштабируемую переменную */
     right: var(--guide-line-offset);
     left: auto;
 }
 
+/* ====================================================== */
+/* ===         ПРАВИЛА ДЛЯ РЕЖИМОВ И АНИМАЦИЙ         === */
+/* ====================================================== */
+
+/* 
+   КЛЮЧЕВОЕ ИЗМЕНЕНИЕ:
+   Мы ЯВНО включаем плавную анимацию ТОЛЬКО тогда, когда
+   активен режим игры, терминала, ИЛИ когда идет анимация выхода.
+*/
+body.game-mode .vertical-guide-line,
+body.terminal-active .vertical-guide-line,
+body.is-revealing .vertical-guide-line,
+body.game-mode::before,
+body.terminal-active::before,
+body.is-revealing::before,
+body.game-mode::after,
+body.terminal-active::after,
+body.is-revealing::after {
+    transition: top 0.5s ease, bottom 0.5s ease, left 0.5s ease, right 0.5s ease, opacity 0.5s ease;
+}
+
+
+/* --- Правила позиционирования для режимов (остаются без изменений) --- */
 body.no-line-transitions::before,
 body.no-line-transitions::after,
 body.no-line-transitions .vertical-guide-line {
     transition: none;
 }
 
-/* ====================================================== */
-/* ===         РАЗДЕЛЬНЫЕ ПРАВИЛА ДЛЯ РЕЖИМОВ         === */
-/* ====================================================== */
+body.game-mode::before { top: var(--game-border-top); }
+body.game-mode::after { bottom: var(--game-border-bottom); top: auto; }
+body.game-mode .vertical-guide-line.left { left: var(--game-border-left); }
+body.game-mode .vertical-guide-line.right { right: var(--game-border-right); }
 
-/* --- ПРАВИЛА ТОЛЬКО ДЛЯ РЕЖИМА ИГРЫ --- */
-body.game-mode::before {
-    top: var(--game-border-top);
-}
-body.game-mode::after {
-    bottom: var(--game-border-bottom);
-    top: auto; /* Важное правило для корректного расчета */
-}
-body.game-mode .vertical-guide-line.left {
-    left: var(--game-border-left);
-}
-body.game-mode .vertical-guide-line.right {
-    right: var(--game-border-right);
-}
-
-
-/* --- ПРАВИЛА ТОЛЬКО ДЛЯ РЕЖИМА ТЕРМИНАЛА --- */
-body.terminal-active::before {
-    top: var(--terminal-border-top);
-}
-body.terminal-active::after {
-    bottom: var(--terminal-border-bottom);
-    top: auto; /* Важное правило для корректного расчета */
-}
-body.terminal-active .vertical-guide-line.left {
-    left: var(--terminal-border-left);
-}
-body.terminal-active .vertical-guide-line.right {
-    right: var(--terminal-border-right);
-}
+body.terminal-active::before { top: var(--terminal-border-top); }
+body.terminal-active::after { bottom: var(--terminal-border-bottom); top: auto; }
+body.terminal-active .vertical-guide-line.left { left: var(--terminal-border-left); }
+body.terminal-active .vertical-guide-line.right { right: var(--terminal-border-right); }
