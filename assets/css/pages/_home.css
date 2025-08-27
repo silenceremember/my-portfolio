@@ -48,7 +48,7 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
     display: flex;
     justify-content: space-between;
     align-items: stretch;
-    width: 928px; /* <-- ФИКСИРОВАННАЯ ШИРИНА */
+    width: var(--width-hero);
 }
 .hero-photo-placeholder {
     width: 30.17%;
@@ -90,12 +90,11 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
 /* --- Секции 2-4: Проекты --- */
 .project-slide {
     display: flex; justify-content: center; align-items: flex-start;
-    gap: 32px; /* Фиксированный гэп для предсказуемости */
+    gap: var(--gap-project-slide);
     width: 100%;
-    /* Общая ширина контента ~ 600 + 500 + 32 = 1132px */
 }
 .project-left-column {
-    width: 600px; /* <-- ФИКСИРОВАННАЯ ШИРИНА */
+    width: var(--width-project-left);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -113,8 +112,8 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
 .indicator-icon { width: clamp(20px, calc(27 / var(--design-width) * 100vw), 32px); height: clamp(20px, calc(27 / var(--design-width) * 100vw), 32px); background-color: var(--text-color); opacity: 0.3; transition: all 0.3s ease; }
 .indicator-icon.active { background-color: var(--red-accent); opacity: 1; }
 .project-details {
-    width: 500px; /* <-- ФИКСИРОВАННАЯ ШИРИНА */
-    padding-top: 76px; /* Фиксированный отступ для предсказуемости */
+    width: var(--width-project-right);
+    padding-top: var(--padding-project-details);
 }
 .details-block { margin-bottom: 24px; }
 .details-heading { font-size: var(--p-size); font-weight: 700; color: var(--red-accent); margin: 0; text-transform: uppercase; }

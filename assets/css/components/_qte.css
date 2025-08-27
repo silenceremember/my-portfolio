@@ -1,4 +1,4 @@
-/* assets/css/components/_qte.css (ПОЛНАЯ ОБНОВЛЕННАЯ ВЕРСИЯ) */
+/* assets/css/components/_qte.css */
 
 /* --- НОВЫЙ, АДАПТИВНЫЙ QTE (ВЕРСИЯ 2) --- */
 
@@ -8,66 +8,60 @@
     bottom: 0;
     left: 0;
     
-    --qte-vertical-offset: 16px;
-    transform: translateY(calc(100% + var(--qte-vertical-offset)));
-
-    /* ВАЖНО: Добавляем transition для плавного исчезновения/появления */
+    transform: translateY(calc(100% + var(--offset-qte-wrapper)));
     transition: opacity 0.2s ease-in-out;
 }
 
 #qte-container {
     display: flex;
-    gap: 6px;
+    gap: var(--gap-qte-keys);
 }
 
-/* ... (остальной код до медиа-запросов остается без изменений) ... */
 #qte-hint {
     position: absolute; top: 100%; left: 0; margin-top: 5px;
-    font-size: 14px; font-weight: 700; color: var(--red-accent); text-transform: uppercase;
-    opacity: 0; pointer-events: none; transition: opacity 0.25s ease; 
+    font-size: var(--qte-hint-font-size); 
+    font-weight: 700; 
+    color: var(--red-accent); 
+    text-transform: uppercase;
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.25s ease; 
     white-space: nowrap; 
 }
+
 #qte-hint.visible { opacity: 1; }
+
 .qte-key {
-    width: 16px; height: 16px; background-color: transparent;
-    border: 1px solid var(--text-color); box-sizing: border-box; 
+    width: var(--size-qte-key);
+    height: var(--size-qte-key);
+    background-color: transparent;
+    border: 1px solid var(--text-color); 
+    box-sizing: border-box; 
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+
 .qte-key.is-fading-with-hint { transition: background-color 0.25s ease, border-color 0.25s ease; }
 .qte-key.correct { background-color: var(--red-accent); border-color: var(--red-accent); }
 .qte-key.error-shake-vertical { animation: qte-error-shake-vertical 0.4s ease-in-out; }
+
 @keyframes qte-error-shake-vertical {
     0%, 100% { transform: translateY(0); }
     25% { transform: translateY(5px); }
     75% { transform: translateY(0); }
 }
 
-/* ==================================================================== */
-/* ===         МАСШТАБИРОВАНИЕ ДЛЯ УЗКИХ ЭКРАНОВ (1250px-800px)     === */
-/* ==================================================================== */
-@media (max-width: 1249.98px) {
-    #qte-wrapper {
-        --qte-vertical-offset: calc(12px + (16 - 12) * (100vw - 800px) / 450);
-    }
-    #qte-container {
-        gap: calc(4px + (6 - 4) * (100vw - 800px) / 450);
-    }
-    .qte-key {
-        width:  calc(12px + (16 - 12) * (100vw - 800px) / 450);
-        height: calc(12px + (16 - 12) * (100vw - 800px) / 450);
-    }
-    #qte-hint {
-        font-size: calc(12px + (14 - 12) * (100vw - 800px) / 450);
-        margin-top: calc(4px + (5 - 4) * (100vw - 800px) / 450);
-    }
-}
+/* 
+ * БЛОК МАСШТАБИРОВАНИЯ @media ПОЛНОСТЬЮ УДАЛЕН ОТСЮДА.
+ * Вся эта логика теперь живет в _variables.css
+*/
+
 
 /* ==================================================================== */
-/* ===         НОВЫЙ БЛОК: СКРЫТИЕ НА МОБИЛЬНЫХ УСТРОЙСТВАХ        === */
+/* ===         СКРЫТИЕ НА МОБИЛЬНЫХ УСТРОЙСТВАХ (< 800px)          === */
 /* ==================================================================== */
 @media (max-width: 799.98px) {
-    #qte-wrapper {
-        opacity: 0;
-        pointer-events: none; /* Игнорируем любые клики/касания */
+    #qte-wrapper { 
+        opacity: 0; 
+        pointer-events: none; 
     }
 }
