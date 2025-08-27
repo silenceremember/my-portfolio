@@ -14,16 +14,12 @@ body::before, body::after {
     transition: top 0.5s ease, bottom 0.5s ease, left 0.5s ease, right 0.5s ease;
     pointer-events: none;
 }
-/* По умолчанию: */
+/* По умолчанию: Используем масштабируемые отступы */
 body::before {
     top: var(--frame-padding-vertical);
-    left: 0;
-    right: 0;
 }
 body::after {
     bottom: var(--frame-padding-vertical);
-    left: 0;
-    right: 0;
 }
 
 
@@ -42,11 +38,13 @@ body::after {
     bottom: 0;
 }
 .vertical-guide-line.left {
-    left: 400px;
+    /* Используем новую масштабируемую переменную */
+    left: var(--guide-line-offset);
     right: auto;
 }
 .vertical-guide-line.right {
-    right: 400px;
+    /* Используем новую масштабируемую переменную */
+    right: var(--guide-line-offset);
     left: auto;
 }
 

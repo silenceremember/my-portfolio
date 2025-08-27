@@ -31,7 +31,8 @@
     box-sizing: border-box;
 }
 #cta-telegram-button {
-    width: 400px;
+    width: 100%; /* Пусть растягивается на всю колонку грида */
+    max-width: 400px; /* Ограничиваем */
 }
 .nav-button:hover {
     background-color: var(--red-accent);
