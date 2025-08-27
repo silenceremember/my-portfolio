@@ -83,8 +83,7 @@
     right: 0;
     background-color: var(--red-accent);
     border-radius: 0;
-    pointer-events: none;
-    cursor: grab; /* <-- ДОБАВЛЕНО: Курсор "схватить" при наведении */
+    cursor: grab; /* <-- Теперь этот курсор будет отображаться при наведении */
 }
 
 body.is-terminal-scrolling {

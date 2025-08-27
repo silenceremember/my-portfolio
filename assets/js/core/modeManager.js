@@ -110,6 +110,10 @@ function initModeManager(config) {
             return;
         }
 
+        if (window.getSelection) {
+            window.getSelection().removeAllRanges();
+        }
+
         window.systemState = `ENTERING_${modeName.toUpperCase()}`;
         console.log(`System state changed to: ${window.systemState}`);
 

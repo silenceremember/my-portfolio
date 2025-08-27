@@ -90,23 +90,36 @@ function getSecretTerminalHandlers() {
         target.textContent = text;
     }
 
-    const handleDocumentClick = (e) => {
-        // Защита: выходим, если инпут не готов к работе
+    const handleGlobalMouseDown = (e) => {
+        // Выходим, если инпут не готов к работе
         if (!inputEl || inputEl.disabled) {
             return;
         }
-
+    
         const target = e.target;
         
-        // Проверяем, был ли клик по элементам, которые НЕ должны вызывать фокус
-        const isInteractiveTerminalElement = 
-            target === inputEl || // Сам инпут
-            target === thumbEl;   // Ползунок скроллбара
-
-        if (!isInteractiveTerminalElement) {
-            // Если клик был НЕ по интерактивному элементу,
-            // мы принудительно возвращаем фокус.
-            e.preventDefault(); // Предотвращаем любые другие действия (например, выделение текста на фоне)
+        // Проверяем, был ли клик ВНУТРИ интерактивных элементов терминала.
+        // .contains() надежнее, чем '===', т.к. сработает и на дочерних элементах.
+        const isClickInsideTerminal = 
+            inputEl.contains(target) || 
+            thumbEl.contains(target);
+    
+        // Если клик был внутри (например, вы пытаетесь выделить текст в input)
+        if (isClickInsideTerminal) {
+            // ...то мы НИЧЕГО не делаем.
+            // Просто позволяем браузеру выполнить все стандартные действия:
+            // установить курсор, начать выделение и т.д.
+            return;
+        } else {
+            // А вот если клик был СНАРУЖИ...
+            // 1. Мы отменяем стандартное действие браузера (попытку убрать фокус с нашего инпута).
+            e.preventDefault();
+    
+            // 2. Мы вручную сбрасываем выделение, как и в прошлый раз.
+            // Это гарантирует, что выделение исчезнет только при клике за пределами поля.
+            inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length);
+            
+            // 3. На всякий случай убеждаемся, что фокус остался на месте.
             inputEl.focus();
         }
     };
@@ -300,12 +313,16 @@ function getSecretTerminalHandlers() {
             await delay(50);
         }
         if (!isAnimationActive && !instant) return;
+
+        const formattedLength = msg.text.length.toString().padStart(2, '0');
     
         // --- Логика вывода текста ---
         if (instant) {
-            counterEl.textContent = `[${msg.text.length}]`;
+            // Используем уже отформатированную строку
+            counterEl.textContent = `[${formattedLength}]`;
         } else {
-            await typeContent(counterEl, `[${msg.text.length}]`);
+            // Передаем в typeContent готовую строку для красивой печати
+            await typeContent(counterEl, `[${formattedLength}]`);
         }
     
         if (!isHint) {
@@ -468,29 +485,44 @@ function getSecretTerminalHandlers() {
     };
 
     async function handleUserInput(inputElement) {
-        // Убрали проверку `isPrintingLine`, так как к моменту, когда пользователь может вводить,
-        // печать уже точно завершена.
+        // Выходим, если сообщение уже отправлено или поле пустое
         if (hasSentMessage) return;
-
-        // --- НОВАЯ ЗАЩИТА №1: TRIM ПЕРЕД ОТПРАВКОЙ ---
-        // Обрезаем пробелы с начала и конца строки
+    
         const text = inputElement.value.trim();
         
-        // Отправляем только если после обрезки что-то осталось
+        // Отправляем только если после обрезки пробелов что-то осталось
         if (text) {
             hasSentMessage = true;
-            // Важно: обновляем значение в поле ввода на обрезанное,
-            // чтобы пользователь видел, что пробелы удалились.
+            // Важно: обновляем значение в поле ввода на обрезанное
             inputElement.value = text; 
-            updateCharCounter(inputElement); // И обновляем счетчик
-
+            updateCharCounter(inputElement);
             lockInput(inputElement);
+    
             if (!TEST_MODE) {
                 storage.setItem(STORAGE_KEY, 'true');
             }
-            isAnimationActive = true; // Этот флаг здесь не так важен, но пусть будет для консистентности
+    
+            // --- РЕШЕНИЕ №1: АНИМАЦИЯ ПЕЧАТИ ---
+            // Временно "оживляем" анимацию специально для этого сообщения.
+            // Это позволит `addLine` и `typeContent` работать в штатном режиме.
+            isAnimationActive = true;
+    
             await addLine({ name: username, text: text }, { isUser: true });
+            
+            // Сразу после завершения печати снова "усыпляем" анимацию.
             isAnimationActive = false;
+    
+            // --- РЕШЕНИЕ №2: ПРИНУДИТЕЛЬНЫЙ СКРОЛЛ ---
+            // После того как строка была добавлена и начала печататься,
+            // мы принудительно прокручиваем контейнер до самого низа.
+            if (outputEl) {
+                // Используем плавную прокрутку для лучшего UX
+                outputEl.scrollTo({
+                    top: outputEl.scrollHeight,
+                    behavior: 'smooth' 
+                });
+            }
+    
         } else {
             // Если после trim строка стала пустой, просто очищаем поле ввода.
             inputElement.value = '';
@@ -640,7 +672,7 @@ function getSecretTerminalHandlers() {
                     document.addEventListener('keydown', handleGlobalInput);
                     
                     // --- ДОБАВЛЯЕМ ГЛОБАЛЬНЫЙ СЛУШАТЕЛЬ КЛИКОВ ---
-                    document.addEventListener('click', handleDocumentClick, true); // Используем `true` для фазы захвата
+                    document.addEventListener('mousedown', handleGlobalMouseDown, true);
 
                     setTimeout(() => inputEl.focus(), 50);
                 }
@@ -669,7 +701,7 @@ function getSecretTerminalHandlers() {
             document.removeEventListener('keydown', handleImmediateExit);
 
             // --- ОБЯЗАТЕЛЬНО УДАЛЯЕМ НОВЫЕ СЛУШАТЕЛИ ---
-            document.removeEventListener('click', handleDocumentClick, true);
+            document.removeEventListener('mousedown', handleGlobalMouseDown, true);
             if (inputEl) {
                 inputEl.removeEventListener('blur', handleInputBlur);
                 inputEl.removeEventListener('paste', preventDefaultAction);
