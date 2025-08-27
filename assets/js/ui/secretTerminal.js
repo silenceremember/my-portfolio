@@ -655,6 +655,8 @@ function getSecretTerminalHandlers() {
             }
             
             // --- ШАГ 3: Завершение и очистка ---
+            isSkipRequested = false;
+            
             updateCustomScrollbar();
             
             if (isAnimationActive) {
