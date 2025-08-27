@@ -1,20 +1,29 @@
 /* assets/css/components/_qte.css */
 
+/* --- НОВЫЙ, АДАПТИВНЫЙ QTE (ВЕРСИЯ 2) --- */
+
 #qte-wrapper {
-    position: fixed;
+    /* 1. Позиционируемся абсолютно относительно родителя (.hero-photo-placeholder) */
+    position: absolute;
     z-index: 1000;
-    left: calc(50% - (280px + 48px + 600px) / 2 - 1px);
-    top: 50%;
-    transform: translateY(calc(420px / 2 + 16px));
-    /* Добавляем это для позиционирования дочерней подсказки */
+
+    /* 2. Прижимаемся к нижней границе родителя */
+    bottom: 0;
+
+    /* 3. Выравниваем по левому краю родителя */
+    left: 0;
+
+    /* 4. Смещаем вниз, чтобы оказаться ПОД блоком фотографии */
+    transform: translateY(calc(100% + 16px));
 }
+
 
 #qte-container {
     display: flex;
     gap: 6px;
 }
 
-/* --- ВОЗВРАЩАЕМ СТИЛИ ДЛЯ ПОДСКАЗКИ --- */
+/* --- СТИЛИ ДЛЯ ПОДСКАЗКИ (остаются без изменений) --- */
 #qte-hint {
     position: absolute;
     top: 100%;
@@ -42,6 +51,7 @@
     to { opacity: 0; }
 }
 
+/* --- СТИЛИ ДЛЯ КЛАВИШ (остаются без изменений) --- */
 .qte-key {
     width: 16px;
     height: 16px;
@@ -60,7 +70,7 @@
     border-color: var(--red-accent);
 }
 
-/* --- АНИМАЦИЯ №1: Ошибка ввода (вертикальная тряска клавиши) --- */
+/* --- АНИМАЦИИ (остаются без изменений) --- */
 .qte-key.error-shake-vertical {
     animation: qte-error-shake-vertical 0.4s ease-in-out;
 }
