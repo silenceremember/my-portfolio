@@ -21,25 +21,78 @@
 .footer-left, .footer-right, .footer-center {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     flex-basis: 33.33%;
 }
 .footer-left { align-items: flex-start; }
 .footer-center { align-items: center; }
 .footer-right { align-items: flex-end; }
-.footer-socials { display: flex; align-items: center; gap: 12px; }
+
+.footer-socials { display: flex; align-items: center; gap: 10px; }
 .footer-logos { display: flex; align-items: center; gap: 4px; opacity: 0.5; }
+
 .email-placeholder { width: 165px; height: 14px; background-color: var(--text-color); opacity: 0.5; transition: opacity 0.2s ease; }
 a.footer-icon-link:hover .email-placeholder { opacity: 1; }
 .copyright-placeholder { width: 136px; height: 11.5px; background-color: var(--text-color); opacity: 0.5; }
 .logo-placeholder-me { width: var(--logo-me-width); height: var(--logo-me-height); background-color: var(--text-color); }
 .logo-placeholder-skull { width: var(--icon-size-large); height: var(--icon-size-large); background-color: var(--text-color); }
+
 #section-progress { display: flex; gap: 6px; }
-.progress-dot { width: 14px; height: 14px; border: 1px solid; transition: all 0.4s ease; }
+.progress-dot { 
+    width: 14px; /* <-- ИСХОДНЫЙ РАЗМЕР */
+    height: 14px; /* <-- ИСХОДНЫЙ РАЗМЕР */
+    border: 1px solid; 
+    transition: all 0.4s ease; 
+}
 .progress-dot:not(.active) { cursor: pointer; }
 .progress-dot:not(.active):hover { border-color: var(--red-accent); }
 .progress-dot.active { background-color: var(--red-accent); border-color: var(--red-accent); cursor: default; }
 
 .footer-socials, .footer-logos {
-    white-space: nowrap; /* Запрещает иконкам внутри этих блоков переноситься */
+    white-space: nowrap;
+}
+
+/* ============================================================= */
+/* === НОВЫЕ ПРАВИЛА ДЛЯ УМЕНЬШЕНИЯ ЭЛЕМЕНТОВ ВНУТРИ ФУТЕРА === */
+/* ============================================================= */
+
+/* Социальные иконки в футере (используют .icon-placeholder) */
+.site-footer .icon-placeholder {
+    width: 20px;
+    height: 20px;
+}
+
+/* Плейсхолдер почты */
+.site-footer .email-placeholder {
+    width: 140px;
+    height: 12px;
+}
+
+/* 
+ * ПРАВИЛО ДЛЯ УМЕНЬШЕНИЯ ТОЧЕК УДАЛЕНО.
+ * Теперь они снова будут 14x14px, как задано выше.
+*/
+
+/* Мой логотип */
+.site-footer .logo-placeholder-me {
+    width: 34px;
+    height: 20px;
+}
+
+/* Логотип-череп */
+.site-footer .logo-placeholder-skull {
+    width: 22px;
+    height: 22px;
+}
+
+/* Плейсхолдер копирайта */
+.site-footer .copyright-placeholder {
+    width: 115px;
+    height: 10px;
+}
+
+/* Разделители (используют .separator-icon) */
+.site-footer .separator-icon {
+    width: 10px;
+    height: 10px;
 }

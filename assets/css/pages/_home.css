@@ -1,6 +1,8 @@
 /* assets/css/pages/_home.css */
 
-/* Общие стили для секций на главной */
+/* ====================================================== */
+/* 1. ОБЩИЕ СТИЛИ СЕКЦИЙ                                 */
+/* ====================================================== */
 main.sections-container {
     position: absolute;
     top: var(--frame-padding-vertical);
@@ -8,7 +10,7 @@ main.sections-container {
     left: var(--frame-padding-horizontal);
     right: var(--frame-padding-horizontal);
     overflow: hidden;
-    transition: opacity 0.5s ease;
+    /* Убираем transition отсюда, чтобы он не конфликтовал с правилами для игры */
 }
 .full-page-section {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -27,8 +29,11 @@ main.sections-container {
 @keyframes fadeIn { to { opacity: 1; } }
 
 /* ====================================================== */
-/* Секция 1: Манифест (ФИНАЛЬНОЕ РЕШЕНИЕ)                 */
+/* 2. СТИЛИ ДЛЯ ШИРОКИХ ЭКРАНОВ (> 1200px)               */
+/* Здесь все контентные блоки имеют ФИКСИРОВАННУЮ ширину. */
 /* ====================================================== */
+
+/* --- Секция 1: Манифест --- */
 .hero-background-banner {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     z-index: -1;
@@ -42,11 +47,9 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
     position: relative;
     display: flex;
     justify-content: space-between;
-    /* align-items: center; <-- БЫЛО */
-    align-items: stretch; /* <-- СТАЛО: Заставляет потомков растянуться на всю высоту */
-    width: clamp(650px, calc(928 / var(--design-width) * 100vw), 928px);
+    align-items: stretch;
+    width: 928px; /* <-- ФИКСИРОВАННАЯ ШИРИНА */
 }
-
 .hero-photo-placeholder {
     width: 30.17%;
     aspect-ratio: 280 / 420;
@@ -54,59 +57,45 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
     flex-shrink: 0;
     position: relative;
 }
-
-/* Текстовый блок становится контекстом для позиционирования */
 .hero-text-wrapper {
     width: 64.65%;
-    position: relative; /* <-- ОБЯЗАТЕЛЬНО */
-    /* height: 100% больше не нужен, т.к. align-items: stretch делает свою работу */
+    position: relative;
 }
-
-/* Возвращаем absolute, но теперь он работает в правильном контексте */
 .hero-top-text {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    text-align: left;
+    position: absolute; top: 0; left: 0; width: 100%; text-align: left;
 }
 .hero-bottom-text {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: left;
-    transform: translateY(0.25em); /* Нижний текст оставляем как есть, он работает отлично */
+    position: absolute; bottom: 0; left: 0; width: 100%; text-align: left;
+    transform: translateY(0.25em);
 }
-
-/* Остальные стили внутри текстового блока остаются прежними */
 .hero-top-text h1 {
-    font-size: var(--h1-size);
-    font-weight: 900;
-    margin: 0;
-    /* Убираем лишнее пространство над буквами */
-    line-height: 0.9; 
-    /* "Подтягиваем" текст наверх, чтобы он наложился на рамку */
-    margin-top: -0.065em; 
+    font-size: var(--h1-size); font-weight: 900; margin: 0; line-height: 0.9; margin-top: -0.065em; 
 }
-.hero-top-text .nickname { font-size: clamp(16px, calc(20 / var(--design-width) * 100vw), 24px); font-weight: 700; color: var(--red-accent); margin: 0; }
-.profession-line { display: flex; align-items: center; margin: 0; font-size: var(--h2-size); font-weight: 700; }
-.profession-line span { white-space: nowrap; }
+.hero-top-text .nickname {
+    font-size: clamp(16px, calc(20 / var(--design-width) * 100vw), 24px); font-weight: 700; color: var(--red-accent); margin: 0;
+}
+.profession-line {
+    display: flex; align-items: center; margin: 0; font-size: var(--h2-size); font-weight: 700;
+}
 .separator-icon-large {
     width: clamp(20px, calc(28 / var(--design-width) * 100vw), 32px);
     height: clamp(20px, calc(28 / var(--design-width) * 100vw), 32px);
     background-color: var(--text-color);
     margin: 0 clamp(10px, calc(20 / var(--design-width) * 100vw), 24px);
 }
-.hero-bottom-text .philosophy { font-size: var(--p-size); font-weight: 400; width: 100%; margin: 0; opacity: 1; }
+.hero-bottom-text .philosophy {
+    font-size: var(--p-size); font-weight: 400; width: 100%; margin: 0; opacity: 1;
+}
 
-
-/* Секции 2-4: Проекты */
-.project-slide { display: flex; justify-content: center; align-items: flex-start; gap: clamp(16px, calc(24 / var(--design-width) * 100vw), 32px); width: 100%; }
+/* --- Секции 2-4: Проекты --- */
+.project-slide {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 32px; /* Фиксированный гэп для предсказуемости */
+    width: 100%;
+    /* Общая ширина контента ~ 600 + 500 + 32 = 1132px */
+}
 .project-left-column {
-    /* БЫЛО: width: 55%; (неправильно) */
-    /* СТАЛО: масштабируемая ширина с ограничениями */
-    width: clamp(400px, calc(560 / var(--design-width) * 100vw), 600px);
+    width: 600px; /* <-- ФИКСИРОВАННАЯ ШИРИНА */
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -114,38 +103,68 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
 }
 .section-title { font-size: var(--h2-size); font-weight: 900; text-transform: uppercase; margin: 0; }
 .project-subtitle { display: flex; align-items: baseline; gap: 16px; margin-bottom: 12px; }
-.project-title { font-size: var(--h3-size); font-weight: 900; color: var(--red-accent); margin: 0; text-transform: uppercase; white-space: nowrap; }
-.project-meta { display: flex; align-items: center; gap: 8px; font-size: clamp(10px, calc(12 / var(--design-width) * 100vw), 14px); font-weight: 700; font-style: italic; white-space: nowrap; opacity: 0.7; }
+.project-title { font-size: var(--h3-size); font-weight: 900; color: var(--red-accent); margin: 0; text-transform: uppercase; }
+.project-meta { display: flex; align-items: center; gap: 8px; font-size: clamp(12px, calc(12 / var(--design-width) * 100vw), 14px); font-weight: 700; font-style: italic; opacity: 0.7; }
 .meta-separator-icon { width: 8px; height: 8px; background-color: var(--text-color); }
 .project-visual-placeholder {
-    width: 100%;
-    /* Возвращаем трюк с padding-bottom для сохранения соотношения сторон 16:9 (56.25%) */
-    padding-bottom: 56.25%;
-    height: 0;
-    border: 1px solid var(--border-color);
-    box-sizing: border-box;
+    width: 100%; padding-bottom: 56.25%; height: 0; border: 1px solid var(--border-color); box-sizing: border-box;
 }
 .project-progress-indicator { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 16px; }
 .indicator-icon { width: clamp(20px, calc(27 / var(--design-width) * 100vw), 32px); height: clamp(20px, calc(27 / var(--design-width) * 100vw), 32px); background-color: var(--text-color); opacity: 0.3; transition: all 0.3s ease; }
 .indicator-icon.active { background-color: var(--red-accent); opacity: 1; }
 .project-details {
-    /* БЫЛО: width: 45%; (неправильно) */
-    /* СТАЛО: масштабируемая ширина с ограничениями */
-    width: clamp(320px, calc(460 / var(--design-width) * 100vw), 500px);
-    padding-top: clamp(40px, calc(76 / var(--design-width) * 100vw), 80px);
+    width: 500px; /* <-- ФИКСИРОВАННАЯ ШИРИНА */
+    padding-top: 76px; /* Фиксированный отступ для предсказуемости */
 }
 .details-block { margin-bottom: 24px; }
-.details-heading { font-size: var(--p-size); font-weight: 700; color: var(--red-accent); margin: 0; text-transform: uppercase; white-space: nowrap; }
+.details-heading { font-size: var(--p-size); font-weight: 700; color: var(--red-accent); margin: 0; text-transform: uppercase; }
 .details-text { font-size: var(--p-size); line-height: 1.6; margin: 0; }
 
-/* Секция 5: Финальный CTA */
+/* --- Секция 5: Финальный CTA --- */
 .final-cta-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 #final-section-title { font-size: clamp(30px, calc(42 / var(--design-width) * 100vw), 48px); }
 
-/* --- ОБНОВЛЕННЫЕ ПРАВИЛА ДЛЯ СКРЫТИЯ UI В РЕЖИМЕ ИГРЫ --- */
+/* ====================================================== */
+/* 3. ДИАПАЗОН СЖАТИЯ КОНТЕНТА (1200px -> 800px)         */
+/* Здесь мы переопределяем ширину, делая ее плавной.      */
+/* ====================================================== */
+@media (max-width: 1199.98px) {
+    /* 
+     * Используем формулу calc() для точного масштабирования в диапазоне 1200px -> 800px
+     * ФОРМУЛА: calc(МИН_ШИРИНА + ИЗМЕНЕНИЕ_ШИРИНЫ * (100vw - МИН_ЭКРАН) / ДИАПАЗОН_ЭКРАНА)
+    */
 
-/* 1. ПРАВИЛО ДЛЯ СКРЫТИЯ (при входе в игру) */
-/* Это правило агрессивно скрывает всё, что нужно, когда активен режим игры. */
+    .hero-content-v2 {
+        /* От 928px (на 1200) до 650px (на 800) */
+        width: calc(650px + 278 * (100vw - 800px) / 400);
+    }
+
+    .project-left-column {
+        /* От 600px (на 1200) до 400px (на 800) */
+        width: calc(400px + 200 * (100vw - 800px) / 400);
+    }
+
+    .project-details {
+        /* От 500px (на 1200) до 320px (на 800) */
+        width: calc(320px + 180 * (100vw - 800px) / 400);
+    }
+
+    .project-slide {
+        /* Уменьшаем гэп, чтобы элементы не слипались слишком быстро */
+        gap: 24px;
+    }
+
+    .project-details {
+         /* Уменьшаем отступ, чтобы он не выглядел огромным на маленьком экране */
+        padding-top: 40px;
+    }
+}
+
+/* ====================================================== */
+/* 4. СЛУЖЕБНЫЕ СТИЛИ (Без изменений)                    */
+/* ====================================================== */
+
+/* --- Правила для скрытия UI в режиме игры --- */
 body.site-ui-hidden .site-header,
 body.site-ui-hidden .site-footer,
 body.site-ui-hidden .full-page-section {
@@ -155,28 +174,16 @@ body.site-ui-hidden .full-page-section {
     transition: opacity 0.5s ease-in-out, visibility 0s 0.5s !important;
 }
 
-/* 2. ПРАВИЛО ДЛЯ ПОЯВЛЕНИЯ (при выходе из игры) */
-/* Это правило срабатывает ТОЛЬКО когда на body есть временный класс is-revealing.
-   Оно заставляет все элементы появиться синхронно с нужной задержкой. */
 body.is-revealing .site-header,
 body.is-revealing .site-footer,
 body.is-revealing .full-page-section {
-    /* `!important` здесь нужен, чтобы переопределить стандартные transition у секций */
     transition: opacity 0.5s ease-in-out 0.3s !important;
 }
 
-/* Заголовки проектов и их метаданные не должны переноситься */
+/* --- Запрет переноса текста --- */
 .project-title,
-.project-meta {
-    white-space: nowrap;
-}
-
-/* Заголовки в правой колонке ("МОЯ РОЛЬ" и т.д.) */
-.details-heading {
-    white-space: nowrap;
-}
-
-/* Профессия на первом экране ("SYSTEM GAME DESIGNER") */
+.project-meta,
+.details-heading,
 .profession-line span {
     white-space: nowrap;
 }

@@ -11,7 +11,7 @@ body::before, body::after {
     right: 0;
     pointer-events: none;
     
-    /* СОСТОЯНИЕ ПО УМОЛЧАНИЮ (ДЛЯ РЕЖИМА SITE): НЕТ АНИМАЦИИ */
+    /* ВАЖНО: По умолчанию анимации нет. Это соответствует вашему требованию. */
     transition: none;
 }
 body::before {
@@ -29,9 +29,9 @@ body::after {
     background-color: var(--border-color);
     z-index: 501;
     pointer-events: none;
-    opacity: var(--guide-line-opacity);
+    opacity: var(--guide-line-opacity); /* Управляется переменной */
 
-    /* СОСТОЯНИЕ ПО УМОЛЧАНИЮ (ДЛЯ РЕЖИМА SITE): НЕТ АНИМАЦИИ */
+    /* ВАЖНО: По умолчанию анимации нет. */
     transition: none;
 }
 .vertical-guide-line {
@@ -53,8 +53,8 @@ body::after {
 
 /* 
    КЛЮЧЕВОЕ ИЗМЕНЕНИЕ:
-   Мы ЯВНО включаем плавную анимацию ТОЛЬКО тогда, когда
-   активен режим игры, терминала, ИЛИ когда идет анимация выхода.
+   Анимация включается ЯВНО и ТОЛЬКО тогда, когда это нужно:
+   при входе/выходе из игры или терминала.
 */
 body.game-mode .vertical-guide-line,
 body.terminal-active .vertical-guide-line,
@@ -66,6 +66,15 @@ body.game-mode::after,
 body.terminal-active::after,
 body.is-revealing::after {
     transition: top 0.5s ease, bottom 0.5s ease, left 0.5s ease, right 0.5s ease, opacity 0.5s ease;
+}
+
+
+/* --- НОВОЕ ПРАВИЛО: Скрываем направляющие линии на узких экранах --- */
+@media (max-width: 1199.98px) {
+    .vertical-guide-line {
+        /* Принудительно скрываем линии, когда они больше не нужны */
+        opacity: 0;
+    }
 }
 
 

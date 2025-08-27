@@ -1,50 +1,99 @@
 /* assets/css/base/_variables.css */
 
 :root {
-    /* --- БАЗОВОЕ РАЗРЕШЕНИЕ ДЛЯ РАСЧЕТОВ (ТЕПЕРЬ 2K / QHD) --- */
+    /* ====================================================== */
+    /* 1. БАЗОВЫЕ НАСТРОЙКИ (ДЛЯ ЭКРАНОВ > 1200px)           */
+    /* ====================================================== */
     --design-width: 2560;
 
-    /* ====================================================== */
-    /* 1. МАСШТАБИРУЕМАЯ ТИПОГРАФИКА                        */
-    /* Формула: clamp(MIN_px, (BASE_px / var(--design-width)) * 100vw, MAX_px) */
-    /* ====================================================== */
-    --h1-size:    clamp(32px, calc(48 / var(--design-width) * 100vw), 52px);
-    --h2-size:    clamp(24px, calc(32 / var(--design-width) * 100vw), 36px);
-    --h3-size:    clamp(20px, calc(24 / var(--design-width) * 100vw), 28px);
-    --p-size:     clamp(16px, calc(18 / var(--design-width) * 100vw), 20px);
-    --nav-size:   clamp(14px, calc(16 / var(--design-width) * 100vw), 18px);
-    --ui-size:    clamp(12px, calc(14 / var(--design-width) * 100vw), 16px);
-    --lang-size:  clamp(20px, calc(24 / var(--design-width) * 100vw), 28px);
+    /* --- ФИКСИРОВАННАЯ ТИПОГРАФИКА (С ВАШИМИ ЗНАЧЕНИЯМИ) --- */
+    --h1-size:    52px;
+    --h2-size:    36px;
+    --h3-size:    28px;
+    --p-size:     16px; /* <-- Обновлено */
+    --nav-size:   16px;
+    --ui-size:    16px;
+    --lang-size:  28px;
     
-    /* ====================================================== */
-    /* 2. МАСШТАБИРУЕМЫЕ ОТСТУПЫ И РАЗМЕРЫ                   */
-    /* ====================================================== */
-    /* Главные отступы рамки (для контента) */
-    --frame-padding-vertical:   clamp(40px, calc(80 / var(--design-width) * 100vw), 90px);
-    --frame-padding-horizontal: clamp(40px, calc(420 / var(--design-width) * 100vw), 450px);
+    /* --- ФИКСИРОВАННЫЕ РАЗМЕРЫ ИКОНОК И ЛОГОТИПОВ --- */
+    --icon-size-small:  16px;
+    --icon-size-normal: 28px;
+    --icon-size-large:  34px;
+    --logo-me-width:    48px;
+    --logo-me-height:   28px;
     
-    /* Отступ для вертикальных направляющих линий */
-    --guide-line-offset:        clamp(30px, calc(400 / var(--design-width) * 100vw), 430px);
-
-    /* Размеры иконок */
-    --icon-size-small:  clamp(12px, calc(14 / var(--design-width) * 100vw), 16px);
-    --icon-size-normal: clamp(20px, calc(24 / var(--design-width) * 100vw), 28px);
-    --icon-size-large:  clamp(26px, calc(30 / var(--design-width) * 100vw), 34px);
+    /* --- ФИКСИРОВАННЫЕ ВЕРТИКАЛЬНЫЕ ОТСТУПЫ --- */
+    --frame-padding-vertical: 50px;
     
-    /* Размеры логотипов */
-    --logo-me-width:  clamp(36px, calc(42 / var(--design-width) * 100vw), 48px);
-    --logo-me-height: clamp(20px, calc(24 / var(--design-width) * 100vw), 28px);
+    /* --- НАЧАЛЬНЫЕ ЗНАЧЕНИЯ ДЛЯ БОКОВЫХ ОТСТУПОВ (> 2500px) --- */
+    --frame-padding-horizontal: 420px;
+    --guide-line-offset:        400px;
+    
+    /* Прозрачность направляющих */
+    --guide-line-opacity: 1; 
 
-    --hero-top-text-offset: calc(-30 / var(--design-width) * 100vw);
-
-    /* ====================================================== */
-    /* 3. ЦВЕТА И СТАБИЛЬНЫЕ ПЕРЕМЕННЫЕ (без изменений)      */
-    /* ====================================================== */
+    /* Цвета и стабильные переменные (без изменений) */
     --bg-color: #121212;
     --text-color: #F5F5F5;
     --red-accent: #D90429;
     --border-color: #F5F5F5;
-    
     --font-main: 'Inter', sans-serif;
     --animation-duration: 0.6s;
+}
+
+
+/* ========================================================================= */
+/* 2. ДИАПАЗОНЫ ДВИЖЕНИЯ РАМКИ (1200px - 2500px)                             */
+/* ========================================================================= */
+
+/* Диапазон 1900px - 2500px */
+@media (max-width: 2499.98px) {
+    :root {
+        --guide-line-offset:        calc(200px + 200 * (100vw - 1900px) / 600);
+        --frame-padding-horizontal: calc(220px + 200 * (100vw - 1900px) / 600);
+    }
+}
+
+/* Диапазон 1200px - 1900px */
+@media (max-width: 1899.98px) {
+    :root {
+        --guide-line-offset:        calc(0px + 200 * (100vw - 1200px) / 700);
+        --frame-padding-horizontal: calc(40px + 180 * (100vw - 1200px) / 700);
+    }
+}
+
+
+/* ========================================================================= */
+/* 3. ДИАПАЗОН СЖАТИЯ КОНТЕНТА И ТИПОГРАФИКИ (800px - 1200px)                */
+/* ========================================================================= */
+@media (max-width: 1199.98px) {
+    :root {
+        /* --- ШАГ 1: Фиксируем рамку --- */
+        --guide-line-offset:        0px;
+        --frame-padding-horizontal: 40px;
+
+        /* --- ШАГ 2: Включаем плавное масштабирование для типографики --- */
+        --h1-size:    calc(32px + (52 - 32) * (100vw - 800px) / 400);
+        --h2-size:    calc(24px + (36 - 24) * (100vw - 800px) / 400);
+        --h3-size:    calc(20px + (28 - 20) * (100vw - 800px) / 400);
+        /* от 16px (на 1200) до 14px (на 800) */
+        --p-size:     calc(14px + (16 - 14) * (100vw - 800px) / 400); /* <-- Обновлено */
+        --nav-size:   calc(14px + (16 - 14) * (100vw - 800px) / 400);
+        --ui-size:    calc(12px + (16 - 12) * (100vw - 800px) / 400);
+        --lang-size:  calc(20px + (28 - 20) * (100vw - 800px) / 400);
+
+        /* --- ШАГ 3: Масштабирование иконок --- */
+        --icon-size-small:  calc(12px + (16 - 12) * (100vw - 800px) / 400);
+        --icon-size-normal: calc(20px + (28 - 20) * (100vw - 800px) / 400);
+        --icon-size-large:  calc(26px + (34 - 26) * (100vw - 800px) / 400);
+    }
+}
+
+/* ========================================================================= */
+/* 4. ДИАПАЗОН < 800px (Мобильный режим)                                     */
+/* ========================================================================= */
+@media (max-width: 799.98px) {
+    :root {
+        /* Здесь будут переменные для мобильной верстки */
+    }
 }
