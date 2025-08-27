@@ -11,9 +11,11 @@ function getSecretTerminalHandlers() {
     const storage = TEST_MODE ? sessionStorage : localStorage;
 
     // --- Переменные состояния ---
-    let outputEl, trackEl, thumbEl; // Элементы DOM
+    let outputEl, trackEl, thumbEl, holdProgressBarEl;
     let isAnimationActive, isPrintingLine, isSkipRequested, skipDelayResolver, username, hasSentMessage,
-        isDraggingScrollbar, dragStartY;
+        isDraggingScrollbar, dragStartY,
+        // ОБНОВЛЕННЫЕ ПЕРЕМЕННЫЕ
+        isHoldingSkip, holdSuccessTimer, holdAppearanceTimer, holdStartTime, bulkLoadTriggered; 
 
     // --- ФУНКЦИЯ ПОЛНОГО СБРОСА И ОЧИСТКИ ---
     function resetState() {
@@ -26,6 +28,11 @@ function getSecretTerminalHandlers() {
         username = `User-${Math.random().toString(16).substr(2, 4).toUpperCase()}`;
         isDraggingScrollbar = false;
         dragStartY = 0;
+        isHoldingSkip = false;
+        holdSuccessTimer = null; // Основной таймер на 1 сек
+        holdAppearanceTimer = null; // Таймер на появление (0.3 сек)
+        holdStartTime = 0;
+        bulkLoadTriggered = false;
     }
 
     const simulatedMessages = [
@@ -166,19 +173,16 @@ function getSecretTerminalHandlers() {
     };
 
     async function addLine(msg, options = {}) {
-        const { isUser = false, isHint = false } = options;
-        if (!isAnimationActive) return;
+        const { isUser = false, isHint = false, instant = false } = options;
+        if (!isAnimationActive && !instant) return;
     
         isPrintingLine = true;
         
-        // Используем глобальную переменную outputEl, определенную в prepareSecretTerminal
         if (!outputEl) { 
             isPrintingLine = false;
             return;
         }
     
-        // --- ЛОГИКА "УМНОЙ" ПРОКРУТКИ ---
-        // 1. Проверяем, находится ли пользователь в самом низу ПЕРЕД добавлением нового контента.
         const isScrolledToBottom = Math.abs(outputEl.scrollHeight - outputEl.scrollTop - outputEl.clientHeight) < 5;
         
         // Создаем DOM-элементы
@@ -190,40 +194,153 @@ function getSecretTerminalHandlers() {
         const counterEl = document.createElement('span');
         counterEl.className = 'message-char-counter';
         
+        // === ИЗМЕНЕНИЕ №1: Создаем textEl один раз ===
         const textEl = document.createElement('span');
         textEl.className = 'text';
+    
+        let userEl; // Объявляем userEl здесь, чтобы он был доступен ниже
     
         if (isHint) {
             lineEl.append(counterEl, textEl);
         } else {
-            const userEl = document.createElement('span');
+            userEl = document.createElement('span'); // Присваиваем значение, а не объявляем заново
             userEl.className = 'username';
             lineEl.append(counterEl, userEl, textEl);
         }
         
         outputEl.appendChild(lineEl);
     
-        // 2. Если пользователь БЫЛ внизу, прокручиваем к новому концу.
         if (isScrolledToBottom) {
             outputEl.scrollTop = outputEl.scrollHeight;
         }
         
-        // 3. Обновляем наш кастомный скроллбар после добавления контента.
         updateCustomScrollbar();
         
         setTimeout(() => lineEl.classList.add('visible'), 10);
-        await delay(50);
-        if (!isAnimationActive) return;
-    
-        await typeContent(counterEl, `[${msg.text.length}]`);
-        if (!isHint) {
-            await typeContent(lineEl.querySelector('.username'), `${msg.name}>`);
+        // Для мгновенной загрузки не нужна пауза
+        if (!instant) {
+            await delay(50);
         }
-        await typeContent(textEl, msg.text);
+        if (!isAnimationActive && !instant) return;
+    
+        // --- Логика вывода текста ---
+        if (instant) {
+            counterEl.textContent = `[${msg.text.length}]`;
+        } else {
+            await typeContent(counterEl, `[${msg.text.length}]`);
+        }
+    
+        if (!isHint) {
+            // Используем переменную userEl, которую мы уже создали
+            if (instant) {
+                userEl.textContent = `${msg.name}>`;
+            } else {
+                await typeContent(userEl, `${msg.name}>`);
+            }
+        }
+        
+        // === ИЗМЕНЕНИЕ №2: Убираем повторное объявление textEl ===
+        // Просто используем уже существующую переменную textEl
+        if (instant) {
+            textEl.textContent = msg.text;
+        } else {
+            await typeContent(textEl, msg.text);
+        }
     
         isPrintingLine = false;
-        isSkipRequested = false;
+        if (!instant) {
+            isSkipRequested = false;
+        }
     }
+
+    const onHoldSuccess = () => {
+        // Проверяем, что мы все еще в состоянии удержания
+        if (!isHoldingSkip) return;
+    
+        console.log("Hold success! Triggering bulk load.");
+        
+        // 1. Устанавливаем флаги, которые будут прочитаны в основном цикле
+        bulkLoadTriggered = true;
+        isSkipRequested = true; // Этот флаг заставит ЛЮБУЮ ТЕКУЩУЮ анимацию typeContent завершиться
+    
+        // 2. Прерываем любую ТЕКУЩУЮ паузу skippableDelay
+        if (skipDelayResolver) {
+            skipDelayResolver();
+        }
+    
+        // 3. Сбрасываем UI и состояние удержания.
+        // Флаг bulkLoadTriggered остается true до конца анимации.
+        isHoldingSkip = false;
+
+        // Вместо мгновенного скрытия, делаем так же, как в cancelHoldSkip
+        holdProgressBarEl.classList.remove('is-filling');
+        holdProgressBarEl.querySelector('.hold-skip-progress-bar__fill').style.width = '0%';
+        setTimeout(() => {
+            holdProgressBarEl.classList.remove('visible');
+        }, 300);
+    };
+
+    const startHoldSkip = (e) => {
+        // Усиленная защита от случайных срабатываний
+        if (isHoldingSkip || !isAnimationActive || (e.type === 'mousedown' && e.button !== 0) || (e.key === 'Enter' && e.target.tagName === 'INPUT')) {
+            return;
+        }
+        
+        isHoldingSkip = true;
+        holdStartTime = performance.now();
+        
+        holdAppearanceTimer = setTimeout(() => {
+            // --- Эта часть кода выполняется через 300мс ---
+            
+            holdProgressBarEl.classList.add('visible');
+            // --- ДОБАВЛЕНО: Управляем скоростью анимации ---
+            holdProgressBarEl.classList.add('is-filling'); 
+            
+            const fillEl = holdProgressBarEl.querySelector('.hold-skip-progress-bar__fill');
+            
+            setTimeout(() => { fillEl.style.width = '100%'; }, 10);
+            
+            holdSuccessTimer = setTimeout(onHoldSuccess, 1050);
+    
+        }, 300);
+    };
+
+
+    const cancelHoldSkip = () => {
+        if (!isHoldingSkip) return;
+    
+        const holdDuration = performance.now() - holdStartTime;
+    
+        clearTimeout(holdAppearanceTimer);
+        clearTimeout(holdSuccessTimer);
+        isHoldingSkip = false;
+        
+        // --- НОВАЯ ЛОГИКА АНИМИРОВАННОГО ИСЧЕЗНОВЕНИЯ ---
+    
+        // 1. Убираем класс, отвечающий за медленное заполнение.
+        // Теперь сработает быстрая анимация сброса (0.3с).
+        holdProgressBarEl.classList.remove('is-filling');
+        
+        // 2. Устанавливаем ширину в 0%, запуская анимацию сброса.
+        const fillEl = holdProgressBarEl.querySelector('.hold-skip-progress-bar__fill');
+        fillEl.style.width = '0%';
+        
+        // 3. Прячем контейнер ПОСЛЕ того, как анимация сброса завершится.
+        // Длительность анимации 300мс.
+        setTimeout(() => {
+            holdProgressBarEl.classList.remove('visible');
+        }, 300);
+        
+        // 4. Логика для быстрого клика остается прежней
+        if (holdDuration < 250) { 
+            console.log("Tap detected. Skipping one line/delay.");
+            if (isPrintingLine) {
+                isSkipRequested = true;
+            } else if (skipDelayResolver) {
+                skipDelayResolver();
+            }
+        }
+    };
 
     function updateCharCounter(inputElement) {
         const counter = container.querySelector('.char-counter');
@@ -241,6 +358,26 @@ function getSecretTerminalHandlers() {
         if(counter) counter.textContent = '[LOCKED]';
     }
 
+    // --- НОВЫЙ ИМЕНОВАННЫЙ ОБРАБОТЧИК ДЛЯ KEYDOWN ---
+    const handleEnterKeydown = (e) => {
+        if (e.key === 'Enter') {
+            startHoldSkip(e);
+        }
+    };
+    // --- НОВЫЙ ИМЕНОВАННЫЙ ОБРАБОТЧИК ДЛЯ KEYUP ---
+    const handleEnterKeyup = (e) => {
+        if (e.key === 'Enter') {
+            cancelHoldSkip(e);
+        }
+    };
+
+    const handleImmediateExit = (e) => {
+        if (e.key === 'Escape') {
+            e.preventDefault(); e.stopPropagation();
+            if (window.actionHandler) { window.actionHandler.trigger(); }
+        }
+    };
+
     async function handleUserInput(inputElement) {
         if (isPrintingLine || hasSentMessage) return;
         const text = inputElement.value.trim();
@@ -256,24 +393,6 @@ function getSecretTerminalHandlers() {
         }
     }
 
-    const handleSkipRequest = (e) => {
-        if (e.type === 'mousedown' || e.key === 'Enter') {
-            e.preventDefault();
-            if (isPrintingLine) {
-                isSkipRequested = true;
-            } else if (skipDelayResolver) {
-                skipDelayResolver();
-            }
-        }
-    };
-
-    const handleImmediateExit = (e) => {
-        if (e.key === 'Escape') {
-            e.preventDefault(); e.stopPropagation();
-            if (window.actionHandler) { window.actionHandler.trigger(); }
-        }
-    };
-
     function prepareSecretTerminal() {
         resetState();
         
@@ -284,6 +403,9 @@ function getSecretTerminalHandlers() {
             </div>
             <div class="custom-scrollbar-track">
                 <div class="custom-scrollbar-thumb"></div>
+            </div>
+            <div class="hold-skip-progress-bar">
+                <div class="hold-skip-progress-bar__fill"></div>
             </div>
             <div class="terminal-input-line">
                 <span class="terminal-prompt">${username}></span>
@@ -299,6 +421,7 @@ function getSecretTerminalHandlers() {
         outputEl = container.querySelector('.terminal-output');
         trackEl = container.querySelector('.custom-scrollbar-track');
         thumbEl = container.querySelector('.custom-scrollbar-thumb');
+        holdProgressBarEl = container.querySelector('.hold-skip-progress-bar');
 
         // Вешаем слушатели
         outputEl.addEventListener('scroll', updateCustomScrollbar);
@@ -321,45 +444,80 @@ function getSecretTerminalHandlers() {
             const inputLine = container.querySelector('.terminal-input-line');
             const input = container.querySelector('.terminal-input');
             if (!hasSentMessage) input.disabled = true;
-
-            document.addEventListener('mousedown', handleSkipRequest);
-            document.addEventListener('keydown', handleSkipRequest);
+    
+            // Добавляем слушатели
+            document.addEventListener('mousedown', startHoldSkip);
+            document.addEventListener('keydown', handleEnterKeydown);
+            document.addEventListener('mouseup', cancelHoldSkip);
+            document.addEventListener('keyup', handleEnterKeyup);
+            window.addEventListener('blur', cancelHoldSkip);
             document.addEventListener('keydown', handleImmediateExit);
-
-            await addLine({ text: '// ESC TO SEVER //' }, { isHint: true });
-            if (!isAnimationActive) return resolve();
-            await skippableDelay(1000);
-            if (!isAnimationActive) return resolve();
-            await addLine({ text: 'LMB/ENTER > NEXT' }, { isHint: true });
-            if (!isAnimationActive) return resolve();
-            await skippableDelay(1500);
-            if (!isAnimationActive) return resolve();
-            await addLine({ text: 'YOU GET ONE SHOT.' }, { isHint: true });
-            if (!isAnimationActive) return resolve();
-            await skippableDelay(1000);
-            if (!isAnimationActive) return resolve();
-            await addLine({ text: 'YOUR VOICE IS 16.' }, { isHint: true });
-            if (!isAnimationActive) return resolve();
-            await skippableDelay(1000);
-            if (!isAnimationActive) return resolve();
-            await addLine({ text: 'MAKE IT ECHO DEEP.' }, { isHint: true });
-            if (!isAnimationActive) return resolve();
-            await skippableDelay(2000);
-            if (!isAnimationActive) return resolve();
-
-            for (const msg of simulatedMessages) {
-                if (!isAnimationActive) break;
-                await skippableDelay(Math.random() * 700 + 200);
-                if (!isAnimationActive) break;
-                await addLine(msg);
+    
+            // --- ШАГ 1: Создаем единый сценарий для ВСЕГО контента ---
+            const allContentSteps = [];
+            
+            // Вспомогательная функция для чистоты кода
+            const addStep = (type, data) => allContentSteps.push({ type, data });
+    
+            // Добавляем интро-подсказки в сценарий
+            addStep('line', { msg: { text: '// ESC TO SEVER //' }, options: { isHint: true } });
+            addStep('delay', { ms: 1000 });
+            addStep('line', { msg: { text: 'LMB/ENTER > NEXT' }, options: { isHint: true } });
+            addStep('delay', { ms: 1500 });
+            addStep('line', { msg: { text: 'YOU GET ONE SHOT.' }, options: { isHint: true } });
+            addStep('delay', { ms: 1000 });
+            addStep('line', { msg: { text: 'YOUR VOICE IS 16.' }, options: { isHint: true } });
+            addStep('delay', { ms: 1000 });
+            addStep('line', { msg: { text: 'MAKE IT ECHO DEEP.' }, options: { isHint: true } });
+            addStep('delay', { ms: 2000 });
+    
+            // Добавляем основные сообщения в сценарий
+            simulatedMessages.forEach(msg => {
+                addStep('delay', { ms: Math.random() * 700 + 200 });
+                addStep('line', { msg: msg, options: {} });
+            });
+    
+            // --- ШАГ 2: Запускаем единый цикл выполнения сценария ---
+            for (let i = 0; i < allContentSteps.length; i++) {
+                const step = allContentSteps[i];
+    
+                // Проверяем флаг в начале каждой итерации
+                if (bulkLoadTriggered) {
+                    console.log(`Bulk load triggered. Instantly finishing from step ${i}.`);
+                    // Если флаг установлен, переключаемся в режим мгновенного вывода
+                    const remainingSteps = allContentSteps.slice(i);
+                    for (const remainingStep of remainingSteps) {
+                        // Мгновенно выводим только строки, пропуская все задержки
+                        if (remainingStep.type === 'line') {
+                            // Объединяем опции из сценария с флагом instant: true
+                            const finalOptions = { ...remainingStep.data.options, instant: true };
+                            await addLine(remainingStep.data.msg, finalOptions);
+                        }
+                    }
+                    // Завершаем основной цикл, так как все уже выведено
+                    break;
+                }
+    
+                // Если мы здесь, значит, bulkLoad не активен. Выполняем шаг в обычном режиме.
+                if (!isAnimationActive) break; // Проверка на выход по ESC
+    
+                if (step.type === 'line') {
+                    await addLine(step.data.msg, step.data.options);
+                } else if (step.type === 'delay') {
+                    await skippableDelay(step.data.ms);
+                }
             }
-
+            
+            // --- ШАГ 3: Завершение и очистка ---
             updateCustomScrollbar();
             
             if (isAnimationActive) {
-                document.removeEventListener('mousedown', handleSkipRequest);
-                document.removeEventListener('keydown', handleSkipRequest);
-                document.removeEventListener('keydown', handleImmediateExit);
+                // Убираем слушатели, которые больше не нужны
+                document.removeEventListener('mousedown', startHoldSkip);
+                document.removeEventListener('keydown', handleEnterKeydown);
+                document.removeEventListener('mouseup', cancelHoldSkip);
+                document.removeEventListener('keyup', handleEnterKeyup);
+                window.removeEventListener('blur', cancelHoldSkip);
                 
                 if (inputLine) inputLine.classList.add('visible');
                 if (!hasSentMessage) {
@@ -383,8 +541,12 @@ function getSecretTerminalHandlers() {
             // Принудительно завершаем перетаскивание, если оно было активно
             stopDrag(); 
 
-            document.removeEventListener('mousedown', handleSkipRequest);
-            document.removeEventListener('keydown', handleSkipRequest);
+            cancelHoldSkip(); // Завершаем удержание, если оно было активно
+            document.removeEventListener('mousedown', startHoldSkip);
+            document.removeEventListener('keydown', handleEnterKeydown);
+            document.removeEventListener('mouseup', cancelHoldSkip);
+            document.removeEventListener('keyup', handleEnterKeyup);
+            window.removeEventListener('blur', cancelHoldSkip);
             document.removeEventListener('keydown', handleImmediateExit);
 
             const allVisibleContent = container.querySelectorAll('.terminal-line.visible, .terminal-input-line.visible, .custom-scrollbar-track.visible');

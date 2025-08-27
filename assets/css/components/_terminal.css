@@ -205,3 +205,34 @@ body.is-terminal-scrolling {
     from, to { background: transparent; } 
     50% { background: var(--red-accent); } 
 }
+
+.hold-skip-progress-bar {
+    position: absolute;
+    bottom: calc(var(--input-spacing)); /* Располагаем над полем ввода */
+    left: 20px;
+    right: 20px;
+    height:  var(--cursor-width);
+    z-index: 10;
+    opacity: 0;
+    transform: scaleY(0);
+}
+
+.hold-skip-progress-bar.visible {
+    opacity: 1;
+    transform: scaleY(1);
+}
+
+.hold-skip-progress-bar__fill {
+    width: 0%;
+    height: 100%;
+    background-color: var(--red-accent);
+    /* --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ --- */
+    /* Теперь анимация работает всегда, а не только когда бар виден */
+    transition: width 0.3s ease-out; /* Уменьшаться будет быстрее, за 0.3с */
+}
+
+/* Анимация заполнения будет управляться через JS */
+.hold-skip-progress-bar.is-filling .hold-skip-progress-bar__fill {
+    transition-duration: 1s;
+    transition-timing-function: linear;
+}
