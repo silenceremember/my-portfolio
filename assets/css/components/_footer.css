@@ -39,3 +39,7 @@ a.footer-icon-link:hover .email-placeholder { opacity: 1; }
 .progress-dot:not(.active) { cursor: pointer; }
 .progress-dot:not(.active):hover { border-color: var(--red-accent); }
 .progress-dot.active { background-color: var(--red-accent); border-color: var(--red-accent); cursor: default; }
+
+.footer-socials, .footer-logos {
+    white-space: nowrap; /* Запрещает иконкам внутри этих блоков переноситься */
+}
