@@ -1,11 +1,9 @@
-// assets/js/ui/qte.js
+// assets/js/ui/qte.js (ПОЛНАЯ ОБНОВЛЕННАЯ ВЕРСИЯ)
 
 function initQTE(successCallback) {
-    // --- ИЗМЕНЕНИЕ: Ищем обертку, а не контейнер ---
     const qteWrapper = document.getElementById('qte-wrapper');
     if (!qteWrapper) return;
     
-    // Создаем контейнер внутри обертки
     qteWrapper.innerHTML = `
         <div id="qte-container"></div>
         <div id="qte-hint"></div>
@@ -16,6 +14,8 @@ function initQTE(successCallback) {
     const konamiCodeSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
     let userInputPosition = 0;
     let isQteLocked = false;
+    // --- НОВЫЙ ФЛАГ ---
+    let isBlockedByScreenSize = false;
     const qteKeys = [];
 
     function setupQTE() {
@@ -31,93 +31,73 @@ function initQTE(successCallback) {
     }
 
     function resetQTE(fadeWithHint = false) {
+        // ... (код функции resetQTE остается без изменений)
         userInputPosition = 0;
-
         qteKeys.forEach(key => {
             if (fadeWithHint && key.classList.contains('correct')) {
                 key.classList.add('is-fading-with-hint');
             }
             key.classList.remove('correct', 'error-shake-vertical');
         });
-
-        // Через 0.25с убираем модификатор, чтобы вернуть скорость по умолчанию
         if (fadeWithHint) {
             setTimeout(() => {
                 qteKeys.forEach(key => key.classList.remove('is-fading-with-hint'));
             }, 250);
         }
     }
-
     window.resetQTE = resetQTE; 
 
-    // --- ФУНКЦИЯ №1: ОШИБКА ВВОДА (без текста) ---
+    // ... (код функций triggerInputError, triggerQteSystemError, onKonamiSuccess остается без изменений)
     function triggerInputError(keyIndex) {
-        if (isQteLocked) return;
-        isQteLocked = true;
-
+        if (isQteLocked) return; isQteLocked = true;
         const keyToShake = qteKeys[keyIndex];
-        if (keyToShake) {
-            keyToShake.classList.add('error-shake-vertical');
-        }
-
-        // Даем время на тряску (0.4с)
-        setTimeout(() => {
-            resetQTE(false); // Вызываем сброс БЕЗ модификатора (скорость 0.2с)
-            isQteLocked = false;
-        }, 400); 
+        if (keyToShake) { keyToShake.classList.add('error-shake-vertical'); }
+        setTimeout(() => { resetQTE(false); isQteLocked = false; }, 400); 
     }
-    
-    // --- ФУНКЦИЯ №2: СИСТЕМНАЯ ОШИБКА (с текстом) ---
     function triggerQteSystemError(hintText) {
-        if (isQteLocked) return;
-        isQteLocked = true;
-        
+        if (isQteLocked) return; isQteLocked = true;
         qteHintElement.textContent = hintText;
-        qteHintElement.classList.add('visible'); // Текст появляется за 0.25с
-        
+        qteHintElement.classList.add('visible');
         const lastKey = qteKeys[qteKeys.length - 1];
-        if (lastKey) {
-            lastKey.classList.add('error-shake-vertical'); // Тряска 0.4с
-        }
-        
-        // Ждем 1.5 секунды, чтобы пользователь успел прочитать текст
+        if (lastKey) { lastKey.classList.add('error-shake-vertical'); }
         setTimeout(() => {
-            // Запускаем синхронное исчезание
-            qteHintElement.classList.remove('visible'); // Текст исчезает за 0.25с
-            resetQTE(true); // Вызываем сброс С МОДИФИКАТОРОМ (скорость 0.25с)
-            
-            // Снимаем блокировку после того, как все исчезнет
+            qteHintElement.classList.remove('visible');
+            resetQTE(true);
             setTimeout(() => { isQteLocked = false; }, 250); 
         }, 1500); 
     }
     window.triggerQteSystemError = triggerQteSystemError;
-    
-
-
-    // assets/js/ui/qte.js - НОВЫЙ КОД
-
     function onKonamiSuccess() {
-        console.log("Konami Code Activated! Triggering success callback...");
-        
-        // Проверяем, был ли передан successCallback в initQTE и является ли он функцией
         if (successCallback && typeof successCallback === 'function') {
-            successCallback(); // Вызываем переданную функцию
+            successCallback();
         } else {
             console.error("QTE success, but no valid callback was provided to initQTE!");
         }
     }
 
+
+    // --- НОВАЯ ФУНКЦИЯ: ПРОВЕРКА РАЗМЕРА ЭКРАНА ---
+    function checkScreenSize() {
+        const isSmall = window.innerWidth < 800;
+        if (isSmall && !isBlockedByScreenSize) {
+            // Экран стал слишком маленьким
+            isBlockedByScreenSize = true;
+            resetQTE(); // Сбрасываем прогресс, если он был
+        } else if (!isSmall && isBlockedByScreenSize) {
+            // Экран снова стал достаточно большим
+            isBlockedByScreenSize = false;
+        }
+    }
+
     window.addEventListener('keydown', (event) => {
         const section1 = document.getElementById('section-1');
-        // Проверяем, активна ли секция и не заблокирован ли ввод
-        if (!qteWrapper || !section1 || !section1.classList.contains('active') || isQteLocked) {
+        // --- ОБНОВЛЕННАЯ ПРОВЕРКА ---
+        // Добавляем проверку на флаг isBlockedByScreenSize
+        if (!qteWrapper || !section1 || !section1.classList.contains('active') || isQteLocked || isBlockedByScreenSize) {
             return;
         }
 
-        // Проверяем, не происходит ли ввод в чате
-        if (document.activeElement.tagName === 'INPUT') {
-            return;
-        }
+        if (document.activeElement.tagName === 'INPUT') { return; }
 
         const requiredKey = konamiCodeSequence[userInputPosition];
         if (event.code === requiredKey) {
@@ -126,12 +106,9 @@ function initQTE(successCallback) {
             userInputPosition++;
             if (userInputPosition === konamiCodeSequence.length) {
                 onKonamiSuccess();
-                // Сбрасываем QTE после успешного ввода, чтобы можно было ввести снова
-                // (например, чтобы закрыть чат и снова открыть)
                 setTimeout(() => resetQTE(), 500); 
             }
         } else {
-            // Сбрасываем прогресс при любой другой клавише, если ввод уже начат
             if (userInputPosition > 0) {
                  triggerInputError(userInputPosition - 1);
             }
@@ -139,4 +116,10 @@ function initQTE(successCallback) {
     });
 
     setupQTE();
+    
+    // --- НОВЫЙ КОД: ИНИЦИАЛИЗАЦИЯ ПРОВЕРКИ РАЗМЕРА ЭКРАНА ---
+    // Добавляем слушатель события resize для отслеживания изменений
+    window.addEventListener('resize', checkScreenSize);
+    // Вызываем функцию один раз при загрузке, чтобы установить начальное состояние
+    checkScreenSize();
 }
