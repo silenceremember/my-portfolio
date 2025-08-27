@@ -1,5 +1,3 @@
-// assets/js/ui/transitions.js
-
 function initSectionManager() {
     const sections = document.querySelectorAll('.full-page-section');
     const progressContainer = document.getElementById('section-progress');
@@ -16,9 +14,12 @@ function initSectionManager() {
     }
 
     function changeSection(newIndex) {
-        if (isScrolling || document.body.classList.contains('game-mode') || newIndex === currentSectionIndex) {
+        // --- ИЗМЕНЕНИЕ №1: Условие стало более надежным ---
+        // Теперь мы проверяем глобальное состояние. Если оно не 'SITE', ничего не делаем.
+        if (isScrolling || window.systemState !== 'SITE' || newIndex === currentSectionIndex) {
             return;
         }
+
         if (newIndex >= 0 && newIndex < sections.length) {
             isScrolling = true;
             currentSectionIndex = newIndex;
@@ -38,7 +39,11 @@ function initSectionManager() {
     });
 
     window.addEventListener('wheel', (event) => {
-        if (isScrolling || document.body.classList.contains('game-mode')) return;
+        // --- ИЗМЕНЕНИЕ №2: То же самое надежное условие здесь ---
+        if (isScrolling || window.systemState !== 'SITE') {
+            return;
+        }
+        
         const direction = event.deltaY > 0 ? 1 : -1;
         const nextIndex = currentSectionIndex + direction;
         changeSection(nextIndex);
