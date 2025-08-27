@@ -10,16 +10,10 @@ body::before, body::after {
     left: 0;
     right: 0;
     pointer-events: none;
-    
-    /* ВАЖНО: По умолчанию анимации нет. Это соответствует вашему требованию. */
     transition: none;
 }
-body::before {
-    top: var(--frame-padding-vertical);
-}
-body::after {
-    bottom: var(--frame-padding-vertical);
-}
+body::before { top: var(--frame-padding-vertical); }
+body::after { bottom: var(--frame-padding-vertical); }
 
 
 /* --- ВЕРТИКАЛЬНЫЕ ЛИНИИ --- */
@@ -29,32 +23,39 @@ body::after {
     background-color: var(--border-color);
     z-index: 501;
     pointer-events: none;
-    opacity: var(--guide-line-opacity); /* Управляется переменной */
+    opacity: var(--guide-line-opacity);
+    
+    /* 
+     * ИЗМЕНЕНО: Задаем базовый transition ТОЛЬКО для opacity.
+     * Теперь любое изменение этого свойства будет плавным.
+    */
+    transition: opacity 0.2s ease-in-out;
+}
+.vertical-guide-line { top: 0; bottom: 0; }
+.vertical-guide-line.left { left: var(--guide-line-offset); right: auto; }
+.vertical-guide-line.right { right: var(--guide-line-offset); left: auto; }
 
-    /* ВАЖНО: По умолчанию анимации нет. */
-    transition: none;
-}
-.vertical-guide-line {
-    top: 0;
-    bottom: 0;
-}
-.vertical-guide-line.left {
-    left: var(--guide-line-offset);
-    right: auto;
-}
-.vertical-guide-line.right {
-    right: var(--guide-line-offset);
-    left: auto;
-}
+
+/* 
+ * "Зона перехода" @media больше не нужна. Удаляем ее.
+*/
+
 
 /* ====================================================== */
 /* ===         ПРАВИЛА ДЛЯ РЕЖИМОВ И АНИМАЦИЙ         === */
 /* ====================================================== */
 
+/* Возвращаем видимость линий в игре. */
+body.game-mode .vertical-guide-line,
+body.terminal-active .vertical-guide-line {
+    opacity: 1;
+}
+
 /* 
-   КЛЮЧЕВОЕ ИЗМЕНЕНИЕ:
-   Анимация включается ЯВНО и ТОЛЬКО тогда, когда это нужно:
-   при входе/выходе из игры или терминала.
+ * ПРАВИЛО ДЛЯ АНИМАЦИИ ПЕРЕХОДА.
+ * Этот селектор более специфичный, поэтому это правило ПОЛНОСТЬЮ
+ * ПЕРЕОПРЕДЕЛИТ базовый `transition: opacity 0.2s`.
+ * Во время игры будет работать только эта, комплексная анимация.
 */
 body.game-mode .vertical-guide-line,
 body.terminal-active .vertical-guide-line,
@@ -69,10 +70,9 @@ body.is-revealing::after {
 }
 
 
-/* --- НОВОЕ ПРАВИЛО: Скрываем направляющие линии на узких экранах --- */
-@media (max-width: 1199.98px) {
+/* --- Правило для скрытия направляющих в обычном режиме --- */
+@media (max-width: 1249.98px) {
     .vertical-guide-line {
-        /* Принудительно скрываем линии, когда они больше не нужны */
         opacity: 0;
     }
 }
@@ -84,7 +84,6 @@ body.no-line-transitions::after,
 body.no-line-transitions .vertical-guide-line {
     transition: none;
 }
-
 body.game-mode::before { top: var(--game-border-top); }
 body.game-mode::after { bottom: var(--game-border-bottom); top: auto; }
 body.game-mode .vertical-guide-line.left { left: var(--game-border-left); }
