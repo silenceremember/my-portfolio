@@ -10,7 +10,7 @@
     height: var(--frame-padding-vertical);
     display: flex;
     align-items: center;
-    transition: opacity 0.5s ease;
+    /* transition: opacity 0.5s ease; <-- УДАЛЕНО: Эта анимация избыточна и контролируется более специфичными правилами для игрового режима. */
 }
 .header-content {
     width: 100%;
@@ -19,14 +19,37 @@
     align-items: center;
 }
 .header-controls { display: flex; align-items: center; gap: 8px; }
-.lang-placeholder { width: 42px; height: 24px; background-color: var(--text-color); transition: background-color 0.3s ease; }
-.separator-icon { width: var(--icon-size-small); height: var(--icon-size-small); background-color: var(--text-color); opacity: 0.5; transition: background-color 0.3s ease; }
+.lang-placeholder { 
+    width: 42px; 
+    height: 24px; 
+    background-color: var(--text-color); 
+}
+.separator-icon { 
+    width: var(--header-icon-size-small);
+    height: var(--header-icon-size-small);
+    background-color: var(--text-color); 
+    opacity: 0.5; 
+}
 .icon-button { background: none; border: none; padding: 0; cursor: pointer; }
-.icon-placeholder { width: var(--icon-size-normal); height: var(--icon-size-normal); background-color: var(--text-color); transition: background-color 0.3s ease; }
+.icon-placeholder { 
+    width: var(--header-icon-size-normal);
+    height: var(--header-icon-size-normal);
+    background-color: var(--text-color); 
+}
 .main-nav { display: flex; gap: 24px; }
-.nav-link { font-size: var(--nav-size); font-weight: 700; color: inherit; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s ease; }
+.nav-link { 
+    font-size: var(--nav-size); 
+    font-weight: 700; 
+    color: inherit; 
+    text-decoration: none; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    
+    /* ИЗМЕНЕНО: Возвращаем transition только для цвета, чтобы эффект при наведении был плавным */
+    transition: color 0.2s ease-in-out;
+}
 .nav-link:hover, .nav-link.active { color: var(--red-accent); }
 
 .main-nav {
-    white-space: nowrap; /* Запрещает ссылкам переноситься на новую строку */
+    white-space: nowrap;
 }

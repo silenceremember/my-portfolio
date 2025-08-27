@@ -4,35 +4,37 @@
 .nav-button-group {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 32px;
-    width: 800px;
-    margin-top: 80px;
+    gap: var(--gap-cta-group);
+    width: var(--width-cta-group);
+    margin-top: var(--margin-top-cta-group);
 }
 .cta-main-separator {
-    width: 50px;
-    height: 50px;
+    width: var(--size-cta-separator);
+    height: var(--size-cta-separator);
     background-color: var(--text-color);
-    margin: 20px 0;
+    margin: var(--margin-cta-separator) 0;
 }
 .nav-button {
     display: block;
     font-family: var(--font-main);
     font-weight: 700;
-    font-size: 18px;
+    font-size: var(--font-size-cta-button);
     text-transform: uppercase;
     text-decoration: none;
     color: var(--text-color);
     background-color: transparent;
     border: 1px solid var(--border-color);
-    padding: 16px 24px;
-    transition: all 0.2s ease-in-out;
+    padding: var(--padding-cta-button-y) var(--padding-cta-button-x);
     cursor: pointer;
     text-align: center;
     box-sizing: border-box;
+    transition: background-color 0.2s ease-in-out, 
+                border-color 0.2s ease-in-out, 
+                color 0.2s ease-in-out;
 }
 #cta-telegram-button {
-    width: 100%; /* Пусть растягивается на всю колонку грида */
-    max-width: 400px; /* Ограничиваем */
+    width: var(--width-cta-group);
+    max-width: 100%;
 }
 .nav-button:hover {
     background-color: var(--red-accent);
