@@ -11,7 +11,9 @@ function getSecretTerminalHandlers() {
     const storage = TEST_MODE ? sessionStorage : localStorage;
 
     // --- Переменные состояния ---
-    let isAnimationActive, isPrintingLine, isSkipRequested, skipDelayResolver, username, hasSentMessage;
+    let outputEl, trackEl, thumbEl; // Элементы DOM
+    let isAnimationActive, isPrintingLine, isSkipRequested, skipDelayResolver, username, hasSentMessage,
+        isDraggingScrollbar, dragStartY;
 
     // --- ФУНКЦИЯ ПОЛНОГО СБРОСА И ОЧИСТКИ ---
     function resetState() {
@@ -22,6 +24,8 @@ function getSecretTerminalHandlers() {
         skipDelayResolver = null;
         hasSentMessage = storage.getItem(STORAGE_KEY) === 'true';
         username = `User-${Math.random().toString(16).substr(2, 4).toUpperCase()}`;
+        isDraggingScrollbar = false;
+        dragStartY = 0;
     }
 
     const simulatedMessages = [
@@ -94,21 +98,72 @@ function getSecretTerminalHandlers() {
         const scrollableHeight = outputEl.scrollHeight;
         const visibleHeight = outputEl.clientHeight;
 
-        // Простое переключение класса. CSS сделает всю магию.
         if (scrollableHeight > visibleHeight) {
             trackEl.classList.add('visible');
         } else {
             trackEl.classList.remove('visible');
         }
 
-        // Расчеты высоты и положения остаются такими же
         const thumbHeight = (visibleHeight / scrollableHeight) * 100;
         thumbEl.style.height = `${thumbHeight}%`;
+
+        // Если мы перетаскиваем, позиция уже контролируется функцией handleDrag
+        if (isDraggingScrollbar) return;
 
         const scrollPercentage = outputEl.scrollTop / (scrollableHeight - visibleHeight);
         const thumbPosition = scrollPercentage * (100 - thumbHeight);
         thumbEl.style.top = `${thumbPosition}%`;
     }
+
+    const handleDrag = (e) => {
+        if (!isDraggingScrollbar) return;
+        e.preventDefault();
+
+        const trackRect = trackEl.getBoundingClientRect();
+        const thumbHeight = thumbEl.getBoundingClientRect().height;
+
+        // 1. Рассчитываем новую позицию верха ползунка в пикселях
+        let newTopPx = e.clientY - trackRect.top - dragStartY;
+
+        // 2. Ограничиваем движение в пределах дорожки
+        const maxTopPx = trackRect.height - thumbHeight;
+        newTopPx = Math.max(0, Math.min(newTopPx, maxTopPx));
+
+        // 3. Конвертируем позицию в проценты
+        const scrollableTrackHeight = trackRect.height - thumbHeight;
+        const scrollPercentage = scrollableTrackHeight > 0 ? newTopPx / scrollableTrackHeight : 0;
+        
+        // 4. Используем этот процент как ЕДИНЫЙ источник истины
+        const newThumbTopPercent = scrollPercentage * (100 - (thumbHeight / trackRect.height * 100));
+        thumbEl.style.top = `${newThumbTopPercent}%`;
+        
+        const contentScrollableHeight = outputEl.scrollHeight - outputEl.clientHeight;
+        outputEl.scrollTop = scrollPercentage * contentScrollableHeight;
+    };
+
+    const stopDrag = () => {
+        if (!isDraggingScrollbar) return;
+        isDraggingScrollbar = false;
+        document.body.classList.remove('is-terminal-scrolling');
+
+        document.removeEventListener('mousemove', handleDrag);
+        document.removeEventListener('mouseup', stopDrag);
+    };
+
+    const startDrag = (e) => {
+        // Игнорируем клики, если скроллбар не виден
+        if (!trackEl.classList.contains('visible')) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        isDraggingScrollbar = true;
+        document.body.classList.add('is-terminal-scrolling');
+
+        dragStartY = e.clientY - thumbEl.getBoundingClientRect().top;
+
+        document.addEventListener('mousemove', handleDrag);
+        document.addEventListener('mouseup', stopDrag);
+    };
 
     async function addLine(msg, options = {}) {
         const { isUser = false, isHint = false } = options;
@@ -244,11 +299,12 @@ function getSecretTerminalHandlers() {
         outputEl = container.querySelector('.terminal-output');
         trackEl = container.querySelector('.custom-scrollbar-track');
         thumbEl = container.querySelector('.custom-scrollbar-thumb');
-    
-        // Вешаем слушатель на настоящую (скрытую) прокрутку
+
+        // Вешаем слушатели
         outputEl.addEventListener('scroll', updateCustomScrollbar);
+        thumbEl.style.pointerEvents = 'auto'; // Делаем ползунок кликабельным
+        thumbEl.addEventListener('mousedown', startDrag);
         
-        // Настраиваем поле ввода
         const input = container.querySelector('.terminal-input');
         input.addEventListener('keydown', async (e) => { if (e.key === 'Enter') await handleUserInput(input); });
         input.addEventListener('input', () => updateCharCounter(input));
@@ -316,37 +372,30 @@ function getSecretTerminalHandlers() {
         });
     }
     
-    function teardown() {
+    function teardown() { // ИЛИ onExit
         return new Promise(resolve => {
             console.log("--- Tearing down Secret Terminal: Halting logic and starting fade-out. ---");
-            isAnimationActive = false; // Немедленно останавливаем все внутренние анимации
+            isAnimationActive = false;
+            
+            // --- ОЧИСТКА СЛУШАТЕЛЕЙ ---
+            if (outputEl) outputEl.removeEventListener('scroll', updateCustomScrollbar);
+            if (thumbEl) thumbEl.removeEventListener('mousedown', startDrag);
+            // Принудительно завершаем перетаскивание, если оно было активно
+            stopDrag(); 
 
-            // Убираем глобальные обработчики событий
-            if (outputEl) {
-                outputEl.removeEventListener('scroll', updateCustomScrollbar);
-            }
             document.removeEventListener('mousedown', handleSkipRequest);
             document.removeEventListener('keydown', handleSkipRequest);
             document.removeEventListener('keydown', handleImmediateExit);
 
-            // 1. Находим все видимые элементы ВНУТРИ терминала.
             const allVisibleContent = container.querySelectorAll('.terminal-line.visible, .terminal-input-line.visible, .custom-scrollbar-track.visible');
-
-            // 2. Если есть что скрывать, запускаем их анимацию затухания.
+            
             if (allVisibleContent.length > 0) {
                 allVisibleContent.forEach(el => el.classList.remove('visible'));
-
-                // Ждем завершения самой долгой CSS-анимации (500ms у .terminal-input-line)
                 setTimeout(() => {
-                    // 3. ПОСЛЕ затухания дочерних элементов, скрываем и сам контейнер.
-                    // Это решает исходную проблему с невозможностью выделить текст.
                     container.classList.remove('visible');
-                    
-                    // 4. Сообщаем modeManager, что все визуальные эффекты завершены.
                     resolve();
                 }, 500);
             } else {
-                // Если анимировать нечего, просто сразу скрываем контейнер и завершаем.
                 container.classList.remove('visible');
                 resolve();
             }

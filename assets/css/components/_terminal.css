@@ -84,6 +84,12 @@
     background-color: var(--red-accent);
     border-radius: 0;
     pointer-events: none;
+    cursor: grab; /* <-- ДОБАВЛЕНО: Курсор "схватить" при наведении */
+}
+
+body.is-terminal-scrolling {
+    cursor: grabbing !important; /* Курсор "схвачено" */
+    user-select: none !important; /* Запрещаем выделение текста на всей странице */
 }
 
 
