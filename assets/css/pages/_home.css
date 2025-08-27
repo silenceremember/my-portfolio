@@ -72,7 +72,11 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
     font-size: var(--h1-size); font-weight: 900; margin: 0; line-height: 0.9; margin-top: -0.065em; 
 }
 .hero-top-text .nickname {
-    font-size: clamp(16px, calc(20 / var(--design-width) * 100vw), 24px); font-weight: 700; color: var(--red-accent); margin: 0;
+    /* БЫЛО: font-size: clamp(16px, calc(20 / var(--design-width) * 100vw), 24px); */
+    font-size: var(--nickname-size); /* <-- СТАЛО */
+    font-weight: 700;
+    color: var(--red-accent);
+    margin: 0;
 }
 .profession-line {
     display: flex; align-items: center; margin: 0; font-size: var(--h2-size); font-weight: 700;
@@ -103,7 +107,17 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
 .section-title { font-size: var(--h2-size); font-weight: 900; text-transform: uppercase; margin: 0; }
 .project-subtitle { display: flex; align-items: baseline; gap: 16px; margin-bottom: 12px; }
 .project-title { font-size: var(--h3-size); font-weight: 900; color: var(--red-accent); margin: 0; text-transform: uppercase; }
-.project-meta { display: flex; align-items: center; gap: 8px; font-size: clamp(12px, calc(12 / var(--design-width) * 100vw), 14px); font-weight: 700; font-style: italic; opacity: 0.7; }
+.project-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* БЫЛО: font-size: clamp(10px, calc(12 / var(--design-width) * 100vw), 14px); */
+    font-size: var(--meta-size); /* <-- СТАЛО */
+    font-weight: 700;
+    font-style: italic;
+    white-space: nowrap;
+    opacity: 0.7;
+}
 .meta-separator-icon { width: 8px; height: 8px; background-color: var(--text-color); }
 .project-visual-placeholder {
     width: 100%; padding-bottom: 56.25%; height: 0; border: 1px solid var(--border-color); box-sizing: border-box;

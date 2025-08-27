@@ -12,6 +12,10 @@
     --ui-size:    16px;
     --lang-size:  28px;
     
+    /* --- ИЗМЕНЕННЫЕ ПЕРЕМЕННЫЕ --- */
+    --nickname-size: 16px; /* <-- Обновлено */
+    --meta-size:     12px; /* <-- Обновлено */
+    
     --width-hero:           928px;
     --width-project-left:   600px;
     --width-project-right:  500px;
@@ -26,8 +30,8 @@
 
     /* --- Немасштабируемые переменные --- */
     --frame-padding-vertical: 50px;
-    --frame-padding-horizontal: 420px; /* Начальное значение */
-    --guide-line-offset:        400px; /* Начальное значение */
+    --frame-padding-horizontal: 420px;
+    --guide-line-offset:        400px;
     --guide-line-opacity: 1; 
     --bg-color: #121212;
     --text-color: #F5F5F5;
@@ -56,34 +60,34 @@
         --frame-padding-horizontal: 10px;
         --guide-line-offset:        0px;
 
-        /* 
-         * Масштабируем КАЖДУЮ переменную индивидуально.
-         * Коэффициент сжатия для блоков взят из вашего оригинального clamp(): 650/928 ≈ 0.7
-         * Применяем этот же коэффициент ко всему остальному.
-        */
-        
         /* --- Шрифты (сжатие до 70%) --- */
-        --h1-size:    calc(36.4px + (52 - 36.4) * (100vw - 800px) / 400);   /* 52px -> 36.4px */
-        --h2-size:    calc(25.2px + (36 - 25.2) * (100vw - 800px) / 400);   /* 36px -> 25.2px */
-        --h3-size:    calc(19.6px + (28 - 19.6) * (100vw - 800px) / 400);   /* 28px -> 19.6px */
-        --p-size:     calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);   /* 16px -> 11.2px */
-        --nav-size:   calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);   /* 16px -> 11.2px */
-        --ui-size:    calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);   /* 16px -> 11.2px */
-        --lang-size:  calc(19.6px + (28 - 19.6) * (100vw - 800px) / 400);   /* 28px -> 19.6px */
+        --h1-size:    calc(36.4px + (52 - 36.4) * (100vw - 800px) / 400);
+        --h2-size:    calc(25.2px + (36 - 25.2) * (100vw - 800px) / 400);
+        --h3-size:    calc(19.6px + (28 - 19.6) * (100vw - 800px) / 400);
+        --p-size:     calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
+        --nav-size:   calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
+        --ui-size:    calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
+        --lang-size:  calc(19.6px + (28 - 19.6) * (100vw - 800px) / 400);
+
+        /* --- ИЗМЕНЕННЫЕ ФОРМУЛЫ --- */
+        /* от 16px до 11.2px (16 * 0.7) */
+        --nickname-size: calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
+        /* от 12px до 8.4px (12 * 0.7) */
+        --meta-size:     calc(8.4px + (12 - 8.4) * (100vw - 800px) / 400);
 
         /* --- Блоки контента --- */
-        --width-hero:           calc(650px + (928 - 650) * (100vw - 800px) / 400); /* 928px -> 650px */
-        --width-project-left:   calc(420px + (600 - 420) * (100vw - 800px) / 400); /* 600px -> 420px */
-        --width-project-right:  calc(350px + (500 - 350) * (100vw - 800px) / 400); /* 500px -> 350px */
+        --width-hero:           calc(650px + (928 - 650) * (100vw - 800px) / 400);
+        --width-project-left:   calc(420px + (600 - 420) * (100vw - 800px) / 400);
+        --width-project-right:  calc(350px + (500 - 350) * (100vw - 800px) / 400);
 
         /* --- Отступы --- */
-        --gap-project-slide:    calc(22.4px + (32 - 22.4) * (100vw - 800px) / 400); /* 32px -> 22.4px */
-        --padding-project-details: calc(53.2px + (76 - 53.2) * (100vw - 800px) / 400); /* 76px -> 53.2px */
+        --gap-project-slide:    calc(22.4px + (32 - 22.4) * (100vw - 800px) / 400);
+        --padding-project-details: calc(53.2px + (76 - 53.2) * (100vw - 800px) / 400);
 
-        /* --- QTE (сжатие до 70%) --- */
-        --size-qte-key:         calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400); /* 16px -> 11.2px */
-        --gap-qte-keys:         calc(4.2px + (6 - 4.2) * (100vw - 800px) / 400);   /* 6px -> 4.2px */
-        --offset-qte-wrapper:   calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400); /* 16px -> 11.2px */
-        --qte-hint-font-size:   calc(9.8px + (14 - 9.8) * (100vw - 800px) / 400);   /* 14px -> 9.8px */
+        /* --- QTE --- */
+        --size-qte-key:         calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
+        --gap-qte-keys:         calc(4.2px + (6 - 4.2) * (100vw - 800px) / 400);
+        --offset-qte-wrapper:   calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
+        --qte-hint-font-size:   calc(9.8px + (14 - 9.8) * (100vw - 800px) / 400);
     }
 }
