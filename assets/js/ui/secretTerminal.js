@@ -11,7 +11,9 @@ function getSecretTerminalHandlers() {
     const storage = TEST_MODE ? sessionStorage : localStorage;
 
     // --- Переменные состояния ---
-    let outputEl, trackEl, thumbEl, holdProgressBarEl;
+    let outputEl, trackEl, thumbEl, holdProgressBarEl,
+        // ДОБАВЛЯЕМ ПЕРЕМЕННУЮ ДЛЯ ЭЛЕМЕНТА ВВОДА
+        inputEl; 
     let isAnimationActive, isPrintingLine, isSkipRequested, skipDelayResolver, username, hasSentMessage,
         isDraggingScrollbar, dragStartY,
         // ОБНОВЛЕННЫЕ ПЕРЕМЕННЫЕ
@@ -32,6 +34,7 @@ function getSecretTerminalHandlers() {
         holdSuccessTimer = null; // Основной таймер на 1 сек
         holdAppearanceTimer = null; // Таймер на появление (0.3 сек)
         holdStartTime = 0;
+        inputEl = null; // Сбрасываем и ссылку на элемент
         bulkLoadTriggered = false;
     }
 
@@ -86,6 +89,53 @@ function getSecretTerminalHandlers() {
         }
         target.textContent = text;
     }
+
+    const handleDocumentClick = (e) => {
+        // Защита: выходим, если инпут не готов к работе
+        if (!inputEl || inputEl.disabled) {
+            return;
+        }
+
+        const target = e.target;
+        
+        // Проверяем, был ли клик по элементам, которые НЕ должны вызывать фокус
+        const isInteractiveTerminalElement = 
+            target === inputEl || // Сам инпут
+            target === thumbEl;   // Ползунок скроллбара
+
+        if (!isInteractiveTerminalElement) {
+            // Если клик был НЕ по интерактивному элементу,
+            // мы принудительно возвращаем фокус.
+            e.preventDefault(); // Предотвращаем любые другие действия (например, выделение текста на фоне)
+            inputEl.focus();
+        }
+    };
+
+    const handleInputBlur = () => {
+        if (window.systemState !== 'TERMINAL_ACTIVE') return;
+        setTimeout(() => {
+            if (inputEl && !inputEl.disabled) {
+                inputEl.focus();
+            }
+        }, 0);
+    };
+
+    const handleGlobalInput = (e) => {
+        if (!inputEl || inputEl.disabled || hasSentMessage) return;
+        if (e.metaKey || e.ctrlKey) return;
+        e.preventDefault();
+        if (e.key === 'Enter') {
+            handleUserInput(inputEl);
+        } else if (e.key === 'Backspace') {
+            inputEl.value = inputEl.value.slice(0, -1);
+            updateCharCounter(inputEl);
+        } else if (e.key.length === 1) {
+            if (inputEl.value.length < MAX_CHARS) {
+                inputEl.value += e.key;
+                updateCharCounter(inputEl);
+            }
+        }
+    };
 
     function skippableDelay(ms) {
         return new Promise(resolve => {
@@ -454,18 +504,20 @@ function getSecretTerminalHandlers() {
         trackEl = container.querySelector('.custom-scrollbar-track');
         thumbEl = container.querySelector('.custom-scrollbar-thumb');
         holdProgressBarEl = container.querySelector('.hold-skip-progress-bar');
+        
+        // Сохраняем ссылку на инпут в переменную модуля
+        inputEl = container.querySelector('.terminal-input'); 
 
         // Вешаем слушатели
         outputEl.addEventListener('scroll', updateCustomScrollbar);
-        thumbEl.style.pointerEvents = 'auto'; // Делаем ползунок кликабельным
         thumbEl.addEventListener('mousedown', startDrag);
+        inputEl.addEventListener('input', () => updateCharCounter(inputEl));
         
-        const input = container.querySelector('.terminal-input');
-        input.addEventListener('keydown', async (e) => { if (e.key === 'Enter') await handleUserInput(input); });
-        input.addEventListener('input', () => updateCharCounter(input));
-        
+        // --- ДОБАВЛЯЕМ НОВЫЕ СЛУШАТЕЛИ ---
+        inputEl.addEventListener('blur', handleInputBlur);
+
         if (hasSentMessage) {
-            lockInput(input);
+            lockInput(inputEl);
         }
     }
 
@@ -474,14 +526,15 @@ function getSecretTerminalHandlers() {
             isAnimationActive = true;
             container.classList.add('visible');
             const inputLine = container.querySelector('.terminal-input-line');
-            const input = container.querySelector('.terminal-input');
-            if (!hasSentMessage) input.disabled = true;
+            // УДАЛЯЕМ эту строку, так как inputEl уже определен в prepareSecretTerminal
+            // const input = container.querySelector('.terminal-input'); 
+            if (!hasSentMessage) inputEl.disabled = true;
     
             // Добавляем слушатели
             document.addEventListener('mousedown', startHoldSkip);
-            document.addEventListener('keydown', handleHoldKeydown); // ИЗМЕНЕНО
+            document.addEventListener('keydown', handleHoldKeydown);
             document.addEventListener('mouseup', cancelHoldSkip);
-            document.addEventListener('keyup', handleHoldKeyup); // ИЗМЕНЕНО
+            document.addEventListener('keyup', handleHoldKeyup);
             window.addEventListener('blur', cancelHoldSkip);
             document.addEventListener('keydown', handleImmediateExit);
     
@@ -546,15 +599,21 @@ function getSecretTerminalHandlers() {
             if (isAnimationActive) {
                 // Убираем слушатели, которые больше не нужны
                 document.removeEventListener('mousedown', startHoldSkip);
-                document.removeEventListener('keydown', handleHoldKeydown); // ИЗМЕНЕНО
+                document.removeEventListener('keydown', handleHoldKeydown);
                 document.removeEventListener('mouseup', cancelHoldSkip);
-                document.removeEventListener('keyup', handleHoldKeyup); // ИЗМЕНЕНО
+                document.removeEventListener('keyup', handleHoldKeyup);
                 window.removeEventListener('blur', cancelHoldSkip);
                 
                 if (inputLine) inputLine.classList.add('visible');
+
                 if (!hasSentMessage) {
-                    input.disabled = false;
-                    setTimeout(() => input.focus(), 50);
+                    inputEl.disabled = false;
+                    document.addEventListener('keydown', handleGlobalInput);
+                    
+                    // --- ДОБАВЛЯЕМ ГЛОБАЛЬНЫЙ СЛУШАТЕЛЬ КЛИКОВ ---
+                    document.addEventListener('click', handleDocumentClick, true); // Используем `true` для фазы захвата
+
+                    setTimeout(() => inputEl.focus(), 50);
                 }
             }
             isAnimationActive = false;
@@ -567,19 +626,25 @@ function getSecretTerminalHandlers() {
             console.log("--- Tearing down Secret Terminal: Halting logic and starting fade-out. ---");
             isAnimationActive = false;
             
-            // --- ОЧИСТКА СЛУШАТЕЛЕЙ ---
+            // --- ОЧИСТКА ВСЕХ СЛУШАТЕЛЕЙ ---
             if (outputEl) outputEl.removeEventListener('scroll', updateCustomScrollbar);
             if (thumbEl) thumbEl.removeEventListener('mousedown', startDrag);
-            // Принудительно завершаем перетаскивание, если оно было активно
             stopDrag(); 
 
-            cancelHoldSkip(); // Завершаем удержание, если оно было активно
+            cancelHoldSkip();
             document.removeEventListener('mousedown', startHoldSkip);
-            document.removeEventListener('keydown', handleHoldKeydown); // ИЗМЕНЕНО
+            document.removeEventListener('keydown', handleHoldKeydown);
             document.removeEventListener('mouseup', cancelHoldSkip);
-            document.removeEventListener('keyup', handleHoldKeyup); // ИЗМЕНЕНО
+            document.removeEventListener('keyup', handleHoldKeyup);
             window.removeEventListener('blur', cancelHoldSkip);
             document.removeEventListener('keydown', handleImmediateExit);
+            document.removeEventListener('keydown', handleGlobalInput);
+
+            // --- ОБЯЗАТЕЛЬНО УДАЛЯЕМ НОВЫЕ СЛУШАТЕЛИ ---
+            document.removeEventListener('click', handleDocumentClick, true);
+            if (inputEl) {
+                inputEl.removeEventListener('blur', handleInputBlur);
+            }
 
             const allVisibleContent = container.querySelectorAll('.terminal-line.visible, .terminal-input-line.visible, .custom-scrollbar-track.visible');
             
