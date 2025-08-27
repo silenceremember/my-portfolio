@@ -319,28 +319,35 @@ function getSecretTerminalHandlers() {
     function teardown() {
         return new Promise(resolve => {
             console.log("--- Tearing down Secret Terminal: Halting logic and starting fade-out. ---");
-            isAnimationActive = false;
+            isAnimationActive = false; // Немедленно останавливаем все внутренние анимации
 
+            // Убираем глобальные обработчики событий
             if (outputEl) {
                 outputEl.removeEventListener('scroll', updateCustomScrollbar);
             }
-
             document.removeEventListener('mousedown', handleSkipRequest);
             document.removeEventListener('keydown', handleSkipRequest);
             document.removeEventListener('keydown', handleImmediateExit);
 
+            // 1. Находим все видимые элементы ВНУТРИ терминала.
             const allVisibleContent = container.querySelectorAll('.terminal-line.visible, .terminal-input-line.visible, .custom-scrollbar-track.visible');
-            
+
+            // 2. Если есть что скрывать, запускаем их анимацию затухания.
             if (allVisibleContent.length > 0) {
                 allVisibleContent.forEach(el => el.classList.remove('visible'));
-                
-                // Длительность самой долгой анимации (у .terminal-input-line) - 500ms.
-                // Ждем ее завершения.
+
+                // Ждем завершения самой долгой CSS-анимации (500ms у .terminal-input-line)
                 setTimeout(() => {
-                    resolve(); // Сообщаем, что анимация завершена.
-                }, 500); 
+                    // 3. ПОСЛЕ затухания дочерних элементов, скрываем и сам контейнер.
+                    // Это решает исходную проблему с невозможностью выделить текст.
+                    container.classList.remove('visible');
+                    
+                    // 4. Сообщаем modeManager, что все визуальные эффекты завершены.
+                    resolve();
+                }, 500);
             } else {
-                // Если анимировать нечего, завершаем немедленно.
+                // Если анимировать нечего, просто сразу скрываем контейнер и завершаем.
+                container.classList.remove('visible');
                 resolve();
             }
         });
