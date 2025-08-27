@@ -281,28 +281,58 @@ function getSecretTerminalHandlers() {
     };
 
     const startHoldSkip = (e) => {
-        // Усиленная защита от случайных срабатываний
-        if (isHoldingSkip || !isAnimationActive || (e.type === 'mousedown' && e.button !== 0) || (e.key === 'Enter' && e.target.tagName === 'INPUT')) {
-            return;
+        // Определяем, является ли нажатая клавиша одной из тех, что нас интересуют
+        const isActionKey = e.key === 'Enter' || e.code === 'Space';
+        
+        // --- Усиленная защитная проверка (Guard Clause) ---
+        // Выходим из функции, если выполняется ЛЮБОЕ из этих условий:
+        if (
+            // 1. Процесс удержания уже запущен (предотвращает дублирование таймеров)
+            isHoldingSkip || 
+            
+            // 2. Анимация в терминале неактивна (нечего скипать)
+            !isAnimationActive || 
+            
+            // 3. Это клик мыши, но не левой кнопкой
+            (e.type === 'mousedown' && e.button !== 0) || 
+            
+            // 4. Нажата одна из наших клавиш, но фокус находится на поле ввода
+            (isActionKey && e.target.tagName === 'INPUT')
+        ) {
+            return; // Прерываем выполнение функции
         }
         
+        // Если нажата клавиша "Пробел", отменяем её стандартное поведение (прокрутку страницы)
+        if (e.code === 'Space') {
+            e.preventDefault();
+        }
+        
+        // --- Начало логики удержания ---
+        
+        // Устанавливаем флаг, что удержание началось
         isHoldingSkip = true;
+        // Записываем точное время начала для дальнейших расчетов
         holdStartTime = performance.now();
         
+        // Запускаем таймер, который сработает через 300мс и покажет прогресс-бар
         holdAppearanceTimer = setTimeout(() => {
-            // --- Эта часть кода выполняется через 300мс ---
             
+            // 1. Показываем прогресс-бар и добавляем класс для управления скоростью анимации
             holdProgressBarEl.classList.add('visible');
-            // --- ДОБАВЛЕНО: Управляем скоростью анимации ---
-            holdProgressBarEl.classList.add('is-filling'); 
-            
+            holdProgressBarEl.classList.add('is-filling');
             const fillEl = holdProgressBarEl.querySelector('.hold-skip-progress-bar__fill');
             
+            // 2. Запускаем CSS-анимацию заполнения.
+            // Небольшая задержка (10мс) нужна, чтобы браузер успел применить
+            // классы .visible и .is-filling перед началом transition.
             setTimeout(() => { fillEl.style.width = '100%'; }, 10);
             
+            // 3. Запускаем основной таймер на успешное завершение.
+            // Он стартует ОДНОВРЕМЕННО с CSS-анимацией и длится чуть дольше (1050мс),
+            // чтобы гарантировать ее визуальное завершение.
             holdSuccessTimer = setTimeout(onHoldSuccess, 1050);
     
-        }, 300);
+        }, 300); // Задержка перед появлением прогресс-бара
     };
 
 
@@ -359,14 +389,16 @@ function getSecretTerminalHandlers() {
     }
 
     // --- НОВЫЙ ИМЕНОВАННЫЙ ОБРАБОТЧИК ДЛЯ KEYDOWN ---
-    const handleEnterKeydown = (e) => {
-        if (e.key === 'Enter') {
+    const handleHoldKeydown = (e) => {
+        // Проверяем обе клавиши
+        if (e.key === 'Enter' || e.code === 'Space') {
             startHoldSkip(e);
         }
     };
     // --- НОВЫЙ ИМЕНОВАННЫЙ ОБРАБОТЧИК ДЛЯ KEYUP ---
-    const handleEnterKeyup = (e) => {
-        if (e.key === 'Enter') {
+    const handleHoldKeyup = (e) => {
+        // Проверяем обе клавиши
+        if (e.key === 'Enter' || e.code === 'Space') {
             cancelHoldSkip(e);
         }
     };
@@ -447,9 +479,9 @@ function getSecretTerminalHandlers() {
     
             // Добавляем слушатели
             document.addEventListener('mousedown', startHoldSkip);
-            document.addEventListener('keydown', handleEnterKeydown);
+            document.addEventListener('keydown', handleHoldKeydown); // ИЗМЕНЕНО
             document.addEventListener('mouseup', cancelHoldSkip);
-            document.addEventListener('keyup', handleEnterKeyup);
+            document.addEventListener('keyup', handleHoldKeyup); // ИЗМЕНЕНО
             window.addEventListener('blur', cancelHoldSkip);
             document.addEventListener('keydown', handleImmediateExit);
     
@@ -514,9 +546,9 @@ function getSecretTerminalHandlers() {
             if (isAnimationActive) {
                 // Убираем слушатели, которые больше не нужны
                 document.removeEventListener('mousedown', startHoldSkip);
-                document.removeEventListener('keydown', handleEnterKeydown);
+                document.removeEventListener('keydown', handleHoldKeydown); // ИЗМЕНЕНО
                 document.removeEventListener('mouseup', cancelHoldSkip);
-                document.removeEventListener('keyup', handleEnterKeyup);
+                document.removeEventListener('keyup', handleHoldKeyup); // ИЗМЕНЕНО
                 window.removeEventListener('blur', cancelHoldSkip);
                 
                 if (inputLine) inputLine.classList.add('visible');
@@ -543,9 +575,9 @@ function getSecretTerminalHandlers() {
 
             cancelHoldSkip(); // Завершаем удержание, если оно было активно
             document.removeEventListener('mousedown', startHoldSkip);
-            document.removeEventListener('keydown', handleEnterKeydown);
+            document.removeEventListener('keydown', handleHoldKeydown); // ИЗМЕНЕНО
             document.removeEventListener('mouseup', cancelHoldSkip);
-            document.removeEventListener('keyup', handleEnterKeyup);
+            document.removeEventListener('keyup', handleHoldKeyup); // ИЗМЕНЕНО
             window.removeEventListener('blur', cancelHoldSkip);
             document.removeEventListener('keydown', handleImmediateExit);
 
