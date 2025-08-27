@@ -60,12 +60,11 @@ function initModeManager(config) {
         const minHeight = currentModeConfig.minWindowHeight;
 
         // Проверка на минимальный размер окна
+        // ВАЖНО: Мы НЕ ВЫХОДИМ из режима здесь. Этим займется новый центральный обработчик.
+        // Эта функция теперь ТОЛЬКО отвечает за расчет позиций.
         if (window.innerWidth < minWidth || window.innerHeight < minHeight) {
-            if (window.systemState.includes('_ACTIVE') && !isTransitioning) {
-                 console.warn("Window is now too small for the active mode. Forcing exit.");
-                 toggleMode();
-            }
-            return;
+            // Просто прекращаем расчет, чтобы не было ошибок
+            return false; 
         }
 
         const modeWidth = currentModeConfig.width;
@@ -227,8 +226,10 @@ function initModeManager(config) {
         }
     }
     
-    // Возвращаем публичный метод для управления
+    // --- ИЗМЕНЕНИЕ: Возвращаем не только toggleMode, но и "геттеры" для состояния ---
     return {
-        toggleMode
+        toggleMode,
+        isTransitioning: () => isTransitioning,
+        getCurrentModeConfig: () => currentModeConfig
     };
 }

@@ -737,6 +737,7 @@ function getSecretTerminalHandlers() {
         onActivate: activateSecretTerminal,
         onExit: teardown,
         onCleanup: cleanup,
+        onResize: updateCustomScrollbar, // <-- ВОТ И ВСЁ! Подключаем нашу функцию к "контракту" режима.
         width: 1280,
         height: 720,
         minWindowWidth: 800,
