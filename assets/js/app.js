@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 6. ИНИЦИАЛИЗАЦИЯ ВСЕГО ОСТАЛЬНОГО
     if (typeof initThemeSwitcher === 'function') initThemeSwitcher();
+    if (typeof initBurgerMenu === 'function') initBurgerMenu();
     if (typeof initSectionManager === 'function') initSectionManager();
 
     if (typeof initQTE === 'function') {
