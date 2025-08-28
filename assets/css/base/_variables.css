@@ -4,9 +4,6 @@
     /* ====================================================== */
     /* 1. БАЗОВЫЕ ЭТАЛОННЫЕ РАЗМЕРЫ (на 1200px и шире)       */
     /* ====================================================== */
-    /* Это "источник правды" для всего дизайна. */
-
-    /* --- Шрифты --- */
     --h1-size-base:    52px;
     --h2-size-base:    36px;
     --h3-size-base:    28px;
@@ -17,17 +14,14 @@
     --nickname-size-base: 16px;
     --meta-size-base:     12px;
     
-    /* --- Иконки --- */
     --icon-size-small-base:  14px;
     --icon-size-normal-base: 24px;
     --icon-size-large-base:  30px;
     
-    /* --- Блоки контента --- */
     --width-hero-base:           928px;
     --width-project-left-base:   600px;
     --width-project-right-base:  500px;
 
-    /* --- Отступы и размеры в секциях --- */
     --gap-project-slide-base:    32px;
     --padding-project-details-base: 86px;
     --gap-subtitle-base:         16px;
@@ -39,13 +33,11 @@
     --size-indicator-icon-base:  27px;
     --size-separator-large-base: 28px;
 
-    /* --- QTE --- */
     --size-qte-key-base:         16px;
     --gap-qte-keys-base:         6px;
     --offset-qte-wrapper-base:   16px;
     --qte-hint-font-size-base:   14px;
     
-    /* --- Финальная секция (CTA) --- */
     --width-cta-group-base:         800px;
     --gap-cta-group-base:           32px;
     --margin-top-cta-group-base:    80px;
@@ -61,7 +53,6 @@
     /* ====================================================== */
     /* 2. ФИНАЛЬНЫЕ РАБОЧИЕ ПЕРЕМЕННЫЕ                        */
     /* ====================================================== */
-    /* Эти переменные используются в остальном CSS. По умолчанию они равны базовым. */
     --h1-size:    var(--h1-size-base);
     --h2-size:    var(--h2-size-base);
     --h3-size:    var(--h3-size-base);
@@ -179,5 +170,14 @@
         --font-size-cta-button:    calc(12.6px + (18 - 12.6) * (100vw - 800px) / 400);
         --padding-cta-button-y:    calc(11.2px + (16 - 11.2) * (100vw - 800px) / 400);
         --padding-cta-button-x:    calc(16.8px + (24 - 16.8) * (100vw - 800px) / 400);
+    }
+}
+
+/* ========================================================================= */
+/* 4. МОБИЛЬНЫЙ РЕЖИМ (< 800px) - ФИКСАЦИЯ РАЗМЕРОВ                      */
+/* ========================================================================= */
+@media (max-width: 799.98px) {
+    :root {
+        --nav-size: calc(0px + (14 - 0) * (100vw - 200px) / 600);
     }
 }
