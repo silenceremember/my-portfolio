@@ -10,6 +10,7 @@
 /* 2. ОБЩИЕ КОМПОНЕНТЫ (Хедер, футер, кнопки, рамки)     */
 /* ====================================================== */
 @import url('components/_header.css');
+@import url('components/_mobile-menu.css');
 @import url('components/_footer.css');
 @import url('components/_buttons.css');
 @import url('components/_frame.css');

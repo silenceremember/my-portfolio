@@ -6,26 +6,28 @@
 function initBurgerMenu() {
     const burgerButton = document.getElementById('burger-menu-button');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-    const mobileNavLinks = mobileMenuOverlay ? mobileMenuOverlay.querySelectorAll('.nav-link') : [];
+    // ИЗМЕНЕНО: Находим панель меню и ссылки в ней по-новому
+    const mobileNavPanel = document.querySelector('.mobile-nav');
+    const mobileNavLinks = mobileNavPanel ? mobileNavPanel.querySelectorAll('.nav-link') : [];
 
-    // Проверяем, существуют ли необходимые элементы
-    if (!burgerButton || !mobileMenuOverlay) {
+    if (!burgerButton || !mobileMenuOverlay || !mobileNavPanel) {
         console.warn('Burger menu elements not found. Menu will not be initialized.');
         return;
     }
 
-    // Функция для переключения состояния меню
     const toggleMenu = () => {
         document.body.classList.toggle('menu-open');
     };
 
-    // Назначаем обработчик на клик по кнопке-бургеру
     burgerButton.addEventListener('click', toggleMenu);
 
-    // Добавляем обработчики на ссылки внутри меню, чтобы оно закрывалось при переходе
+    // Эта логика теперь работает идеально, т.к. панель не является дочерним элементом
+    mobileMenuOverlay.addEventListener('click', () => {
+        document.body.classList.remove('menu-open');
+    });
+
     mobileNavLinks.forEach(link => {
         link.addEventListener('click', () => {
-            // Если меню было открыто, закрываем его
             if (document.body.classList.contains('menu-open')) {
                 document.body.classList.remove('menu-open');
             }

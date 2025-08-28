@@ -42,99 +42,18 @@
     letter-spacing: 1px;
     display: block;
     opacity: 1;
-    /* Анимация ПОЯВЛЕНИЯ (при расширении) - с задержкой, чтобы бургер успел исчезнуть */
     transition: color 0.2s ease, opacity 0.3s ease 0.3s;
 }
 .nav-link:hover, .nav-link.active { color: var(--red-accent); }
 
 
 /* ==================================================================== */
-/* ===         СТИЛИ ДЛЯ МОБИЛЬНОГО МЕНЮ И БУРГЕРА                  === */
-/* ==================================================================== */
-
-#burger-menu-button {
-    width: var(--header-icon-size-normal);
-    height: var(--header-icon-size-normal);
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 2001;
-    opacity: 0;
-    pointer-events: none;
-    /* Анимация ИСЧЕЗНОВЕНИЯ (при расширении) - начинается после 0.1s */
-    transition: opacity 0.3s ease 0.1s;
-}
-.burger-icon {
-    position: relative; 
-    width: 100%; 
-    height: 100%;
-    overflow: hidden;
-}
-.burger-icon::before,
-.burger-icon::after {
-    content: ''; 
-    position: absolute; 
-    left: 0; 
-    width: 100%; 
-    height: 2px;
-    background-color: var(--text-color); 
-    opacity: 0;
-    transform: translateX(-100%);
-    /* Анимация ВЫЕЗДА палочек (при расширении окна) - происходит первой */
-    transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease;
-}
-.burger-icon::before { top: 30%; transition-delay: 0.05s; }
-.burger-icon::after { top: 70%; transition-delay: 0s; } /* Нижняя выезжает первой */
-
-/* Стили для открытого меню остаются без изменений */
-#mobile-menu-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: var(--bg-color); z-index: 2000;
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; visibility: hidden; pointer-events: none;
-    transition: opacity 0.3s ease, visibility 0s 0.3s;
-}
-.mobile-nav { display: flex; flex-direction: column; gap: 32px; text-align: center; }
-#mobile-menu-overlay .nav-link {
-    font-size: var(--h3-size-base); opacity: 0; transform: translateY(20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-body.menu-open #mobile-menu-overlay { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
-body.menu-open #mobile-menu-overlay .nav-link { opacity: 1; transform: translateY(0); }
-body.menu-open #mobile-menu-overlay .nav-link:nth-child(1) { transition-delay: 0.1s; }
-body.menu-open #mobile-menu-overlay .nav-link:nth-child(2) { transition-delay: 0.15s; }
-body.menu-open #mobile-menu-overlay .nav-link:nth-child(3) { transition-delay: 0.2s; }
-body.menu-open #mobile-menu-overlay .nav-link:nth-child(4) { transition-delay: 0.25s; }
-body.menu-open #mobile-menu-overlay .nav-link:nth-child(5) { transition-delay: 0.3s; }
-/* Превращаем бургер в крестик при открытии меню */
-body.menu-open .burger-icon::before { top: 50%; transform: rotate(45deg); opacity: 1; transition-delay: 0s; }
-body.menu-open .burger-icon::after { top: 50%; transform: rotate(-45deg); opacity: 1; transition-delay: 0s; }
-
-
-/* ==================================================================== */
-/* ===         Медиа-запрос, ЗАПУСКАЮЩИЙ АНИМАЦИЮ                   === */
+/* ===         Медиа-запрос, СКРЫВАЮЩИЙ ДЕСКТОП-НАВИГАЦИЮ          === */
 /* ==================================================================== */
 @media (max-width: 799.98px) {
     .main-nav .nav-link {
         opacity: 0;
         pointer-events: none;
-        /* Анимация ИСЧЕЗНОВЕНИЯ (при сжатии) - без задержки */
         transition: color 0.2s ease, opacity 0.3s ease 0s;
     }
-    
-    #burger-menu-button {
-        opacity: 1;
-        pointer-events: auto;
-        /* Анимация ПОЯВЛЕНИЯ (при сжатии) - начинается после 0.2s */
-        transition: opacity 0.3s ease 0.2s;
-    }
-    
-    .burger-icon::before,
-    .burger-icon::after {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    .burger-icon::before { transition-delay: 0.3s; }
-    .burger-icon::after { transition-delay: 0.35s; }
 }

@@ -5,7 +5,8 @@ body::before, body::after {
     content: '';
     position: fixed;
     background-color: var(--border-color);
-    z-index: 501;
+    /* ИЗМЕНЕНО: Повышаем z-index, чтобы линии были поверх меню */
+    z-index: 2002; 
     height: 1px;
     left: 0;
     right: 0;
