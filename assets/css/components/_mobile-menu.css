@@ -103,7 +103,11 @@ body[data-theme="light"] #mobile-menu-overlay { background-color: rgba(245, 245,
     flex-direction: column;
     flex-grow: 1;
     overflow-y: auto;
-    min-height: 0;
+    /* 
+     * ИЗМЕНЕНИЕ 1: Делаем этот блок контекстом позиционирования 
+     * для нашего нового псевдо-элемента-маски.
+    */
+    position: relative;
 }
 
 /* КОНТЕЙНЕР САМИХ ССЫЛОК */
@@ -182,9 +186,25 @@ body.menu-open .mobile-nav { transform: translateX(0); visibility: visible; tran
 
 /* ПОКАЗ ФУТЕРА */
 @media (max-width: 524.98px) {
-    
-    .mobile-nav-footer { 
+    .mobile-nav-footer {
         display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+        flex-shrink: 0;
+        padding: 10px 10px 10px 30px; 
+        border-top: 1px solid var(--border-color);
+
+        /* 
+         * ============================================================
+         * ===                  КЛЮЧЕВЫЕ ИЗМЕНЕНИЯ                  ===
+         * ============================================================
+         * 1. Ограничиваем максимальную высоту футера, чтобы он не занимал
+         *    весь экран на низких устройствах.
+         * 2. Включаем для него собственный вертикальный скроллбар.
+        */
+        max-height: 35%; /* Не позволять футеру занимать более 35% высоты меню */
+        overflow-y: auto;  /* Добавить скролл, если контент не помещается */
     }
 }
 
