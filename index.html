@@ -244,34 +244,55 @@
 
     <div id="mobile-menu-overlay"></div>
     <nav class="mobile-nav">
+        <!-- 
+            ЗАДАЧА 1: ЕДИНЫЙ ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ.
+            Этот контейнер будет прокручиваться по горизонтали, если контент шире.
+        -->
         <div class="mobile-nav-content">
-            <div class="mobile-nav-links-wrapper">
-                <a href="index.html" class="nav-link active">ГЛАВНАЯ</a>
-                <a href="portfolio.html" class="nav-link">ПОРТФОЛИО</a>
-                <a href="about.html" class="nav-link">АВТОР</a> <!-- Исправил "ПРОФИЛЬ" на "АВТОР" для консистентности -->
-                <a href="resume.html" class="nav-link">РЕЗЮМЕ</a>
-                <a href="resume.html" class="nav-link">ИССЛЕДОВАНИЯ</a>
-            </div>
-            
-            <div class="mobile-nav-footer">
-                <div class="footer-socials">
-                    <a href="#" title="LinkedIn"><div class="icon-placeholder" data-icon="linkedin"></div></a>
-                    <a href="#" title="hh.ru"><div class="icon-placeholder" data-icon="hhru"></div></a>
-                    <a href="#" title="Telegram"><div class="icon-placeholder" data-icon="telegram"></div></a>
-                    <div class="separator-icon"></div>
-                    <a href="#" title="itch.io"><div class="icon-placeholder" data-icon="itchio"></div></a>
+            <!-- 
+                ЗАДАЧА 2: ВЕРТИКАЛЬНАЯ ВЕРСТКА.
+                Располагает ссылки (сверху) и футер (снизу).
+            -->
+            <div class="mobile-nav-layout-wrapper">
+                
+                <!-- 
+                    ЗАДАЧА 3: ВЕРТИКАЛЬНЫЙ СКРОЛЛ ДЛЯ ССЫЛОК.
+                    Этот блок растягивается и прокручивается по вертикали.
+                -->
+                <div class="mobile-nav-links-wrapper">
+                    <div class="mobile-nav-links">
+                        <a href="index.html" class="nav-link active">ГЛАВНАЯ</a>
+                        <a href="portfolio.html" class="nav-link">ПОРТФОЛИО</a>
+                        <a href="about.html" class="nav-link">АВТОР</a>
+                        <a href="resume.html" class="nav-link">РЕЗЮМЕ</a>
+                        <a href="resume.html" class="nav-link">ИССЛЕДОВАНИЯ</a>
+                    </div>
                 </div>
-                <a href="mailto:slcrmmbr@outlook.com" class="footer-icon-link">
-                    <div class="email-placeholder"></div>
-                </a>
-                <div class="footer-logos">
-                    <div class="logo-placeholder-me"></div>
-                    <div class="separator-icon"></div>
-                    <div class="logo-placeholder-skull"></div>
-                </div>
-                <div class="copyright-placeholder"></div>
-            </div>
 
+                <!-- 
+                    ЗАДАЧА 4: ФУТЕР.
+                    Просто отображается внизу, когда это необходимо.
+                -->
+                <div class="mobile-nav-footer">
+                    <div class="footer-socials">
+                        <a href="#" title="LinkedIn"><div class="icon-placeholder" data-icon="linkedin"></div></a>
+                        <a href="#" title="hh.ru"><div class="icon-placeholder" data-icon="hhru"></div></a>
+                        <a href="#" title="Telegram"><div class="icon-placeholder" data-icon="telegram"></div></a>
+                        <div class="separator-icon"></div>
+                        <a href="#" title="itch.io"><div class="icon-placeholder" data-icon="itchio"></div></a>
+                    </div>
+                    <a href="mailto:slcrmmbr@outlook.com" class="footer-icon-link">
+                        <div class="email-placeholder"></div>
+                    </a>
+                    <div class="footer-logos">
+                        <div class="logo-placeholder-me"></div>
+                        <div class="separator-icon"></div>
+                        <div class="logo-placeholder-skull"></div>
+                    </div>
+                    <div class="copyright-placeholder"></div>
+                </div>
+
+            </div>
         </div>
     </nav>
 

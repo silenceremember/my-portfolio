@@ -47,7 +47,7 @@ body.menu-open .burger-icon::after { animation: burger-to-cross-bottom 0.4s ease
 }
 
 /* ==================================================================== */
-/* ===         2. ОВЕРЛЕЙ И БОКОВАЯ ПАНЕЛЬ МЕНЮ                   === */
+/* ===         2. ОСНОВНАЯ СТРУКТУРА МЕНЮ                         === */
 /* ==================================================================== */
 #mobile-menu-overlay {
     position: fixed;
@@ -78,38 +78,52 @@ body[data-theme="light"] #mobile-menu-overlay { background-color: rgba(245, 245,
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s 0.4s;
 }
 
-/*
- * ИЗМЕНЕНИЕ 1: `mobile-nav-content` теперь flex-контейнер.
- * Это основа для решения всех 4 проблем.
- * Он будет управлять расположением ссылок и футера.
-*/
+/* ГЛАВНЫЙ КОНТЕЙНЕР (ОТВЕЧАЕТ ЗА ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ) */
 .mobile-nav-content {
     position: absolute;
     top: var(--frame-padding-vertical);
     bottom: var(--frame-padding-vertical);
     left: 0;
     right: 0;
-    padding: 0 10px 20px 30px; /* Добавили отступ снизу */
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
-/*
- * ИЗМЕНЕНИЕ 2: Блок ссылок теперь "растягивается".
- * `flex-grow: 1` заставляет его занять все свободное место.
- * `min-height: 100%` больше не нужен.
- * Это решает проблемы 1 и 4.
-*/
+/* ОБЕРТКА ДЛЯ ВЕРТИКАЛЬНОЙ ВЕРСТКИ */
+.mobile-nav-layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* ОБЕРТКА ДЛЯ ВЕРТИКАЛЬНОГО СКРОЛЛА ССЫЛОК */
 .mobile-nav-links-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 20px;
-    flex-grow: 1; /* <-- КЛЮЧЕВОЕ СВОЙСТВО */
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 0;
 }
 
+/* КОНТЕЙНЕР САМИХ ССЫЛОК */
+.mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 20px;
+    margin: auto 0;
+    /* ИСПРАВЛЕНО: Правильные отступы. 30px слева, 10px справа. */
+    padding: 20px 10px 20px 10px; 
+}
+
+.mobile-nav .nav-link { 
+    font-size: 20px; 
+    text-align: right; 
+    white-space: nowrap;
+}
+
+/* ДЕКОРАТИВНЫЕ ЭЛЕМЕНТЫ */
 .mobile-nav::before {
     content: '';
     position: absolute;
@@ -133,17 +147,31 @@ body[data-theme="light"] #mobile-menu-overlay { background-color: rgba(245, 245,
     opacity: 1;
     z-index: -1;
 }
-.mobile-nav .nav-link { font-size: 20px; text-align: right; }
 
 /* ==================================================================== */
-/* ===         3. СОСТОЯНИЕ ОТКРЫТОГО МЕНЮ (класс .menu-open)       === */
+/* ===         3. ФУТЕР В МОБИЛЬНОМ МЕНЮ                          === */
+/* ==================================================================== */
+.mobile-nav-footer { 
+    display: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+    /* ИСПРАВЛЕНО: Правильные отступы, симметричные ссылкам. */
+    padding: 10px 10px 10px 10px; 
+    border-top: 1px solid var(--border-color);
+}
+.mobile-nav-footer .footer-icon-link { display: inline-block; }
+.mobile-nav-footer .icon-placeholder { width: 20px; height: 20px; }
+.mobile-nav-footer .email-placeholder { width: 130px; height: 12px; }
+
+/* ==================================================================== */
+/* ===         4. СОСТОЯНИЯ И АДАПТИВНОСТЬ                        === */
 /* ==================================================================== */
 body.menu-open #mobile-menu-overlay { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.4s ease; }
 body.menu-open .mobile-nav { transform: translateX(0); visibility: visible; transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 
-/* ==================================================================== */
-/* ===         4. МЕДИА-ЗАПРОСЫ ДЛЯ АДАПТИВНОСТИ                  === */
-/* ==================================================================== */
+/* ПОКАЗ БУРГЕРА */
 @media (max-width: 799.98px) {
     #burger-menu-button { opacity: 1; pointer-events: auto; }
     .burger-icon::before,
@@ -151,66 +179,32 @@ body.menu-open .mobile-nav { transform: translateX(0); visibility: visible; tran
     .burger-icon::before { transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s, background-color 0.2s ease; }
     .burger-icon::after { transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.35s, background-color 0.2s ease; }
 }
+
+/* ПОКАЗ ФУТЕРА */
+@media (max-width: 524.98px) {
+    
+    .mobile-nav-footer { 
+        display: flex;
+    }
+}
+
+/* ИЗМЕНЕНИЕ ШИРИНЫ МЕНЮ И ШРИФТА */
 @media (max-width: 559.98px) {
+    /* ИСПРАВЛЕНО: Возвращаем правило, чтобы меню не занимало больше половины экрана. */
+    .mobile-nav {
+        width: 50%;
+    }
     .mobile-nav .nav-link { font-size: calc(14px + 6 * (100vw - 375px) / 185); }
-    .mobile-nav { width: 50%; }
 }
 @media (max-width: 374.98px) { .mobile-nav .nav-link { font-size: 14px; } }
+
+/* РЕЖИМ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ */
 @media (max-width: 319.98px) {
-    .mobile-nav-content { overflow-x: auto; direction: rtl; }
-    .mobile-nav .nav-link { white-space: nowrap; }
-    .mobile-nav-links-wrapper { min-width: max-content; direction: ltr; }
-}
-
-/* ==================================================================== */
-/* ===         5. ИНФОРМАЦИЯ ИЗ ФУТЕРА В МОБИЛЬНОМ МЕНЮ           === */
-/* ==================================================================== */
-.mobile-nav-footer { display: none; }
-
-@media (max-width: 524.98px) {
-    .mobile-nav-footer {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
-        padding-top: 10px;
-
-        /* 
-         * ============================================================
-         * ===                  КЛЮЧЕВОЕ ИЗМЕНЕНИЕ                  ===
-         * ============================================================
-         * Выводим футер из основного потока верстки.
-         * Теперь его появление никак не влияет на расчеты flex-grow
-         * у блока со ссылками, и их центр остается стабильным.
-        */
-        position: absolute;
-        bottom: 10px;  /* Соответствует padding-bottom родителя */
-        left: 30px;   /* Соответствует padding-left родителя */
-        right: 10px;  /* Соответствует padding-right родителя */
+    .mobile-nav-content { 
+        direction: rtl; /* Начинаем прокрутку справа */
     }
-
-    /* Логика для разделительной линии остается прежней и работает корректно */
-    .mobile-nav-footer::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -30px;
-        right: -10px;
-        height: 1px;
-        background-color: var(--border-color);
-    }
-
-    .mobile-nav-footer .footer-icon-link { 
-        display: inline-block; 
-    }
-    
-    .mobile-nav-footer .icon-placeholder { 
-        width: 20px; 
-        height: 20px; 
-    }
-
-    .mobile-nav-footer .email-placeholder {
-        width: 130px;
-        height: 12px;
+    .mobile-nav-layout-wrapper {
+        min-width: max-content; /* Заставляем макет растянуться под контент */
+        direction: ltr; /* Возвращаем нормальное направление для верстки внутри */
     }
 }
