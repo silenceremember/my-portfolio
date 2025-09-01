@@ -98,7 +98,7 @@
 
     /* --- Немасштабируемые переменные --- */
     --frame-padding-vertical: 50px;
-    --frame-padding-horizontal: 420px;
+    --frame-padding-horizontal: 410px;
     --guide-line-offset:        400px;
     --guide-line-opacity: 1; 
     --bg-color: #121212;

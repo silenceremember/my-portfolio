@@ -191,7 +191,7 @@ body[data-theme="light"] #mobile-menu-overlay {
      *
      * Начните с этих значений и подбирайте их в браузере.
     */
-    background-position: 45% calc(50% + 5vh);
+    background-position: 45% 50%;
     
     background-repeat: no-repeat;
     background-size: auto;
