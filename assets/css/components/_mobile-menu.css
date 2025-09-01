@@ -1,177 +1,124 @@
-/* assets/css/components/_mobile-menu.css */
-
 /* ==================================================================== */
 /* ===         1. КНОПКА-БУРГЕР И ЕЕ ИКОНКА                       === */
 /* ==================================================================== */
-
 #burger-menu-button {
-    position: fixed; 
+    position: fixed;
     right: var(--frame-padding-horizontal);
     top: calc((var(--frame-padding-vertical) - var(--header-icon-size-normal)) / 2);
     width: var(--header-icon-size-normal);
     height: var(--header-icon-size-normal);
-    
-    z-index: 101; 
-    
+    z-index: 101;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease 0.2s, right 0s, top 0s;
 }
-
 .burger-icon {
-    position: relative; 
-    width: 100%; 
+    position: relative;
+    width: 100%;
     height: 100%;
     overflow: hidden;
 }
-
-
 .burger-icon::before,
 .burger-icon::after {
-    content: ''; 
-    position: absolute; 
-    left: 0; 
-    width: 100%; 
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
     height: 2px;
     background-color: var(--text-color);
     top: 50%;
     transform: translateX(-100%) translateY(var(--y-offset, 0));
-    
-    /* ИЗМЕНЕНО: Задаем одинаковые тайминги для hover и появления */
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                background-color 0.2s ease; /* <-- Оставляем это значение, оно уже правильное */
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                background-color 0.2s ease;
 }
 .burger-icon::before { --y-offset: -6px; }
 .burger-icon::after  { --y-offset: 6px; }
-
-
-/* --- ЛОГИКА АНИМАЦИИ ПРИ ОТКРЫТИИ/ЗАКРЫТИИ (остается без изменений) --- */
-body.menu-open .burger-icon::before {
-    animation: burger-to-cross-top 0.4s ease-in-out forwards;
-}
-body.menu-open .burger-icon::after {
-    animation: burger-to-cross-bottom 0.4s ease-in-out forwards;
-}
-.burger-icon.is-closing::before {
-    animation: cross-to-burger-top 0.4s ease-in-out forwards;
-}
-.burger-icon.is-closing::after {
-    animation: cross-to-burger-bottom 0.4s ease-in-out forwards;
-}
-
-
-/* --- КЛЮЧЕВЫЕ КАДРЫ АНИМАЦИИ (остаются без изменений) --- */
-@keyframes burger-to-cross-top {
-    0%   { transform: translateY(-6px); }
-    50%  { transform: translateY(0); }
-    100% { transform: translateY(0) rotate(45deg); }
-}
-@keyframes burger-to-cross-bottom {
-    0%   { transform: translateY(6px); }
-    50%  { transform: translateY(0); }
-    100% { transform: translateY(0) rotate(-45deg); }
-}
-@keyframes cross-to-burger-top {
-    0%   { transform: translateY(0) rotate(45deg); }
-    50%  { transform: translateY(0) rotate(0); }
-    100% { transform: translateY(-6px); }
-}
-@keyframes cross-to-burger-bottom {
-    0%   { transform: translateY(0) rotate(-45deg); }
-    50%  { transform: translateY(0) rotate(0); }
-    100% { transform: translateY(6px); }
-}
-
-
-/* --- ЛОГИКА ДЛЯ СОСТОЯНИЯ HOVER (остается без изменений) --- */
+body.menu-open .burger-icon::before { animation: burger-to-cross-top 0.4s ease-in-out forwards; }
+body.menu-open .burger-icon::after { animation: burger-to-cross-bottom 0.4s ease-in-out forwards; }
+.burger-icon.is-closing::before { animation: cross-to-burger-top 0.4s ease-in-out forwards; }
+.burger-icon.is-closing::after { animation: cross-to-burger-bottom 0.4s ease-in-out forwards; }
+@keyframes burger-to-cross-top { 0% { transform: translateY(-6px); } 50% { transform: translateY(0); } 100% { transform: translateY(0) rotate(45deg); } }
+@keyframes burger-to-cross-bottom { 0% { transform: translateY(6px); } 50% { transform: translateY(0); } 100% { transform: translateY(0) rotate(-45deg); } }
+@keyframes cross-to-burger-top { 0% { transform: translateY(0) rotate(45deg); } 50% { transform: translateY(0) rotate(0); } 100% { transform: translateY(-6px); } }
+@keyframes cross-to-burger-bottom { 0% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(0) rotate(0); } 100% { transform: translateY(6px); } }
 #burger-menu-button:hover .burger-icon::before,
 #burger-menu-button:hover .burger-icon::after {
     background-color: var(--red-accent);
 }
 
-
 /* ==================================================================== */
 /* ===         2. ОВЕРЛЕЙ И БОКОВАЯ ПАНЕЛЬ МЕНЮ                   === */
 /* ==================================================================== */
-
 #mobile-menu-overlay {
-    position: fixed; 
-    
-    /* ИЗМЕНЕНО: Ограничиваем оверлей областью между хедером и футером */
+    position: fixed;
     top: var(--frame-padding-vertical);
     bottom: var(--frame-padding-vertical);
     left: 0;
     right: 0;
-    
-    background-color: rgba(18, 18, 18, 0.7); 
-    
-    /* ИЗМЕНЕНО: z-index теперь НИЖЕ хедера (100) */
+    background-color: rgba(18, 18, 18, 0.7);
     z-index: 90;
-    
     opacity: 0; visibility: hidden; pointer-events: none;
     transition: opacity 0.4s ease, visibility 0s 0.4s;
 }
+body[data-theme="light"] #mobile-menu-overlay { background-color: rgba(245, 245, 245, 0.7); }
 
-body[data-theme="light"] #mobile-menu-overlay {
-    background-color: rgba(245, 245, 245, 0.7);
-}
-
-.mobile-nav { 
+.mobile-nav {
     position: fixed;
     top: 0;
     right: 0;
-    width: 280px; 
+    width: 280px;
     max-width: 100%;
     height: 100%;
     background-color: var(--bg-color);
-    z-index: 90; 
+    z-index: 90;
     overflow: hidden;
     isolation: isolate;
     transform: translateX(100%);
     visibility: hidden;
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s 0.4s;
-    /* Все стили Flexbox и padding отсюда убраны! */
 }
 
+/*
+ * ИЗМЕНЕНИЕ 1: `mobile-nav-content` теперь flex-контейнер.
+ * Это основа для решения всех 4 проблем.
+ * Он будет управлять расположением ссылок и футера.
+*/
 .mobile-nav-content {
     position: absolute;
     top: var(--frame-padding-vertical);
     bottom: var(--frame-padding-vertical);
     left: 0;
     right: 0;
-    
-    overflow-y: auto; /* Вертикальный скролл по умолчанию */
-    padding: 0 10px 0 30px; /* Горизонтальные отступы остаются здесь */
+    padding: 0 10px 20px 30px; /* Добавили отступ снизу */
     box-sizing: border-box;
-    /* Убрали display: flex и всё, что с ним связано */
+    display: flex;
+    flex-direction: column;
 }
 
-/* Новый внутренний контейнер: отвечает ТОЛЬКО за верстку ссылок */
+/*
+ * ИЗМЕНЕНИЕ 2: Блок ссылок теперь "растягивается".
+ * `flex-grow: 1` заставляет его занять все свободное место.
+ * `min-height: 100%` больше не нужен.
+ * Это решает проблемы 1 и 4.
+*/
 .mobile-nav-links-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-end;
     gap: 20px;
-    
-    /* Ключевое свойство: заставляем его занимать минимум 100% высоты родителя */
-    min-height: 100%; 
+    flex-grow: 1; /* <-- КЛЮЧЕВОЕ СВОЙСТВО */
 }
 
-/* НОВЫЙ БЛОК: Создаем вертикальную линию с помощью псевдо-элемента */
 .mobile-nav::before {
     content: '';
     position: absolute;
-    /* Позиционируем линию точно между хедером и футером */
     top: var(--frame-padding-vertical);
     bottom: var(--frame-padding-vertical);
     left: 0;
-    /* Задаем ширину и цвет линии */
     width: 1px;
     background-color: var(--border-color);
 }
-
-/* СТАЛО (ВАШ ШАБЛОН ДЛЯ НАСТРОЙКИ) */
 .mobile-nav::after {
     content: '';
     position: absolute;
@@ -180,108 +127,90 @@ body[data-theme="light"] #mobile-menu-overlay {
     left: 0;
     width: 100%;
     background-image: url('../../images/mobile-menu-bg.svg');
-    
-    /* 
-     * === ГЛАВНАЯ НАСТРОЙКА ===
-     *
-     * Горизонтальная позиция (X): 45% (остается фиксированной).
-     *
-     * Вертикальная позиция (Y): calc( A - B );
-     *      A: Базовая точка. 50% - это идеальный центр.
-     *      B: Динамический сдвиг. Чем больше vh, тем сильнее фон будет
-     *         смещаться ВВЕРХ на высоких экранах.
-     *
-     * Начните с этих значений и подбирайте их в браузере.
-    */
     background-position: 45% 50%;
-    
     background-repeat: no-repeat;
     background-size: auto;
     opacity: 1;
     z-index: -1;
 }
-
-.mobile-nav .nav-link {
-    font-size: 20px;
-    text-align: right; /* ДОБАВЛЕНО: Выравниваем текст внутри ссылки по правому краю */
-}
-
+.mobile-nav .nav-link { font-size: 20px; text-align: right; }
 
 /* ==================================================================== */
 /* ===         3. СОСТОЯНИЕ ОТКРЫТОГО МЕНЮ (класс .menu-open)       === */
 /* ==================================================================== */
-
-body.menu-open #mobile-menu-overlay { 
-    opacity: 1; 
-    visibility: visible; 
-    pointer-events: auto;
-    transition: opacity 0.4s ease;
-}
-
-body.menu-open .mobile-nav {
-    transform: translateX(0);
-    visibility: visible;
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
+body.menu-open #mobile-menu-overlay { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.4s ease; }
+body.menu-open .mobile-nav { transform: translateX(0); visibility: visible; transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 
 /* ==================================================================== */
-/* ===         4. МЕДИА-ЗАПРОС ДЛЯ ПОКАЗА БУРГЕРА                 === */
+/* ===         4. МЕДИА-ЗАПРОСЫ ДЛЯ АДАПТИВНОСТИ                  === */
 /* ==================================================================== */
 @media (max-width: 799.98px) {
-    #burger-menu-button { 
-        opacity: 1; 
-        pointer-events: auto; 
-    }
-    
-    /* 1. Задаем конечное положение для линий */
+    #burger-menu-button { opacity: 1; pointer-events: auto; }
     .burger-icon::before,
-    .burger-icon::after {
-        transform: translateY(var(--y-offset));
-    }
-
-    /* 2. ПЕРЕОПРЕДЕЛЯЕМ TRANSITION, чтобы delay применялся ТОЛЬКО к transform */
-    .burger-icon::before {
-        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s,  /* transform с задержкой 0.3s */
-                    background-color 0.2s ease;                             /* background-color БЕЗ задержки */
-    }
-    .burger-icon::after {
-        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.35s, /* transform с задержкой 0.35s */
-                    background-color 0.2s ease;                              /* background-color БЕЗ задержки */
-    }
+    .burger-icon::after { transform: translateY(var(--y-offset)); }
+    .burger-icon::before { transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s, background-color 0.2s ease; }
+    .burger-icon::after { transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.35s, background-color 0.2s ease; }
+}
+@media (max-width: 559.98px) {
+    .mobile-nav .nav-link { font-size: calc(14px + 6 * (100vw - 375px) / 185); }
+    .mobile-nav { width: 50%; }
+}
+@media (max-width: 374.98px) { .mobile-nav .nav-link { font-size: 14px; } }
+@media (max-width: 319.98px) {
+    .mobile-nav-content { overflow-x: auto; direction: rtl; }
+    .mobile-nav .nav-link { white-space: nowrap; }
+    .mobile-nav-links-wrapper { min-width: max-content; direction: ltr; }
 }
 
-@media (max-width: 559.98px) {
-    .mobile-nav .nav-link {
-        /* Формула плавно уменьшает шрифт с 20px (на 560px) до 14px (на 375px) */
-        font-size: calc(14px + 6 * (100vw - 375px) / 185);
+/* ==================================================================== */
+/* ===         5. ИНФОРМАЦИЯ ИЗ ФУТЕРА В МОБИЛЬНОМ МЕНЮ           === */
+/* ==================================================================== */
+.mobile-nav-footer { display: none; }
+
+@media (max-width: 524.98px) {
+    .mobile-nav-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+        padding-top: 10px;
+
+        /* 
+         * ============================================================
+         * ===                  КЛЮЧЕВОЕ ИЗМЕНЕНИЕ                  ===
+         * ============================================================
+         * Выводим футер из основного потока верстки.
+         * Теперь его появление никак не влияет на расчеты flex-grow
+         * у блока со ссылками, и их центр остается стабильным.
+        */
+        position: absolute;
+        bottom: 10px;  /* Соответствует padding-bottom родителя */
+        left: 30px;   /* Соответствует padding-left родителя */
+        right: 10px;  /* Соответствует padding-right родителя */
+    }
+
+    /* Логика для разделительной линии остается прежней и работает корректно */
+    .mobile-nav-footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -30px;
+        right: -10px;
+        height: 1px;
+        background-color: var(--border-color);
+    }
+
+    .mobile-nav-footer .footer-icon-link { 
+        display: inline-block; 
     }
     
-    .mobile-nav {
-        width: 50%;
-    }
-}
-
-@media (max-width: 374.98px) {
-    .mobile-nav .nav-link {
-        font-size: 14px; /* Жестко задаем минимальный размер */
-    }
-}
-
-@media (max-width: 319.98px) {
-    /* 1. Включаем горизонтальную прокрутку И МЕНЯЕМ НАПРАВЛЕНИЕ */
-    .mobile-nav-content {
-        overflow-x: auto;
-        direction: rtl; /* <-- КЛЮЧЕВОЕ СВОЙСТВО: Начинает прокрутку справа */
+    .mobile-nav-footer .icon-placeholder { 
+        width: 20px; 
+        height: 20px; 
     }
 
-    /* 2. Запрещаем перенос текста в ссылках */
-    .mobile-nav .nav-link {
-        white-space: nowrap;
-    }
-
-    /* 3. "Исправляем" направление для flex-контейнера, чтобы align-items работало как обычно */
-    .mobile-nav-links-wrapper {
-        min-width: max-content;
-        direction: ltr; /* <-- КЛЮЧЕВАЯ КОРРЕКЦИЯ: Возвращаем нормальное направление для верстки */
+    .mobile-nav-footer .email-placeholder {
+        width: 130px;
+        height: 12px;
     }
 }
