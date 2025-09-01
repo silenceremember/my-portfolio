@@ -25,6 +25,7 @@
     overflow: hidden;
 }
 
+
 .burger-icon::before,
 .burger-icon::after {
     content: ''; 
@@ -32,13 +33,61 @@
     left: 0; 
     width: 100%; 
     height: 2px;
-    background-color: var(--text-color); 
-    opacity: 0;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease, background-color 0.3s ease;
+    background-color: var(--text-color);
+    top: 50%;
+    transform: translateX(-100%) translateY(var(--y-offset, 0));
+    
+    /* ИЗМЕНЕНО: Задаем одинаковые тайминги для hover и появления */
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                background-color 0.2s ease; /* <-- Оставляем это значение, оно уже правильное */
 }
-.burger-icon::before { top: 30%; transition-delay: 0.3s; }
-.burger-icon::after { top: 70%; transition-delay: 0.35s; }
+.burger-icon::before { --y-offset: -6px; }
+.burger-icon::after  { --y-offset: 6px; }
+
+
+/* --- ЛОГИКА АНИМАЦИИ ПРИ ОТКРЫТИИ/ЗАКРЫТИИ (остается без изменений) --- */
+body.menu-open .burger-icon::before {
+    animation: burger-to-cross-top 0.4s ease-in-out forwards;
+}
+body.menu-open .burger-icon::after {
+    animation: burger-to-cross-bottom 0.4s ease-in-out forwards;
+}
+.burger-icon.is-closing::before {
+    animation: cross-to-burger-top 0.4s ease-in-out forwards;
+}
+.burger-icon.is-closing::after {
+    animation: cross-to-burger-bottom 0.4s ease-in-out forwards;
+}
+
+
+/* --- КЛЮЧЕВЫЕ КАДРЫ АНИМАЦИИ (остаются без изменений) --- */
+@keyframes burger-to-cross-top {
+    0%   { transform: translateY(-6px); }
+    50%  { transform: translateY(0); }
+    100% { transform: translateY(0) rotate(45deg); }
+}
+@keyframes burger-to-cross-bottom {
+    0%   { transform: translateY(6px); }
+    50%  { transform: translateY(0); }
+    100% { transform: translateY(0) rotate(-45deg); }
+}
+@keyframes cross-to-burger-top {
+    0%   { transform: translateY(0) rotate(45deg); }
+    50%  { transform: translateY(0) rotate(0); }
+    100% { transform: translateY(-6px); }
+}
+@keyframes cross-to-burger-bottom {
+    0%   { transform: translateY(0) rotate(-45deg); }
+    50%  { transform: translateY(0) rotate(0); }
+    100% { transform: translateY(6px); }
+}
+
+
+/* --- ЛОГИКА ДЛЯ СОСТОЯНИЯ HOVER (остается без изменений) --- */
+#burger-menu-button:hover .burger-icon::before,
+#burger-menu-button:hover .burger-icon::after {
+    background-color: var(--red-accent);
+}
 
 
 /* ==================================================================== */
@@ -71,19 +120,24 @@ body[data-theme="light"] #mobile-menu-overlay {
     position: fixed;
     top: 0;
     right: 0;
-    width: 250px; /* ИЗМЕНЕНО: Ширина панели */
+    width: 350px; 
     max-width: 85%;
     height: 100%;
     background-color: var(--bg-color);
     z-index: 90; 
+
+    /* ДОБАВЛЕНО: Свойства для корректной работы задника ::after */
+    overflow: hidden;    /* 1. Чтобы фон не вылезал за пределы панели */
+    isolation: isolate;  /* 2. Чтобы z-index: -1 работал предсказуемо */
+
     transform: translateX(100%);
     visibility: hidden;
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s 0.4s;
     display: flex; 
     flex-direction: column; 
-    align-items: flex-end; /* ИЗМЕНЕНО: Выравниваем блоки ссылок по правому краю */
+    align-items: flex-end;
     justify-content: flex-start;
-    padding: 80px 10px 40px 30px; /* ИЗМЕНЕНО: Уменьшили боковые отступы */
+    padding: 80px 10px 40px 30px;
     box-sizing: border-box;
     gap: 20px;
 }
@@ -101,9 +155,27 @@ body[data-theme="light"] #mobile-menu-overlay {
     background-color: var(--border-color);
 }
 
+/* СТАЛО */
+.mobile-nav::after {
+    content: '';
+    position: absolute;
+    top: var(--frame-padding-vertical);
+    bottom: var(--frame-padding-vertical);
+    left: 0;
+    width: 100%;
+    background-image: url('../../images/mobile-menu-bg.svg');
+    
+    /* ИЗМЕНЕНО: Задаем точный отступ: 20px от левого края и 20px от верхнего */
+    background-position: 40px 20px 20px 20px;
+    
+    background-repeat: no-repeat;
+    background-size: auto;
+    opacity: 1;
+    z-index: -1;
+}
 
 .mobile-nav .nav-link {
-    font-size: 16px;
+    font-size: 18px;
     text-align: right; /* ДОБАВЛЕНО: Выравниваем текст внутри ссылки по правому краю */
 }
 
@@ -125,20 +197,28 @@ body.menu-open .mobile-nav {
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-body.menu-open .burger-icon::before { 
-    top: 50%; transform: rotate(45deg); opacity: 1; transition-delay: 0s;
-    background-color: var(--red-accent);
-}
-body.menu-open .burger-icon::after { 
-    top: 50%; transform: rotate(-45deg); opacity: 1; transition-delay: 0s;
-    background-color: var(--red-accent);
-}
-
 /* ==================================================================== */
 /* ===         4. МЕДИА-ЗАПРОС ДЛЯ ПОКАЗА БУРГЕРА                 === */
 /* ==================================================================== */
 @media (max-width: 799.98px) {
-    #burger-menu-button { opacity: 1; pointer-events: auto; }
+    #burger-menu-button { 
+        opacity: 1; 
+        pointer-events: auto; 
+    }
+    
+    /* 1. Задаем конечное положение для линий */
     .burger-icon::before,
-    .burger-icon::after { opacity: 1; transform: translateX(0); }
+    .burger-icon::after {
+        transform: translateY(var(--y-offset));
+    }
+
+    /* 2. ПЕРЕОПРЕДЕЛЯЕМ TRANSITION, чтобы delay применялся ТОЛЬКО к transform */
+    .burger-icon::before {
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s,  /* transform с задержкой 0.3s */
+                    background-color 0.2s ease;                             /* background-color БЕЗ задержки */
+    }
+    .burger-icon::after {
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.35s, /* transform с задержкой 0.35s */
+                    background-color 0.2s ease;                              /* background-color БЕЗ задержки */
+    }
 }
