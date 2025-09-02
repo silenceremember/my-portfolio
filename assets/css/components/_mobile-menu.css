@@ -2,15 +2,28 @@
 /* ===         1. КНОПКА-БУРГЕР И ЕЕ ИКОНКА                       === */
 /* ==================================================================== */
 #burger-menu-button {
-    position: fixed;
-    right: var(--frame-padding-horizontal);
-    top: calc((var(--frame-padding-vertical) - var(--header-icon-size-normal)) / 2);
+    /* 
+     * ИЗМЕНЕНИЕ №1: Меняем 'fixed' на 'absolute'.
+     * Теперь кнопка позиционируется относительно родителя (.site-header),
+     * а не всего окна. Это позволит родительскому overflow:hidden обрезать ее.
+    */
+    position: absolute;
+
+    /* 
+     * ИЗМЕНЕНИЕ №2: Меняем позицию.
+     * right: 0 теперь означает "прижаться к правому краю родителя",
+     * что визуально дает тот же результат, что и раньше.
+    */
+    right: 0;
+    top: 13px;
+    
     width: var(--header-icon-size-normal);
     height: var(--header-icon-size-normal);
-    z-index: 101;
+    z-index: 101; /* z-index все еще нужен, чтобы быть поверх .main-nav */
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease 0.2s, right 0s, top 0s;
+    /* Убираем 'right' и 'top' из transition, т.к. они больше не меняются */
+    transition: opacity 0.3s ease 0.2s; 
 }
 .burger-icon {
     position: relative;

@@ -11,6 +11,7 @@
     display: flex;
     align-items: center;
     transition: opacity 0.5s ease;
+    overflow: hidden; /* ДОБАВЛЕНО: Обрезаем все, что не помещается */
 }
 
 .footer-content {
@@ -19,6 +20,7 @@
     justify-content: space-between;
     align-items: center;
     position: relative;
+    height: var(--frame-content-height); /* ДОБАВЛЕНО: Фиксированная высота для контента */
 }
 
 /* --- ЦЕНТРАЛЬНЫЙ БЛОК (ИДЕАЛЬНОЕ ЦЕНТРИРОВАНИЕ) --- */
@@ -114,5 +116,12 @@ a.footer-icon-link:hover .email-placeholder { opacity: 1; }
         pointer-events: none;
         /* Анимация для плавного ИСЧЕЗНОВЕНИЯ */
         transition: opacity 0.3s ease, visibility 0s 0.3s;
+    }
+}
+
+@media (max-height: 100.98px) {
+    .site-footer {
+        /* Прижимаем контент к низу, чтобы обрезка шла сверху */
+        align-items: flex-end;
     }
 }

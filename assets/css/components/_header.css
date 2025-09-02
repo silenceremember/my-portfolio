@@ -10,6 +10,7 @@
     height: var(--frame-padding-vertical);
     display: flex;
     align-items: center;
+    overflow: hidden; /* ДОБАВЛЕНО: Обрезаем все, что не помещается */
 }
 .header-content {
     width: 100%;
@@ -18,6 +19,7 @@
     align-items: center;
     position: relative;
     gap: 20px;
+    height: var(--frame-content-height); /* ДОБАВЛЕНО: Фиксированная высота для контента */
 }
 
 .header-controls { 
@@ -90,5 +92,15 @@
         visibility: hidden;
         pointer-events: none;
         transition: opacity 0.3s ease, visibility 0s 0.3s;
+    }
+}
+
+/* ========================================================================= */
+/* === ДОБАВЛЕНО: Корректная обрезка на низких экранах                 === */
+/* ========================================================================= */
+@media (max-height: 100.98px) {
+    .site-header {
+        /* Прижимаем контент к верху, чтобы обрезка шла снизу */
+        align-items: flex-start;
     }
 }

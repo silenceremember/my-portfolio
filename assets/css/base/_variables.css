@@ -98,6 +98,7 @@
 
     /* --- Немасштабируемые переменные --- */
     --frame-padding-vertical: 50px;
+    --frame-content-height: 50px;
     --frame-padding-horizontal: 410px;
     --guide-line-offset:        400px;
     --guide-line-opacity: 1; 
@@ -179,5 +180,17 @@
 @media (max-width: 799.98px) {
     :root {
         --nav-size: calc(0px + (14 - 0) * (100vw - 200px) / 600);
+    }
+}
+
+@media (max-height: 100.98px) {
+    :root {
+        /* 
+         * ИЗМЕНЕНО: 
+         * Мы делаем высоту каждого блока равной половине высоты экрана ПЛЮС 0.5 пикселя.
+         * (50vh + 0.5px) + (50vh + 0.5px) = 100vh + 1px.
+         * Это заставит их гарантированно пересечься ровно на 1 пиксель.
+        */
+        --frame-padding-vertical: calc(50vh - 0.5px);
     }
 }
