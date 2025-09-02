@@ -1,4 +1,4 @@
-/* assets/css/components/_footer.css (GRID VERSION) */
+/* assets/css/components/_footer.css (FLEXBOX + CLIPPING ZONE VERSION) */
 
 .site-footer {
     position: fixed;
@@ -13,34 +13,62 @@
     transition: opacity 0.5s ease;
 }
 
-/* ИЗМЕНЕНО: Используем CSS Grid для идеального разделения */
 .footer-content {
     width: 100%;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 30px; /* ДОБАВЛЕНО: Создаем отступ в 30px между колонками */
+    position: relative;
 }
 
-/* --- КОЛОНКИ СЛЕВА И СПРАВА --- */
+/* --- ЦЕНТРАЛЬНЫЙ БЛОК (ИДЕАЛЬНОЕ ЦЕНТРИРОВАНИЕ) --- */
+#section-progress { 
+    display: flex; 
+    gap: 6px; 
+    transition: opacity 0.3s ease, visibility 0s;
+    
+    /* Абсолютное позиционирование для идеального центра */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* --- КОЛОНКИ СЛЕВА И СПРАВА (С ЗОНОЙ ОТСЕЧЕНИЯ) --- */
 .footer-left, .footer-right {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    overflow: hidden; /* Обрезаем всё, что не помещается */
-    /* Анимация для плавного ПОЯВЛЕНИЯ */
+    
+    /* 1. Включаем обрезку контента, который не помещается */
+    overflow: hidden; 
+
+    /* 2. Анимация для плавного ПОЯВЛЕНИЯ */
     transition: opacity 0.3s ease 0.3s, visibility 0s;
-}
-.footer-left { align-items: flex-start; }
-.footer-right { align-items: flex-end; }
 
-/* --- ЦЕНТРАЛЬНЫЙ СТАТИЧНЫЙ БЛОК --- */
-.footer-center {
-    /* Теперь это обычный элемент сетки, центрированный в своей колонке */
-    justify-self: center;
+    /* 
+     * 3. КЛЮЧЕВОЕ ПРАВИЛО: СОЗДАНИЕ ЗОНЫ ОТСЕЧЕНИЯ
+     * Мы ограничиваем максимальную ширину боковых блоков.
+     * Логика: 50% ширины родителя минус половина ширины центрального блока (примем ~100px) 
+     * и минус половина желаемого отступа между ними (примем 30px).
+     * calc(50% - 50px - 15px) = calc(50% - 65px)
+     * Это заставляет блоки сжиматься, а overflow: hidden их обрезает.
+    */
+    max-width: calc(50% - 65px);
 }
 
-/* ... Остальные базовые стили (остаются без изменений) ... */
+.footer-left { 
+    align-items: flex-start; 
+}
+.footer-right { 
+    align-items: flex-end; 
+}
+
+
+/* ============================================================ */
+/* ===            ОСТАЛЬНЫЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ)           === */
+/* ============================================================ */
+
 .footer-socials { display: flex; align-items: center; gap: 10px; }
 .footer-logos { display: flex; align-items: center; gap: 4px; opacity: 0.5; }
 .email-placeholder { width: 165px; height: 14px; background-color: var(--text-color); opacity: 0.5; }
@@ -50,12 +78,17 @@ a.footer-icon-link:hover .email-placeholder { opacity: 1; }
 .logo-placeholder-me { width: 34px; height: 20px; background-color: var(--text-color); }
 .logo-placeholder-skull { width: 22px; height: 22px; background-color: var(--text-color); }
 .separator-icon { width: 10px; height: 10px; background-color: var(--text-color); }
-#section-progress { display: flex; gap: 6px; }
+
 .progress-dot { width: 14px; height: 14px; border: 1px solid; }
 .progress-dot:not(.active) { cursor: pointer; }
 .progress-dot:not(.active):hover { border-color: var(--red-accent); }
 .progress-dot.active { background-color: var(--red-accent); border-color: var(--red-accent); cursor: default; }
-.footer-socials, .footer-logos { white-space: nowrap; }
+
+/* ОБЯЗАТЕЛЬНО: предотвращает "схлопывание" текста и иконок при сжатии */
+.footer-socials, .footer-logos, .footer-icon-link { 
+    white-space: nowrap; 
+    flex-shrink: 0;
+}
 
 /* ========================================================================= */
 /* === ФАЗА 2: Плавное исчезновение боковых колонок (< 525px)            === */
@@ -63,6 +96,19 @@ a.footer-icon-link:hover .email-placeholder { opacity: 1; }
 @media (max-width: 524.98px) {
     .footer-left,
     .footer-right {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        /* Анимация для плавного ИСЧЕЗНОВЕНИЯ */
+        transition: opacity 0.3s ease, visibility 0s 0.3s;
+    }
+}
+
+/* ========================================================================= */
+/* === ФАЗА 3: Скрытие прогресса на очень маленьких экранах (< 200px)     === */
+/* ========================================================================= */
+@media (max-width: 199.98px) {
+    #section-progress {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;

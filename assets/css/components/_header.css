@@ -17,8 +17,21 @@
     justify-content: space-between;
     align-items: center;
     position: relative;
+    gap: 20px;
 }
-.header-controls { display: flex; align-items: center; gap: 8px; }
+
+.header-controls { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    overflow: hidden; 
+    transition: opacity 0.3s ease, visibility 0s;
+}
+
+.header-controls > * {
+    flex-shrink: 0;
+}
+
 .lang-placeholder { width: 42px; height: 24px; background-color: var(--text-color); }
 .separator-icon { width: var(--header-icon-size-small); height: var(--header-icon-size-small); background-color: var(--text-color); opacity: 0.5; }
 .icon-button { background: none; border: none; padding: 0; cursor: pointer; }
@@ -55,5 +68,27 @@
         opacity: 0;
         pointer-events: none;
         transition: color 0.2s ease, opacity 0.3s ease 0s;
+    }
+
+    /* 
+     * ДОБАВЛЕНО: Создаем "подложку" справа для бургер-меню.
+     * Ограничиваем максимальную ширину левого блока, чтобы он
+     * не "наезжал" на бургер при сжатии окна.
+     * 50px = ширина бургера (~24px) + безопасный отступ (~26px).
+    */
+    .header-controls {
+        max-width: calc(100% - 50px);
+    }
+}
+
+/* ========================================================================= */
+/* === Скрытие левых контролов на очень маленьких экранах      === */
+/* ========================================================================= */
+@media (max-width: 199.98px) {
+    .header-controls {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.3s ease, visibility 0s 0.3s;
     }
 }
