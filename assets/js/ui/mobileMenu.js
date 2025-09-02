@@ -41,31 +41,30 @@ function initBurgerMenu() {
     });
 
     // ====================================================================
-    // ===         НОВЫЙ БЛОК: АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ МЕНЮ           ===
+    // ===      ИЗМЕНЕННЫЙ БЛОК: АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ МЕНЮ           ===
     // ====================================================================
 
-    const MOBILE_BREAKPOINT = 800; // Точка, после которой меню должно быть закрыто
     let isThrottled = false;
 
+    // Эта функция теперь просто проверяет, открыто ли меню, и закрывает его.
     const handleResize = () => {
-        // Если ширина окна больше брейкпоинта И меню сейчас открыто
-        if (window.innerWidth >= MOBILE_BREAKPOINT && document.body.classList.contains('menu-open')) {
-            // Немедленно закрываем меню без анимации закрытия крестика, 
-            // так как он все равно исчезнет.
-            document.body.classList.remove('menu-open');
-            burgerIcon.classList.remove('is-closing');
+        if (document.body.classList.contains('menu-open')) {
+            closeMenu();
         }
     };
 
     window.addEventListener('resize', () => {
+        // Используем throttling, чтобы функция не вызывалась слишком часто.
         if (!isThrottled) {
             isThrottled = true;
+            
             // Выполняем проверку
             handleResize();
-            // Устанавливаем "период охлаждения", чтобы функция не вызывалась слишком часто
+            
+            // Устанавливаем "период охлаждения" в 100 мс.
             setTimeout(() => {
                 isThrottled = false;
-            }, 100); // Проверка не чаще раза в 100 мс
+            }, 100);
         }
     });
 }
