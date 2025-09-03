@@ -12,6 +12,10 @@ function initSectionManager() {
     const scrollTimeout = 800;
     const progressDots = [];
 
+    // >>>>> НОВАЯ ПЕРЕМЕННАЯ <<<<<
+    // Здесь мы будем хранить последнюю активную секцию при переходе на мобильный.
+    let lastDesktopSectionIndex = 0; 
+
     let isMobileLayout = window.innerWidth < MOBILE_BREAKPOINT;
 
     function updateLayoutClass() {
@@ -64,37 +68,33 @@ function initSectionManager() {
     function handleResize() {
         const shouldBeMobile = window.innerWidth < MOBILE_BREAKPOINT;
         if (shouldBeMobile === isMobileLayout) return;
+        
+        // >>>>> ИЗМЕНЕНИЕ №1: Запоминаем текущую секцию <<<<<
+        // Если мы переходим С ДЕСКТОПА на мобильный, сохраняем текущий индекс.
+        if (!isMobileLayout) {
+            lastDesktopSectionIndex = currentSectionIndex;
+        }
 
-        // 1. Убираем текущую раскладку (плавное исчезновение)
         mainContainer.classList.add('layout-is-switching');
 
-        // 2. Ждем, пока анимация исчезновения закончится
         setTimeout(() => {
-            // Обновляем состояние
             isMobileLayout = shouldBeMobile;
 
-            // >>>>> КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Временное отключение всех переходов <<<<<
-            // Добавляем класс, который уберет transition со всех секций
             mainContainer.classList.add('no-section-transitions');
 
-            // Меняем класс на body, чтобы применились новые стили
             updateLayoutClass();
             mainContainer.scrollTop = 0;
 
-            // Принудительно ставим нужный слайд для десктопа БЕЗ АНИМАЦИИ
             if (!isMobileLayout) {
-                showSection(0);
+                // >>>>> ИЗМЕНЕНИЕ №2: Используем сохраненный индекс <<<<<
+                // Показываем ту секцию, на которой остановились, а не всегда нулевую.
+                showSection(lastDesktopSectionIndex);
             }
 
-            // Используем requestAnimationFrame, чтобы гарантировать, что браузер обработал все изменения
             requestAnimationFrame(() => {
-                // Возвращаем transition'ы обратно
                 mainContainer.classList.remove('no-section-transitions');
-                
-                // 3. Показываем новую раскладку (плавное появление)
                 mainContainer.classList.remove('layout-is-switching');
             });
-            // >>>>> КОНЕЦ ИЗМЕНЕНИЯ <<<<<
 
         }, TRANSITION_DURATION);
     }

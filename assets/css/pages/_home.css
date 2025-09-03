@@ -28,6 +28,31 @@ main.sections-container {
 /* 2. СТИЛИ КОНТЕНТА                                      */
 /* ====================================================== */
 
+.body-text-block {
+    /* --- 1. Базовая читабельность (без изменений) --- */
+    font-size: var(--p-size);
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 65ch; 
+
+    /* --- 2. Профессиональный рендеринг (без изменений) --- */
+    text-rendering: optimizeLegibility;
+    
+    /* --- 3. ИДЕАЛЬНЫЙ ПЕРЕНОС СЛОВ (Ключевое изменение) --- */
+    /* 
+     * Эта современная функция заставляет браузер сбалансировать длину строк
+     * для создания визуально приятного блока текста.
+     * Идеально подходит для заголовков и коротких абзацев.
+     * Примечание: на данный момент поддерживается в Chrome/Edge/Opera. 
+     * В других браузерах текст просто отобразится со стандартным переносом.
+    */
+    text-wrap: balance;
+
+    /* --- 4. Защита от "слома" верстки (без изменений) --- */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
 /* --- Секция 1: Манифест --- */
 .hero-background-banner {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
@@ -57,7 +82,10 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
     background-color: var(--text-color);
     margin: 0 20px;
 }
-.hero-bottom-text .philosophy { font-size: var(--p-size); font-weight: 400; width: 100%; margin: 0; opacity: 1; }
+.hero-bottom-text .philosophy {
+    width: 100%;
+    margin: 0;
+}
 
 
 /* --- Секции 2-4: Проекты --- */
@@ -111,7 +139,9 @@ body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(
     margin-bottom: var(--margin-bottom-details-block);
 }
 .details-heading { font-size: var(--p-size); font-weight: 700; color: var(--red-accent); margin: 0; text-transform: uppercase; }
-.details-text { font-size: var(--p-size); line-height: 1.6; margin: 0; }
+.details-text {
+    margin: 0;
+}
 
 
 /* --- Секция 5: Финальный CTA --- */
