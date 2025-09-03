@@ -14,8 +14,6 @@ function initSectionManager() {
     }
 
     function changeSection(newIndex) {
-        // --- ИЗМЕНЕНИЕ №1: Условие стало более надежным ---
-        // Теперь мы проверяем глобальное состояние. Если оно не 'SITE', ничего не делаем.
         if (isScrolling || window.systemState !== 'SITE' || newIndex === currentSectionIndex) {
             return;
         }
@@ -39,7 +37,15 @@ function initSectionManager() {
     });
 
     window.addEventListener('wheel', (event) => {
-        // --- ИЗМЕНЕНИЕ №2: То же самое надежное условие здесь ---
+        // >>>>> НОВЫЙ БЛОК ПРОВЕРКИ <<<<<<
+        // Если ширина окна меньше 800px (мобильный режим),
+        // полностью игнорируем этот обработчик.
+        if (window.innerWidth < 800) {
+            return;
+        }
+        // >>>>> КОНЕЦ НОВОГО БЛОКА <<<<<<
+
+        // Старые проверки остаются без изменений
         if (isScrolling || window.systemState !== 'SITE') {
             return;
         }
