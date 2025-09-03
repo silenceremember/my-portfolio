@@ -17,11 +17,6 @@ main.sections-container {
     transition: opacity calc(var(--animation-duration) / 2) ease-in-out, visibility 0s calc(var(--animation-duration) / 2);
 }
 .full-page-section.active { opacity: 1; visibility: visible; z-index: 10; transition-delay: calc(var(--animation-duration) / 2); }
-.full-page-section.active .hero-content,
-.full-page-section.active .content-wrapper {
-    animation: fadeIn var(--animation-duration) ease forwards;
-    animation-delay: 0.3s; opacity: 0;
-}
 @keyframes fadeIn { to { opacity: 1; } }
 
 /* ====================================================== */
@@ -175,12 +170,7 @@ body.is-revealing .full-page-section {
 
 /* --- Анимация перехода --- */
 /* Этот класс будет добавляться JS для плавного исчезновения/появления */
-main.sections-container.layout-is-switching {
-    opacity: 0;
-    pointer-events: none; /* Блокируем взаимодействие во время анимации */
-}
-
-main.sections-container.no-section-transitions .full-page-section {
+body.layout-is-switching .full-page-section {
     transition: none !important;
 }
 
