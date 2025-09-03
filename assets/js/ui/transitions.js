@@ -6,17 +6,25 @@ function initSectionManager() {
 
     const MOBILE_BREAKPOINT = 800;
     const TRANSITION_DURATION = 300;
+    const DEBOUNCE_DELAY = 150; // Задержка для debounce
 
     let currentSectionIndex = 0;
     let isScrolling = false;
     const scrollTimeout = 800;
     const progressDots = [];
-
-    // >>>>> НОВАЯ ПЕРЕМЕННАЯ <<<<<
-    // Здесь мы будем хранить последнюю активную секцию при переходе на мобильный.
-    let lastDesktopSectionIndex = 0; 
-
     let isMobileLayout = window.innerWidth < MOBILE_BREAKPOINT;
+
+    // >>>>> DEBOUNCE UTILITY <<<<<
+    // Эта функция-помощник гарантирует, что код выполнится только один раз
+    // после того, как пользователь прекратит действие (например, ресайз).
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+    }
 
     function updateLayoutClass() {
         if (isMobileLayout) {
@@ -31,12 +39,8 @@ function initSectionManager() {
     function showSection(index) {
         if (isMobileLayout) return;
         currentSectionIndex = index;
-        sections.forEach((section, i) => {
-            section.classList.toggle('active', i === index);
-        });
-        progressDots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === index);
-        });
+        sections.forEach((section, i) => section.classList.toggle('active', i === index));
+        progressDots.forEach((dot, i) => dot.classList.toggle('active', i === index));
     }
 
     function changeSection(newIndex) {
@@ -63,50 +67,56 @@ function initSectionManager() {
         changeSection(nextIndex);
     });
 
-    let isThrottled = false;
-
-    function handleResize() {
+    // --- ОСНОВНАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ МАКЕТА ---
+    function switchLayout() {
         const shouldBeMobile = window.innerWidth < MOBILE_BREAKPOINT;
         if (shouldBeMobile === isMobileLayout) return;
-        
-        // >>>>> ИЗМЕНЕНИЕ №1: Запоминаем текущую секцию <<<<<
-        // Если мы переходим С ДЕСКТОПА на мобильный, сохраняем текущий индекс.
-        if (!isMobileLayout) {
-            lastDesktopSectionIndex = currentSectionIndex;
-        }
 
         mainContainer.classList.add('layout-is-switching');
 
         setTimeout(() => {
             isMobileLayout = shouldBeMobile;
-
             mainContainer.classList.add('no-section-transitions');
-
             updateLayoutClass();
             mainContainer.scrollTop = 0;
 
             if (!isMobileLayout) {
-                // >>>>> ИЗМЕНЕНИЕ №2: Используем сохраненный индекс <<<<<
-                // Показываем ту секцию, на которой остановились, а не всегда нулевую.
-                showSection(lastDesktopSectionIndex);
+                showSection(currentSectionIndex); // Возвращаемся на тот же слайд
             }
 
             requestAnimationFrame(() => {
                 mainContainer.classList.remove('no-section-transitions');
                 mainContainer.classList.remove('layout-is-switching');
             });
-
         }, TRANSITION_DURATION);
     }
+    
+    // >>>>> ЗАМЕНА Throttling на Debouncing <<<<<
+    // Теперь обработчик resize вызывает функцию switchLayout с задержкой,
+    // ожидая, пока пользователь закончит менять размер окна.
+    window.addEventListener('resize', debounce(switchLayout, DEBOUNCE_DELAY));
 
-    window.addEventListener('resize', () => {
-        if (!isThrottled) {
-            isThrottled = true;
-            handleResize();
-            setTimeout(() => { isThrottled = false; }, 100);
+
+    // >>>>> "СТРАХОВОЧНЫЙ ТРОС" (SAFETY NET) <<<<<
+    // Этот обработчик срабатывает, когда пользователь возвращается на вкладку.
+    document.addEventListener('visibilitychange', () => {
+        // Если вкладка стала видимой
+        if (!document.hidden) {
+            const shouldBeMobile = window.innerWidth < MOBILE_BREAKPOINT;
+            // И если наше JS-состояние не соответствует реальности
+            if (shouldBeMobile !== isMobileLayout) {
+                console.log("Layout out of sync, forcing update.");
+                // Мы МГНОВЕННО исправляем макет без анимации.
+                isMobileLayout = shouldBeMobile;
+                updateLayoutClass();
+                if (!isMobileLayout) {
+                    showSection(currentSectionIndex);
+                }
+            }
         }
     });
 
+    // Первоначальная настройка
     updateLayoutClass();
     if (!isMobileLayout) {
         showSection(0);
