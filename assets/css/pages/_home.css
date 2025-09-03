@@ -54,7 +54,7 @@ main.sections-container {
     opacity: 0.05; background: url('../images/banner-art.jpg') no-repeat center center; background-size: cover;
 }
 body[data-theme="light"] .hero-background-banner { opacity: 0.1; filter: invert(1); }
-.hero-content-v2 {
+.hero-content {
     position: relative; display: flex; justify-content: space-between; align-items: stretch;
     width: var(--width-hero);
 }
@@ -185,10 +185,11 @@ body.layout-mobile main.sections-container {
     bottom: var(--frame-padding-vertical);
     left: 0;
     right: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: auto; 
+    overflow-x: hidden; /* <-- ВЕРНИТЕ HIDDEN */
     padding: 0 var(--frame-padding-horizontal);
     box-sizing: border-box;
+    /* min-width: 320px; <-- УДАЛИТЕ ЭТУ СТРОКУ */
 }
 
 
@@ -210,7 +211,7 @@ body.layout-mobile .full-page-section {
     transition: none !important; 
 }
     
-body.layout-mobile .full-page-section .hero-content-v2,
+body.layout-mobile .full-page-section .hero-content,
 body.layout-mobile .full-page-section .content-wrapper {
     animation: none !important;
     opacity: 1 !important;
@@ -222,7 +223,7 @@ body.layout-mobile .content-wrapper {
 
 /* --- Мобильная адаптация секций --- */
 
-body.layout-mobile .hero-content-v2 {
+body.layout-mobile .hero-content {
     flex-direction: column;
     align-items: center;
     gap: 40px;
@@ -285,4 +286,18 @@ body.layout-mobile #cta-telegram-button {
 }
 body.layout-mobile .cta-main-separator {
     margin: 30px 0;
+}
+
+@media (max-width: 319.98px) {
+
+    /* 1. Разрешаем контейнеру <main> скроллиться по горизонтали */
+    body.layout-mobile main.sections-container {
+        overflow-x: auto;
+    }
+
+    /* 2. "Замораживаем" ширину каждой секции. */
+    body.layout-mobile .full-page-section {
+        min-width: 300px;
+    }
+
 }

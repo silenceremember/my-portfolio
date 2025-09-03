@@ -258,3 +258,21 @@
         --frame-padding-vertical: calc(50vh - 0.5px);
     }
 }
+
+@media (max-width: 374.98px) {
+    :root {
+        /* H1 плавно уменьшается с 32px (на 375px) до 26px (на 320px) */
+        --h1-size: calc(26px + (32 - 26) * (100vw - 320px) / 55);
+        
+        /* H2 плавно уменьшается с 24px (на 375px) до 20px (на 320px) */
+        --h2-size: calc(20px + (24 - 20) * (100vw - 320px) / 55);
+    }
+}
+
+@media (max-width: 319.98px) {
+    :root {
+        /* "Замораживаем" размеры на минимальных значениях */
+        --h1-size: 26px;
+        --h2-size: 20px;
+    }
+}
