@@ -194,7 +194,7 @@ body.layout-mobile main.sections-container {
 
 
 body.layout-mobile .full-page-section:first-child {
-    padding-top: 20px;
+    padding-top: 40px;
 }
 body.layout-mobile .full-page-section:last-child {
     padding-bottom: 20px;
@@ -224,20 +224,47 @@ body.layout-mobile .content-wrapper {
 /* --- Мобильная адаптация секций --- */
 
 body.layout-mobile .hero-content {
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
+    /* 1. Превращаем контейнер в Grid */
+    display: grid;
+    grid-template-columns: 1fr; /* Одна колонка */
+    gap: 16px; /* Отступ между элементами */
     width: 100%;
 }
+
+body.layout-mobile .hero-text-wrapper {
+    /* 2. "Растворяем" обертку, чтобы ее дети стали элементами Grid */
+    display: contents;
+}
+
+body.layout-mobile .hero-top-text {
+    /* 3. Ставим этот блок первым */
+    order: 1;
+    position: static; /* Отменяем абсолютное позиционирование с десктопа */
+    text-align: left;
+}
+
+body.layout-mobile .hero-photo-placeholder {
+    order: 2;
+    width: 100%;
+    max-width: 280px;
+
+    /* ДОБАВЛЕНО: Центрируем фотографию по горизонтали внутри ее grid-ячейки */
+    justify-self: center;
+}
+
+body.layout-mobile .hero-bottom-text {
+    /* 5. Ставим философию третьей */
+    order: 3;
+    position: static; /* Отменяем абсолютное позиционирование */
+    transform: none; /* Сбрасываем сдвиг */
+    text-align: left;
+}
+
 body.layout-mobile .hero-photo-placeholder {
     width: 100%;
     max-width: 280px;
 }
-body.layout-mobile .hero-text-wrapper {
-    width: 100%;
-    position: static;
-    text-align: center;
-}
+
 body.layout-mobile .hero-top-text,
 body.layout-mobile .hero-bottom-text {
     position: static;
