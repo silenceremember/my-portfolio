@@ -14,9 +14,9 @@ function initQTE(successCallback) {
     const konamiCodeSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
     let userInputPosition = 0;
     let isQteLocked = false;
-    // --- НОВЫЙ ФЛАГ ---
-    let isBlockedByScreenSize = false;
     const qteKeys = [];
+
+    // --- БЛОК С isBlockedByScreenSize И checkScreenSize ПОЛНОСТЬЮ УДАЛЕН ---
 
     function setupQTE() {
         qteContainer.innerHTML = '';
@@ -31,7 +31,6 @@ function initQTE(successCallback) {
     }
 
     function resetQTE(fadeWithHint = false) {
-        // ... (код функции resetQTE остается без изменений)
         userInputPosition = 0;
         qteKeys.forEach(key => {
             if (fadeWithHint && key.classList.contains('correct')) {
@@ -47,7 +46,6 @@ function initQTE(successCallback) {
     }
     window.resetQTE = resetQTE; 
 
-    // ... (код функций triggerInputError, triggerQteSystemError, onKonamiSuccess остается без изменений)
     function triggerInputError(keyIndex) {
         if (isQteLocked) return; isQteLocked = true;
         const keyToShake = qteKeys[keyIndex];
@@ -75,25 +73,16 @@ function initQTE(successCallback) {
         }
     }
 
-
-    // --- НОВАЯ ФУНКЦИЯ: ПРОВЕРКА РАЗМЕРА ЭКРАНА ---
-    function checkScreenSize() {
-        const isSmall = window.innerWidth < 800;
-        if (isSmall && !isBlockedByScreenSize) {
-            // Экран стал слишком маленьким
-            isBlockedByScreenSize = true;
-            resetQTE(); // Сбрасываем прогресс, если он был
-        } else if (!isSmall && isBlockedByScreenSize) {
-            // Экран снова стал достаточно большим
-            isBlockedByScreenSize = false;
-        }
-    }
-
     window.addEventListener('keydown', (event) => {
         const section1 = document.getElementById('section-1');
-        // --- ОБНОВЛЕННАЯ ПРОВЕРКА ---
-        // Добавляем проверку на флаг isBlockedByScreenSize
-        if (!qteWrapper || !section1 || !section1.classList.contains('active') || isQteLocked || isBlockedByScreenSize) {
+        
+        // --- ОБНОВЛЕННАЯ И УПРОЩЕННАЯ ПРОВЕРКА ---
+        // Теперь мы просто проверяем, активен ли мобильный макет.
+        if (document.body.classList.contains('layout-mobile') || 
+            !qteWrapper || 
+            !section1 || 
+            !section1.classList.contains('active') || 
+            isQteLocked) {
             return;
         }
 
@@ -116,10 +105,4 @@ function initQTE(successCallback) {
     });
 
     setupQTE();
-    
-    // --- НОВЫЙ КОД: ИНИЦИАЛИЗАЦИЯ ПРОВЕРКИ РАЗМЕРА ЭКРАНА ---
-    // Добавляем слушатель события resize для отслеживания изменений
-    window.addEventListener('resize', checkScreenSize);
-    // Вызываем функцию один раз при загрузке, чтобы установить начальное состояние
-    checkScreenSize();
 }
