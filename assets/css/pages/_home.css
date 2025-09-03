@@ -302,6 +302,19 @@ body.layout-mobile .project-meta {
     gap: 4px var(--gap-project-meta);
 }
 
+body.layout-mobile .project-subtitle {
+    /* Ставим элементы друг под другом */
+    flex-direction: column;
+    
+    /* Убираем выравнивание по базовой линии, теперь нужно по левому краю */
+    align-items: flex-start;
+
+    /* Уменьшаем отступ между названием и подписью */
+    gap: 4px;
+}
+
+
+
 body.layout-mobile .nav-button-group {
     display: flex;
     flex-direction: column;
